@@ -40,7 +40,6 @@ const listRole = async () => {
 };
 
 const login = async (data: JSON) => {
-  console.log("測試")
   const API_ACTOR = "AccountValidator";
   const API_FUNCTION = "login";
   try {

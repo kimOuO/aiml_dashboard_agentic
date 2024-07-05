@@ -14,7 +14,6 @@ function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const submit = async (e) => {
-    console.log(accountName, password);
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -136,7 +135,7 @@ function LoginPage() {
           </a>
         </div>
         <div className="flex justify-end">
-          <Button type="submit" onClick={submit} disabled={isSubmitting}>
+          <Button type="submit" onClick={submit} disabled={isSubmitting} size="custom">
             Submit
           </Button>
         </div>
