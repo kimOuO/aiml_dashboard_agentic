@@ -1,9 +1,10 @@
-"use client"
+"use client";
 
 import React from "react";
 import { useAuth } from "./service";
 import { Button } from "@/components/ui/button";
-function LoginPage() {
+
+export default function LoginPage() {
   const {
     accountName,
     setAccountName,
@@ -107,7 +108,12 @@ function LoginPage() {
           </a>
         </div>
         <div className="flex justify-end">
-          <Button type="submit" onClick={submit} disabled={isSubmitting} size="custom">
+          <Button
+            type="submit"
+            onClick={submit}
+            disabled={isSubmitting}
+            size="custom"
+          >
             Submit
           </Button>
         </div>
@@ -115,4 +121,3 @@ function LoginPage() {
     </div>
   );
 }
-export default LoginPage;

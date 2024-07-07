@@ -22,6 +22,20 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/base/particles.tsx", "app/login/page.jsx", "app/login/service.jsx", "app/cookie.jsx", "app/page.jsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "components/base/particles.tsx",
+    "app/(start)/login/page.jsx",
+    "app/(start)/login/service.jsx",
+    "app/cookie.jsx",
+    "app/(start)/page.jsx",
+    "components/base/Login.jsx",
+    "components/base/LoginHeader.jsx",
+    "components/base/Logo.jsx",
+    "components/base/Footer.jsx"
+  ],
   "exclude": ["node_modules"]
 }

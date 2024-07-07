@@ -2,7 +2,7 @@ import React from "react";
 import LoginHeader from "@/components/base/LoginHeader";
 import Particle from "@/components/base/particles";
 
-const Home = () => {
+export default function Home() {
   return (
     <div className="bg-white">
       <Particle />
@@ -24,5 +24,5 @@ const Home = () => {
       </div>
     </div>
   );
-};
-export default Home;
+}
+

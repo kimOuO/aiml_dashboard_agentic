@@ -1,13 +1,13 @@
 import "@/app/globals.css";
 import { Inter as FontSans } from "next/font/google";
-
+import Footer from "@/components/base/Footer";
 import { cn } from "@/lib/utils";
 
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
 });
-
+import Header from "@/components/base/Header";
 export default function RootLayout({
   children,
 }: {
@@ -22,7 +22,11 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        {children}
+        <main className="w-full h-screen flex flex-col">
+          <Header></Header>
+          {children}
+          <Footer></Footer>
+        </main>
       </body>
     </html>
   );
