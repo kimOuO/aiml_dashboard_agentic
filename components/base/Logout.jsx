@@ -37,7 +37,7 @@ const Logout = ({ accountInfo }) => {
 
           <div className="mx-2">Hi, test</div>
           <a
-            className="hover:bg-gray-200 mx-2"
+            className="rounded hover:bg-gray-200 mx-2"
             href="/"
             onClick={() => {
               clearAllCookie;
