@@ -1,8 +1,8 @@
-import React, { FC } from "react";
+import React from "react";
 import LoginHeader from "@/components/base/LoginHeader";
 import Particle from "@/components/base/particles";
 
-const Home: FC = () => {
+const Home = () => {
   return (
     <div className="bg-white">
       <Particle />
