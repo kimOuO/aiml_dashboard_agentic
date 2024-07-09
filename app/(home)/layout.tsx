@@ -24,7 +24,9 @@ export default function RootLayout({
       >
         <main className="w-full h-screen flex flex-col">
           <Header></Header>
-          {children}
+          <div className="flex-grow p-6">
+            {children}
+          </div>
           <Footer></Footer>
         </main>
       </body>
