@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { useFethProjects } from './service'
+import { useFetchProjects } from './service'
 import ProjectCard from './projectCard'
 
 export default function ProjectPage() {
-  const projects = useFethProjects();
+  const projects = useFetchProjects();
 
   return (
     <div className="min-h-screen bg-gray-50 pt-32 p-6">

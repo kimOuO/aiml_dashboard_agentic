@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from "react";
 import axios from "axios";
 
-export const useFethProjects = () => {
+export const useFetchProjects = () => {
     const [projects, setProjects] = useState([]);
 
     useEffect(() => {
