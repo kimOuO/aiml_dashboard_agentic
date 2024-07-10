@@ -1,8 +1,8 @@
 'use client'
 
-import React from "react";
+import React, { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { useFetchDatasets,useDatasetHandlers} from "./service";
+import { useFetchDatasets, useDatasetHandlers, useFilteredDatasets} from "./service";
 import DatasetCard from "./datasetCard";
 import {Tabs, TabList, Tab, TabPanel} from "react-tabs";
 import 'react-tabs/style/react-tabs.css';
@@ -13,8 +13,7 @@ const DatasetsPage = () => {
   const projectId = searchParams.get('projectId');
   const {activeTab,searchQuery,currentPage,handleTabClick,handleSearchChange,handlePageChange} = useDatasetHandlers();
   const {dataset,projectName} = useFetchDatasets(projectId,activeTab,searchQuery,currentPage);
-
-
+  const filteredDatasets = useFilteredDatasets(dataset,searchQuery);
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -57,8 +56,8 @@ const DatasetsPage = () => {
                 </button>
               </div>
               <div className="space-y-4">
-                {dataset.map((dataset) => (
-                    <DatasetCard key={dataset.id} dataset={dataset} />
+                {filteredDatasets.map((dataset) => (
+                  <DatasetCard key={dataset.id} dataset={dataset} />
                 ))}
               </div>
             </TabPanel>
@@ -76,8 +75,8 @@ const DatasetsPage = () => {
                 </button>
               </div>
               <div className="space-y-4">
-                {dataset.map((dataset) => (
-                    <DatasetCard key={dataset.id} dataset={dataset} />
+                {filteredDatasets.map((dataset) => (
+                  <DatasetCard key={dataset.id} dataset={dataset} />
                 ))}
               </div>
             </TabPanel>

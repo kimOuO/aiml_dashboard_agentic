@@ -1,4 +1,4 @@
-import { useEffect,useState } from "react";
+import { useEffect ,useState, useMemo } from "react";
 import axios from "axios";
 import { useFetchProjects } from "../service";
 
@@ -32,6 +32,7 @@ export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) =>
     return {dataset,projectName};
 }
 
+//管理dataset動作
 export const useDatasetHandlers = () => {
     const [activeTab, setActiveTab] = useState('original');
     const [searchQuery, setSearchQuery] = useState('');
@@ -63,3 +64,9 @@ export const useDatasetHandlers = () => {
         handlePageChange,
     };
 };
+
+export const useFilteredDatasets = (datasets, searchQuery) => {
+    return useMemo(()=>{
+        return datasets.filter(dataset => dataset.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    },[datasets, searchQuery])
+}
