@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
 import React from "react";
-import { useFetchProjects } from './service'
+import { useFethProjects } from './service'
 import ProjectCard from './projectCard'
 
 export default function ProjectPage() {
@@ -19,6 +19,7 @@ export default function ProjectPage() {
         <div className="space-y-4">
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />
+            
           ))}
         </div>
       </div>

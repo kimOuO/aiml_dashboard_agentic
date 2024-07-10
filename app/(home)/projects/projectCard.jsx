@@ -1,7 +1,12 @@
-import exp from "constants";
 import React from "react";
+import { useRouter } from "next/navigation";
 
 const ProjectCard = ({project}) => {
+  const router = useRouter();
+  
+  const handleDatasetsClick=()=>{
+    router.push(`/projects/datasets?projectId=${project.id}`);
+  }
     return(
         <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
         <div>
@@ -15,7 +20,7 @@ const ProjectCard = ({project}) => {
           <button>
             <DeleteIcon />
           </button>
-          <button>
+          <button onClick={handleDatasetsClick}>
             <DatasetsLink/>
           </button>
           <button>
