@@ -1,7 +1,7 @@
 'use client'
 
 import React from "react";
-import { useFethProjects } from './service'
+import { useFetchProjects } from './service'
 import ProjectCard from './projectCard'
 
 export default function ProjectPage() {
