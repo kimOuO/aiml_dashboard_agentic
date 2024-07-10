@@ -1,26 +1,24 @@
 import { useEffect,useState } from "react";
 import axios from "axios";
 
-export const useFetchDatasets = (projectId,tab,query,page) => {
+export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) => {
     const [dataset, setDatasets] = useState([]);
+    const [project, setProject] = useState(null);
 
     useEffect(()=>{
         if (projectId) {
-            axios.get(`/api//projects/${projectId}/datasets`,{
-                params:{
-                    type: tab,
-                    search: query,
-                    page: page
-                }
-            })
-                .then(response => {
+            const fetchDatasets = async () => {
+                try{
+                    const response = await axios.get(`/api/projects/${projectId}/datasets/${activeTab}`)
                     setDatasets(response.data);
-                })
-                .catch(error=>{
-                    console.error('There was an error fetching the datasets!', error);
-                })
+                }catch(error){
+                    console.error("Error fetching datasets:", error);
+                }
+            }
+
+            fetchDatasets();
         }
-    },[projectId,tab,query,page])
+    },[projectId, activeTab, searchQuery, currentPage])
 
     return dataset;
 }
@@ -33,6 +31,7 @@ export const useDatasetHandlers = () => {
     const handleTabClick = (tab) => {
         setActiveTab(tab);
         //當切換tabs時會回到第一頁
+        setSearchQuery('');
         setCurrentPage(1);
     };
 
