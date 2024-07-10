@@ -1,9 +1,11 @@
 import { useEffect,useState } from "react";
 import axios from "axios";
+import { useFetchProjects } from "../service";
 
 export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) => {
     const [dataset, setDatasets] = useState([]);
-    const [project, setProject] = useState(null);
+    const projects = useFetchProjects();
+    const [projectName, setProjectName] = useState(null);
 
     useEffect(()=>{
         if (projectId) {
@@ -20,7 +22,14 @@ export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) =>
         }
     },[projectId, activeTab, searchQuery, currentPage])
 
-    return dataset;
+    useEffect(()=> {
+        if(projects.length>0 && projectId){
+            const fetchProjectName = projects.find(proj => proj.id.toString() === projectId)
+            setProjectName(fetchProjectName ? fetchProjectName.name : 'Unknown Project')
+        }
+    },[projects,projectId])
+
+    return {dataset,projectName};
 }
 
 export const useDatasetHandlers = () => {

@@ -12,14 +12,14 @@ const DatasetsPage = () => {
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
   const {activeTab,searchQuery,currentPage,handleTabClick,handleSearchChange,handlePageChange} = useDatasetHandlers();
-  const datasets = useFetchDatasets(projectId,activeTab,searchQuery,currentPage);
+  const {dataset,projectName} = useFetchDatasets(projectId,activeTab,searchQuery,currentPage);
 
 
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 p-6" style={{ maxWidth: '1000px' }}>
       <div>
         <div>
-          <p>Project / {projectId}</p>
+          <p>Project / {projectName}</p>
         </div>
         <div className="flex items-center mb-6">
           <button>
@@ -57,7 +57,7 @@ const DatasetsPage = () => {
                 </button>
               </div>
               <div className="space-y-4">
-                {datasets.map((dataset) => (
+                {dataset.map((dataset) => (
                     <DatasetCard key={dataset.id} dataset={dataset} />
                 ))}
               </div>
@@ -76,7 +76,7 @@ const DatasetsPage = () => {
                 </button>
               </div>
               <div className="space-y-4">
-                {datasets.map((dataset) => (
+                {dataset.map((dataset) => (
                     <DatasetCard key={dataset.id} dataset={dataset} />
                 ))}
               </div>
