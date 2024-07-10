@@ -16,7 +16,7 @@ const DatasetsPage = () => {
 
 
   return (
-    <div className="mx-auto min-h-screen bg-gray-50 pt-32 p-6" style={{ maxWidth: '1000px' }}>
+    <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
         <div>
           <p>Project / {projectName}</p>
@@ -27,18 +27,18 @@ const DatasetsPage = () => {
           </button>
           <p className="text-3xl">Dataset</p>
         </div>
-        <div className="mx-auto" style={{ maxWidth: '1000px' }}>
+        <div className="mx-auto">
           <Tabs selectedIndex={activeTab === 'original'? 0:1} onSelect={(index) => handleTabClick(index === 0 ? 'original' : 'training')}>
             <TabList className="flex mb-4">
               <Tab 
-                className="flex-1 px-4 py-2 cursor-pointer text-center rounded-t-lg border-b-2 border-gray-300 bg-gray-100 text-black outline-none"
-                selectedClassName="bg-blue-500 text-white border-blue-500"
+                className="flex-1 py-2 cursor-pointer text-center rounded-t-lg border-b-2 border-gray-300 bg-gray-200 text-black outline-none"
+                selectedClassName="bg-blue-400 text-white font-bold"
               >
                 Original Datasets
               </Tab >
               <Tab 
-                className="flex-1 px-4 py-2 cursor-pointer text-center rounded-t-lg border-b-2 border-gray-300 bg-gray-100 text-black outline-none"
-                selectedClassName="bg-blue-500 text-white border-blue-500"
+                className="flex-1 py-2 cursor-pointer text-center rounded-t-lg border-b-2 border-gray-300 bg-gray-200 text-black outline-none"
+                selectedClassName="bg-blue-400 text-white font-bold"
               >
                 Training Datasets
               </Tab>
