@@ -25,6 +25,7 @@
     "react": "^18",
     "react-cookie": "^7.1.4",
     "react-dom": "^18",
+    "react-tabs": "^6.0.2",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7"
   },
