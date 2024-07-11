@@ -1,19 +1,94 @@
 'use client'
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useSearchParams } from "next/navigation";
-import { useFetchDatasets, useDatasetHandlers, useFilteredDatasets} from "./service";
+import { useFetchDatasets, useDatasetHandlers, useFilteredDatasets, withLoading} from "./service";
 import DatasetCard from "./datasetCard";
-import {Tabs, TabList, Tab, TabPanel} from "react-tabs";
-import 'react-tabs/style/react-tabs.css';
+import { Tabs,TabsContent,TabsList,TabsTrigger } from "@/components/ui/tabs";
 
 
-const DatasetsPage = () => {
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
-  const {activeTab,searchQuery,currentPage,handleTabClick,handleSearchChange,handlePageChange} = useDatasetHandlers();
-  const {dataset,projectName} = useFetchDatasets(projectId,activeTab,searchQuery,currentPage);
-  const filteredDatasets = useFilteredDatasets(dataset,searchQuery);
+//tabs顯示內容
+const DatasetsTabsContent = ({ activeTab, inputValue, handleSearchChange, handleSearchClick, filteredDatasets, isLoading }) => {
+  return (
+    <>
+      <TabsList className="flex mb-4">
+        <TabsTrigger value="original" className={`flex-1 py-2 cursor-pointer text-center rounded-t-lg border-b-2 ${activeTab === 'original' ? 'border-blue-400 bg-blue-400 text-white font-bold' : 'border-gray-300 bg-gray-200 text-black'}`}>
+          Original Datasets
+        </TabsTrigger>
+        <TabsTrigger value="training" className={`flex-1 py-2 cursor-pointer text-center rounded-t-lg border-b-2 ${activeTab === 'training' ? 'border-blue-400 bg-blue-400 text-white font-bold' : 'border-gray-300 bg-gray-200 text-black'}`}>
+          Training Datasets
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="original">
+        <div className="flex items-center mb-4 justify-between">
+          <div className="items-center space-x-2">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleSearchChange}
+              className="border p-2 rounded-md mb-4 w-80"
+              placeholder="Search"
+            />
+            <button onClick={handleSearchClick}>
+              <img
+                src="/project/search.svg" alt="Search"
+              />
+            </button>
+          </div>
+          <button className="bg-green-500 text-white px-4 py-2 rounded-md">
+            Upload Original Dataset
+          </button>
+        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <p>Loading...</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredDatasets.map((dataset) => (
+              <DatasetCard key={dataset.id} dataset={dataset} />
+            ))}
+          </div>
+        )}
+      </TabsContent>
+      <TabsContent value="training">
+        <div className="flex items-center mb-4 justify-between">
+          <div className="items-center space-x-2">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleSearchChange}
+              className="border p-2 rounded-md mb-4 w-80"
+              placeholder="Search"
+            />
+            <button onClick={handleSearchClick}>
+              <img
+                src="/project/search.svg" alt="Search"
+              />
+            </button>
+          </div>
+          <button className="bg-green-500 text-white px-4 py-2 rounded-md">
+            Upload Training Dataset
+          </button>
+        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <p>Loading...</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredDatasets.map((dataset) => (
+              <DatasetCard key={dataset.id} dataset={dataset} />
+            ))}
+          </div>
+        )}
+      </TabsContent>
+    </>
+  );
+};
+
+//dataset頁面內容
+const DatasetsPage = ({ projectName, activeTab, inputValue, handleTabClick, handleSearchChange, handleSearchClick, filteredDatasets, isLoading }) => {
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -22,69 +97,48 @@ const DatasetsPage = () => {
         </div>
         <div className="flex items-center mb-6">
           <button>
-            <img src="/project/vector_left.svg"/>
+            <img src="/project/vector_left.svg" />
           </button>
           <p className="text-3xl">Dataset</p>
         </div>
         <div className="mx-auto">
-          <Tabs selectedIndex={activeTab === 'original'? 0:1} onSelect={(index) => handleTabClick(index === 0 ? 'original' : 'training')}>
-            <TabList className="flex mb-4">
-              <Tab 
-                className="flex-1 py-2 cursor-pointer text-center rounded-t-lg border-b-2 border-gray-300 bg-gray-200 text-black outline-none"
-                selectedClassName="bg-blue-400 text-white font-bold"
-              >
-                Original Datasets
-              </Tab >
-              <Tab 
-                className="flex-1 py-2 cursor-pointer text-center rounded-t-lg border-b-2 border-gray-300 bg-gray-200 text-black outline-none"
-                selectedClassName="bg-blue-400 text-white font-bold"
-              >
-                Training Datasets
-              </Tab>
-            </TabList>
-            <TabPanel>
-              <div className="flex items-center mb-4 justify-between">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  className="border p-2 rounded-md mb-4"
-                  placeholder="Search"
-                />
-                <button className="bg-green-500 text-white px-4 py-2 rounded-md">
-                  Upload Original Dataset
-                </button>
-              </div>
-              <div className="space-y-4">
-                {filteredDatasets.map((dataset) => (
-                  <DatasetCard key={dataset.id} dataset={dataset} />
-                ))}
-              </div>
-            </TabPanel>
-            <TabPanel>
-              <div className="flex items-center mb-4 justify-between">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  className="border p-2 rounded-md mb-4"
-                  placeholder="Search"
-                />
-                <button className="bg-green-500 text-white px-4 py-2 rounded-md">
-                  Upload Training Dataset
-                </button>
-              </div>
-              <div className="space-y-4">
-                {filteredDatasets.map((dataset) => (
-                  <DatasetCard key={dataset.id} dataset={dataset} />
-                ))}
-              </div>
-            </TabPanel>
-          </Tabs>  
+          <Tabs value={activeTab} onValueChange={handleTabClick}>
+            <DatasetsTabsContent
+              activeTab={activeTab}
+              inputValue={inputValue}
+              handleTabClick={handleTabClick}
+              handleSearchChange={handleSearchChange}
+              handleSearchClick={handleSearchClick}
+              filteredDatasets={filteredDatasets}
+              isLoading={isLoading}
+            />
+          </Tabs>
         </div>
       </div>
     </div>
   );
 };
 
-export default DatasetsPage;
+const Page = () => {
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get('projectId');
+  const { activeTab, searchQuery, currentPage, inputValue, handleTabClick, handleSearchChange, handleSearchClick } = useDatasetHandlers();
+  const { dataset, projectName, isLoading } = useFetchDatasets(projectId, activeTab, searchQuery, currentPage);
+  const filteredDatasets = useFilteredDatasets(dataset, searchQuery);
+
+  return (
+    <DatasetsPage
+      projectName={projectName}
+      activeTab={activeTab}
+      searchQuery={searchQuery}
+      inputValue={inputValue}
+      handleTabClick={handleTabClick}
+      handleSearchChange={handleSearchChange}
+      handleSearchClick={handleSearchClick}
+      filteredDatasets={filteredDatasets}
+      isLoading={isLoading}
+    />
+  );
+};
+
+export default Page;
