@@ -1,6 +1,16 @@
 import { useEffect ,useState, useMemo } from "react";
 import axios from "axios";
 import { useFetchProjects } from "../service";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+  } from "@/components/ui/pagination";
+import exp from "constants";
 
 export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) => {
     const [dataset, setDatasets] = useState([]);
@@ -69,6 +79,9 @@ export const useDatasetHandlers = () => {
         setCurrentPage(1);
     }
 
+    const handlePageChange = (page) => {
+        setCurrentPage(page)
+    }
     return{
         activeTab,
         searchQuery,
@@ -77,11 +90,59 @@ export const useDatasetHandlers = () => {
         handleTabClick,
         handleSearchChange,
         handleSearchClick,
+        handlePageChange,
     };
 };
 
-export const useFilteredDatasets = (datasets, searchQuery) => {
-    return useMemo(()=>{
+export const useFilteredDatasets = (datasets, searchQuery, currentPage) => {
+    //搜尋以過濾dataset功能
+    const filteredDatasets = useMemo(() => {
         return datasets.filter(dataset => dataset.name.toLowerCase().includes(searchQuery.toLowerCase()))
     },[datasets, searchQuery])
+
+    const datasetsPerPage = 5;
+    const totalPage = Math.ceil(filteredDatasets.length / datasetsPerPage);
+    const paginatedDatasets = filteredDatasets.slice((currentPage - 1) * datasetsPerPage, currentPage * datasetsPerPage);
+
+    return {paginatedDatasets, totalPage}
+}
+
+export const DatasetsPagination = ({currentPage, totalPage, onPageChange}) => {
+    return (
+        totalPage > 1 && (
+            <div className="flex justify-center mt-4">
+                <Pagination className="space-x-2">
+                    {currentPage > 1 && (
+                        <PaginationPrevious 
+                            onClick={()=>onPageChange(currentPage -1)}
+                            className="transition duration-300 ease-in-out transform hover:-translate-x-1 hover:scale-105"
+                        >  
+                            Provious
+                        </PaginationPrevious>
+                    )}
+                    <PaginationContent className="flex space-x-2">
+                        {Array.from({length: totalPage},(_, i)=> (
+                            <PaginationItem key={i}>
+                                <PaginationLink
+                                    active={currentPage === i + 1}
+                                    onClick={()=>onPageChange(i+1)}
+                                    className={`transition duration-300 ease-in-out transform hover:scale-105 ${currentPage === i + 1 ? 'bg-gray-600 text-white' : 'bg-gray-200 text-black'}`}
+                                >
+                                    {i+1}
+                                </PaginationLink>
+                            </PaginationItem>
+                        ))}
+                    </PaginationContent>
+                    {currentPage < totalPage && (
+                        <PaginationNext 
+                            onClick={()=> onPageChange(currentPage + 1)}
+                            className="transition duration-300 ease-in-out transform hover:translate-x-1 hover:scale-105"
+                        >
+                            Next
+                        </PaginationNext>
+                    )}
+                </Pagination>
+            </div>
+        )
+    )
 }

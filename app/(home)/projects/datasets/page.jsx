@@ -3,12 +3,15 @@
 import React from "react";
 import { useSearchParams } from "next/navigation";
 import { useFetchDatasets, useDatasetHandlers, useFilteredDatasets} from "./service";
+import { DatasetsPagination } from "./service";
 import DatasetCard from "./datasetCard";
 import { Tabs,TabsContent,TabsList,TabsTrigger } from "@/components/ui/tabs";
 
 
 //tabs顯示內容
-const DatasetsTabsContent = ({ activeTab, inputValue, handleSearchChange, handleSearchClick, filteredDatasets, isLoading }) => {
+const DatasetsTabsContent = ({ 
+  activeTab, inputValue, handleSearchChange, handleSearchClick, filteredDatasets, isLoading,
+  currentPage, totalPage, handlePageChange}) => {
   return (
     <>
       <TabsList className="flex mb-4">
@@ -44,11 +47,16 @@ const DatasetsTabsContent = ({ activeTab, inputValue, handleSearchChange, handle
           <p>Loading...</p>
         </div>
         ) : (
-          <div className="space-y-4">
+          <>
+            <div className="space-y-4">
             {filteredDatasets.map((dataset) => (
               <DatasetCard key={dataset.id} dataset={dataset} />
             ))}
-          </div>
+            </div>
+            <DatasetsPagination 
+              currentPage={currentPage} totalPage={totalPage} onPageChange={handlePageChange}
+            />
+          </>
         )}
       </TabsContent>
       <TabsContent value="training">
@@ -76,11 +84,17 @@ const DatasetsTabsContent = ({ activeTab, inputValue, handleSearchChange, handle
           <p>Loading...</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <>
+          <div className="space-y-4">
           {filteredDatasets.map((dataset) => (
             <DatasetCard key={dataset.id} dataset={dataset} />
           ))}
-        </div>
+          </div>
+          <DatasetsPagination 
+            currentPage={currentPage} totalPage={totalPage} onPageChange={handlePageChange}
+          />
+          
+        </>
       )} 
       </TabsContent>
     </>
@@ -88,7 +102,9 @@ const DatasetsTabsContent = ({ activeTab, inputValue, handleSearchChange, handle
 };
 
 //dataset頁面內容
-const DatasetsPage = ({ projectName, activeTab, inputValue, handleTabClick, handleSearchChange, handleSearchClick, filteredDatasets, isLoading }) => {
+const DatasetsPage = ({ 
+  projectName, activeTab, inputValue, handleTabClick, handleSearchChange, handleSearchClick, 
+  filteredDatasets, isLoading, currentPage, totalPage, handlePageChange }) => {
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -111,6 +127,9 @@ const DatasetsPage = ({ projectName, activeTab, inputValue, handleTabClick, hand
               handleSearchClick={handleSearchClick}
               filteredDatasets={filteredDatasets}
               isLoading={isLoading}
+              currentPage={currentPage}
+              totalPage={totalPage}
+              handlePageChange={handlePageChange}
             />
           </Tabs>
         </div>
@@ -122,9 +141,9 @@ const DatasetsPage = ({ projectName, activeTab, inputValue, handleTabClick, hand
 const Page = () => {
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
-  const { activeTab, searchQuery, currentPage, inputValue, handleTabClick, handleSearchChange, handleSearchClick } = useDatasetHandlers();
+  const { activeTab, searchQuery, currentPage, inputValue, handleTabClick, handleSearchChange, handleSearchClick, handlePageChange } = useDatasetHandlers();
   const { dataset, projectName, isLoading } = useFetchDatasets(projectId, activeTab, searchQuery, currentPage);
-  const filteredDatasets = useFilteredDatasets(dataset, searchQuery);
+  const {paginatedDatasets, totalPage} = useFilteredDatasets(dataset, searchQuery,currentPage);
   return (
     <DatasetsPage
       projectName={projectName}
@@ -134,8 +153,11 @@ const Page = () => {
       handleTabClick={handleTabClick}
       handleSearchChange={handleSearchChange}
       handleSearchClick={handleSearchClick}
-      filteredDatasets={filteredDatasets}
+      filteredDatasets={paginatedDatasets}
       isLoading={isLoading}
+      currentPage={currentPage}
+      totalPage={totalPage}
+      handlePageChange={handlePageChange}
     />
   );
 };
