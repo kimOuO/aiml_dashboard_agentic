@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useSearchParams } from "next/navigation";
-import { useFetchDatasets, useDatasetHandlers, useFilteredDatasets, withLoading} from "./service";
+import { useFetchDatasets, useDatasetHandlers, useFilteredDatasets} from "./service";
 import DatasetCard from "./datasetCard";
 import { Tabs,TabsContent,TabsList,TabsTrigger } from "@/components/ui/tabs";
 
@@ -40,9 +40,9 @@ const DatasetsTabsContent = ({ activeTab, inputValue, handleSearchChange, handle
           </button>
         </div>
         {isLoading ? (
-          <div className="flex justify-center items-center min-h-[200px]">
-            <p>Loading...</p>
-          </div>
+        <div className="flex justify-center items-center min-h-[200px]">
+          <p>Loading...</p>
+        </div>
         ) : (
           <div className="space-y-4">
             {filteredDatasets.map((dataset) => (
@@ -72,16 +72,16 @@ const DatasetsTabsContent = ({ activeTab, inputValue, handleSearchChange, handle
           </button>
         </div>
         {isLoading ? (
-          <div className="flex justify-center items-center min-h-[200px]">
-            <p>Loading...</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredDatasets.map((dataset) => (
-              <DatasetCard key={dataset.id} dataset={dataset} />
-            ))}
-          </div>
-        )}
+        <div className="flex justify-center items-center min-h-[200px]">
+          <p>Loading...</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredDatasets.map((dataset) => (
+            <DatasetCard key={dataset.id} dataset={dataset} />
+          ))}
+        </div>
+      )} 
       </TabsContent>
     </>
   );
@@ -125,7 +125,6 @@ const Page = () => {
   const { activeTab, searchQuery, currentPage, inputValue, handleTabClick, handleSearchChange, handleSearchClick } = useDatasetHandlers();
   const { dataset, projectName, isLoading } = useFetchDatasets(projectId, activeTab, searchQuery, currentPage);
   const filteredDatasets = useFilteredDatasets(dataset, searchQuery);
-
   return (
     <DatasetsPage
       projectName={projectName}

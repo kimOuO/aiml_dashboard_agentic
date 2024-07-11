@@ -4,7 +4,7 @@ import { useFetchProjects } from "../service";
 
 export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) => {
     const [dataset, setDatasets] = useState([]);
-    const projects = useFetchProjects();
+    const {projects, isLoading:projectLoading} = useFetchProjects();
     const [projectName, setProjectName] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -39,19 +39,6 @@ export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) =>
     return {dataset,projectName,isLoading};
 }
 
-export const withLoading = (WrappedComponent) => {
-    return({isLoading, ...props}) => {
-        if (isLoading) {
-            return(
-                <div className="flex justify-center items-center min-h-screen">
-                    <p>Loading...</p>
-                </div>
-            );
-        }
-        return <WrappedComponent {...props}/>
-    }
-}
-
 //管理dataset動作
 export const useDatasetHandlers = () => {
     const [activeTab, setActiveTab] = useState('original');
@@ -70,6 +57,10 @@ export const useDatasetHandlers = () => {
     //暫存輸入的text
     const handleSearchChange = (e) => {
         setInputValue(e.target.value);
+        //空字串時顯示回所有dataset
+        if (e.target.value == '') {
+            setSearchQuery('');
+        }
     }
 
     //button被按下後才query
@@ -82,6 +73,7 @@ export const useDatasetHandlers = () => {
         activeTab,
         searchQuery,
         currentPage,
+        inputValue,
         handleTabClick,
         handleSearchChange,
         handleSearchClick,
