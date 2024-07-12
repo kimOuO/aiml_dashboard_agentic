@@ -13,7 +13,7 @@ import {
 export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) => {
     const [dataset, setDatasets] = useState([]);
     //project的loading，在dataset這邊用不到
-    const {projects, isLoading:projectLoading} = useFetchProjects();
+    const { projects } = useFetchProjects();
     const [projectName, setProjectName] = useState(null);
     //判斷dataset是否還在抓取資料
     const [isLoading, setIsLoading] = useState(true);
@@ -32,19 +32,19 @@ export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) =>
                     //結束抓資料，畫面顯示資料
                     setIsLoading(false);
                 }
+            };
+
+            const findProjectName = () => {
+                if (projects.length > 0) {
+                    const project = projects.find(proj => proj.id.toString() === projectId)
+                    setProjectName(project ? project.name : 'Unknown project')
+                }
             }
 
             fetchDatasets();
+            findProjectName();
         }
-    },[projectId, activeTab, searchQuery, currentPage])
-
-    useEffect(()=> {
-        //抓取projectName
-        if(projects.length>0 && projectId){
-            const fetchProjectName = projects.find(proj => proj.id.toString() === projectId)
-            setProjectName(fetchProjectName ? fetchProjectName.name : 'Unknown Project')
-        }
-    },[projects,projectId])
+    },[projectId, activeTab, searchQuery, currentPage, projects])
 
     return {dataset,projectName,isLoading};
 }
