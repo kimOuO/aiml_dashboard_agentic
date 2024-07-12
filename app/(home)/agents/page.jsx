@@ -1,13 +1,15 @@
+// agents/page.jsx
 "use client";
 import React from "react";
+import Link from "next/link";
 
 const agents = [
-  { name: "James LLC", date: "2024-05-10 21:17:54" },
-  { name: "James LLC", date: "2024-05-10 21:17:54" },
-  { name: "James LLC", date: "2024-05-10 21:17:54" },
+  { name: "James-LLC", date: "2024-05-10 21:17:54" },
+  { name: "James-LLC", date: "2024-05-10 21:17:54" },
+  { name: "James-LLC", date: "2024-05-10 21:17:54" },
 ];
 
-const AgentsPage = () => {
+export default function AgentsPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
       <div className="max-w-6xl w-full mt-[-100px]">
@@ -30,30 +32,33 @@ const AgentsPage = () => {
         </div>
         <div>
           {agents.map((agent, index) => (
-            <div
-              key={index}
-              className="bg-white p-4 rounded shadow mb-4 flex justify-between items-center border border-slate-300 w-full"
+            <Link
+              href={`/agents/link/[name]`}
+              as={`/agents/link/${agent.name}`}
             >
-              <div className="flex flex-col">
-                <h2 className="text-xl font-extrabold text-blue-950 mb-2">
-                  {agent.name}
-                </h2>
-                <p className="text-gray-700">{agent.date}</p>
+              <div
+                key={index}
+                className="bg-white p-4 rounded shadow mb-4 flex justify-between items-center border border-slate-300 w-full"
+              >
+                <div className="flex flex-col">
+                  <h2 className="text-xl font-extrabold text-blue-950 mb-2">
+                    {agent.name}
+                  </h2>
+                  <p className="text-gray-700">{agent.date}</p>
+                </div>
+                <div className="flex flex-col space-y-2">
+                  <button className="bg-slate-50 text-black text-sm font-bold px-2 py-1 rounded-md border border-slate-500 hover:bg-slate-300">
+                    Detail
+                  </button>
+                  <button className="bg-slate-50 text-black text-sm font-bold px-2 py-1 rounded-md border border-slate-500 hover:bg-slate-300">
+                    Delete
+                  </button>
+                </div>
               </div>
-              <div className="flex flex-col space-y-2">
-                <button className="bg-slate-50 text-black text-sm font-bold px-2 py-1 rounded-md border border-slate-500 hover:bg-slate-300">
-                  Detail
-                </button>
-                <button className="bg-slate-50 text-black text-sm font-bold px-2 py-1 rounded-md border border-slate-500 hover:bg-slate-300">
-                  Delete
-                </button>
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
     </div>
   );
-};
-
-export default AgentsPage;
+}
