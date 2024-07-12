@@ -4,18 +4,18 @@ import { useFetchProjects } from "../service";
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
   } from "@/components/ui/pagination";
-import exp from "constants";
 
 export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) => {
     const [dataset, setDatasets] = useState([]);
+    //project的loading，在dataset這邊用不到
     const {projects, isLoading:projectLoading} = useFetchProjects();
     const [projectName, setProjectName] = useState(null);
+    //判斷dataset是否還在抓取資料
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(()=>{
@@ -59,15 +59,16 @@ export const useDatasetHandlers = () => {
     //tabslist切換
     const handleTabClick = (tab) => {
         setActiveTab(tab);
-        //當切換tabs時會回到第一頁
+        //tabs切換會清除搜尋字串
         setSearchQuery('');
+        //當切換tabs時會回到第一頁
         setCurrentPage(1);
     };
 
     //暫存輸入的text
     const handleSearchChange = (e) => {
         setInputValue(e.target.value);
-        //空字串時顯示回所有dataset
+        //空字串時顯示所有dataset
         if (e.target.value == '') {
             setSearchQuery('');
         }
@@ -100,8 +101,10 @@ export const useFilteredDatasets = (datasets, searchQuery, currentPage) => {
         return datasets.filter(dataset => dataset.name.toLowerCase().includes(searchQuery.toLowerCase()))
     },[datasets, searchQuery])
 
+    //每頁顯示之dataset數量
     const datasetsPerPage = 5;
     const totalPage = Math.ceil(filteredDatasets.length / datasetsPerPage);
+    //每個頁面要顯示哪一些dataset
     const paginatedDatasets = filteredDatasets.slice((currentPage - 1) * datasetsPerPage, currentPage * datasetsPerPage);
 
     return {paginatedDatasets, totalPage}
