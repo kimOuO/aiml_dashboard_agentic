@@ -30,7 +30,10 @@ export default function ApplicationPage() {
           ) : (
             <div className="space-y-4">
               {applications.map((application) => (
-                <ApplicationCard key={application.id} application={application} />
+                <ApplicationCard
+                  projectId={projectId}
+                  key={application.id} 
+                  application={application} />
               ))}
             </div>
           )}

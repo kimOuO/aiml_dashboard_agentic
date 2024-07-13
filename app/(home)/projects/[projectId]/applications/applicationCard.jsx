@@ -1,18 +1,18 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
-const ApplicationCard = ({application}) => {
+const ApplicationCard = ({projectId,application}) => {
   const router = useRouter();
 
-  const handleMouseEnter = (event) => {
-    event.target.style.cursor = 'pointer';
-  }
 
   const handleApplicationClick = () => {
-    router.push(`/projects/${project.id}/applications/${application.id}/dashboard`);
+    router.push(`/projects/${projectId}/applications/${application.id}/dashboard`);
   };
     return(
-        <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
+        <div 
+          className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer"
+          onClick={handleApplicationClick}
+        >
             <div>
               <div className="bg-blue-300 rounded-lg p-0.5">
               {application.id}
