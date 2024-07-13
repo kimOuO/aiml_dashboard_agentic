@@ -1,7 +1,7 @@
 'use client'
 
 import React from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useFetchDatasets, useDatasetHandlers, useFilteredDatasets} from "./service";
 import DatasetsTabsContent from './datasetsTabsContent'
 import {Tabs} from "@/components/ui/tabs";
@@ -45,8 +45,7 @@ const DatasetsPage = ({
 };
 
 const Page = () => {
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
+  const { projectId } = useParams();
   const { activeTab, searchQuery, currentPage, inputValue, handleTabClick, handleSearchChange, handleSearchClick, handlePageChange } = useDatasetHandlers();
   const { dataset, projectName, isLoading } = useFetchDatasets(projectId, activeTab, searchQuery, currentPage);
   const {paginatedDatasets, totalPage} = useFilteredDatasets(dataset, searchQuery,currentPage);

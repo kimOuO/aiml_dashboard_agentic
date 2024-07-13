@@ -5,11 +5,11 @@ const ProjectCard = ({project}) => {
   const router = useRouter();
   
   const handleDatasetsClick=()=>{
-    router.push(`/projects/datasets?projectId=${project.id}`);
+    router.push(`/projects/${project.id}/datasets`);
   }
 
   const handleApplicationsClick=()=>{
-    router.push(`/projects/applications?projectId=${project.id}`);
+    router.push(`/projects/${project.id}/applications`);
   }
     return(
         <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center">

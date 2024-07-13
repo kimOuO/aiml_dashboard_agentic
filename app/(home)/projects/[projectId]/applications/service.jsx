@@ -2,7 +2,7 @@
 
 import { useEffect,useState,useMemo } from "react";
 import axios from "axios";
-import { useFetchProjects } from "../service";
+import { useFetchProjects } from "../../service";
 
 export const useFetchApplications = (projectId)=>{
     const [applications,setApplications] = useState([]);

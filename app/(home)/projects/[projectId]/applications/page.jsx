@@ -2,12 +2,11 @@
 
 import React from "react"
 import ApplicationCard from './applicationCard'
-import { useSearchParams } from "next/navigation"
+import { useParams } from "next/navigation"
 import { useFetchApplications } from "./service"
 
 export default function ApplicationPage() {
-    const searchParams = useSearchParams();
-    const projectId = searchParams.get('projectId');
+    const { projectId } = useParams();
     const {applications, projectName, isLoading} = useFetchApplications(projectId);
     return(
         <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
