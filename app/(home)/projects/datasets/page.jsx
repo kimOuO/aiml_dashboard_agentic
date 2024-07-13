@@ -3,7 +3,7 @@
 import React from "react";
 import { useSearchParams } from "next/navigation";
 import { useFetchDatasets, useDatasetHandlers, useFilteredDatasets} from "./service";
-import DatasetsTabsContent from './datasetTabsContent'
+import DatasetsTabsContent from './datasetsTabsContent'
 import {Tabs} from "@/components/ui/tabs";
 
 
