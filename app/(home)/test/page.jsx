@@ -1,29 +1,25 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import ReactDOM from "react-dom/client";
 
-export default function Home() {
-  const [linked, setLinked] = useState(true);
+export default function Counter() {
+  const [count, setCount] = useState(0);
+  const [calculation, setCalculation] = useState(0);
+
+  useEffect(() => {
+    setCalculation(() => count * 2);
+  }, [count]); // <- add the count variable here
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="flex items-center">
-        <button
-          className={`px-4 py-2 rounded-l-full ${
-            linked ? "bg-green-600 text-white" : "bg-gray-200 text-black"
-          }`}
-          onClick={() => setLinked(true)}
-        >
-          Link
-        </button>
-        <button
-          className={`px-4 py-2 rounded-r-full ${
-            !linked ? "bg-green-600 text-white" : "bg-gray-200 text-black"
-          }`}
-          onClick={() => setLinked(false)}
-        >
-          Unlink
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+      <p className="text-3xl font-semibold mb-3">Count: {count}</p>
+      <button
+        className="text-3xl font-semibold mb-3"
+        onClick={() => setCount((c) => c + 1)}
+      >
+        +
+      </button>
+      <p className="text-3xl font-semibold mb-3">Calculation: {calculation}</p>
     </div>
   );
 }

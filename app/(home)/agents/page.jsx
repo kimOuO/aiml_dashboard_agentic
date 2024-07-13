@@ -5,8 +5,8 @@ import Link from "next/link";
 
 const agents = [
   { name: "James-LLC", date: "2024-05-10 21:17:54" },
-  { name: "James-LLC", date: "2024-05-10 21:17:54" },
-  { name: "James-LLC", date: "2024-05-10 21:17:54" },
+  { name: "test", date: "2024-05-10 21:17:54" },
+  { name: "yy", date: "2024-05-10 21:17:54" },
 ];
 
 export default function AgentsPage() {
@@ -19,9 +19,6 @@ export default function AgentsPage() {
             <a
               href="/projects"
               className="text-slate-700 underline hover:text-blue-900 transition duration-300 ease-in-out"
-              onClick={(e) => {
-                Link.href = "/agents/link";
-              }}
             >
               Agent Dashboard
             </a>
@@ -32,10 +29,7 @@ export default function AgentsPage() {
         </div>
         <div>
           {agents.map((agent, index) => (
-            <Link
-              href={`/agents/link/[name]`}
-              as={`/agents/link/${agent.name}`}
-            >
+            <Link href={`/agents/link/${agent.name}`} key={index}>
               <div
                 key={index}
                 className="bg-white p-4 rounded shadow mb-4 flex justify-between items-center border border-slate-300 w-full"

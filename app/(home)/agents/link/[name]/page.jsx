@@ -2,9 +2,6 @@
 "use client";
 import React from "react";
 import ToggleButton from "@/components/ui/togglebutton";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useEffect } from "react";
 
 const agents = [
   { name: "Inc", date: "2024-05-10 21:17:54" },
@@ -12,16 +9,8 @@ const agents = [
   { name: "Inc", date: "2024-05-10 21:17:54" },
 ];
 
-export default function linkPage() {
-  const router = useRouter();
-  const [name, setName] = useState("");
-
-  useEffect(() => {
-    if (router.query && router.query.name) {
-      setName(router.query.name);
-    }
-  }, [router.query]);
-
+export default function linkPage({ params }) {
+  const { name } = params;
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
       <div className="max-w-6xl w-full mt-[-100px]">
