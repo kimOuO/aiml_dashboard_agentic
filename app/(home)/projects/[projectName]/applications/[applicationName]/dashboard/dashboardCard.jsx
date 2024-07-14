@@ -1,27 +1,27 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
-const ApplicationDashboard = ({projectId,applicationId}) => {
+const ApplicationDashboard = ({projectName,applicationName}) => {
     const router = useRouter();
 
     const handleModelClick = () => {
-        router.push(`/projects/${projectId}/applications/${applicationId}/dashboard/model`);
+        router.push(`/projects/${projectName}/applications/${applicationName}/dashboard/model`);
     }
 
     const handlePreprocessingPipelineClick = () => {
-        router.push(`/projects/${projectId}/applications/${applicationId}/dashboard/preprocessingPipeline`);
+        router.push(`/projects/${projectName}/applications/${applicationName}/dashboard/preprocessing_pipeline`);
     }
 
     const handleTrainingPipelineClick = () => {
-        router.push(`/projects/${projectId}/applications/${applicationId}/dashboard/trainingPipeline`);
+        router.push(`/projects/${projectName}/applications/${applicationName}/dashboard/training_pipeline`);
     }
 
     const handleOptimizationDatasetsClick = () => {
-        router.push(`/projects/${projectId}/applications/${applicationId}/dashboard/optimizationDatasets`); 
+        router.push(`/projects/${projectName}/applications/${applicationName}/dashboard/optimization_datasets`); 
     }
 
     const handleValidationPipelineClick = () => {
-        router.push(`/projects/${projectId}/applications/${applicationId}/dashboard/validationPipeline`); 
+        router.push(`/projects/${projectName}/applications/${applicationName}/dashboard/validation_pipeline`); 
     }
 
     return(

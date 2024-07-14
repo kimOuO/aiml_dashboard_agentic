@@ -2,21 +2,18 @@
 
 import { useEffect,useState } from "react";
 import axios from "axios";
-import { useFetchProjects } from "../../service";
 
-export const useFetchApplications = (projectId)=>{
+export const useFetchApplications = (projectName)=>{
     const [applications,setApplications] = useState([]);
-    const { projects } = useFetchProjects();
-    const [projectName,setProjectName] = useState(null);
     const [isLoading,setIsLoading] = useState(true);
 
     useEffect(()=>{
-        if(projectId) {
+        if(projectName) {
             const fetchApplications = async() => {
                 try{
                     //開始抓取資料，畫面顯示loading
                     setIsLoading(true);
-                    const response = await axios.get(`/api/projects/${projectId}/applications`);
+                    const response = await axios.get(`/api/projects/${projectName}/applications`);
                     setApplications(response.data);
                 }catch(error){
                     console.error("Error fetching applications:", error);
@@ -26,16 +23,9 @@ export const useFetchApplications = (projectId)=>{
                 }
             };
 
-            const findProjectName = () => {
-                if (projects.length > 0) {
-                    const project = projects.find(proj => proj.id.toString() === projectId)
-                    setProjectName(project ? project.name : 'Unknown project')
-                }
-            }
             fetchApplications();
-            findProjectName();
         }
-    },[projectId,projects])
+    },[projectName])
 
-    return {applications,projectName,isLoading};
+    return {applications,isLoading};
 }

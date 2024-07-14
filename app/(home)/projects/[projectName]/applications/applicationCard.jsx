@@ -1,12 +1,12 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
-const ApplicationCard = ({projectId,application}) => {
+const ApplicationCard = ({projectName,application}) => {
   const router = useRouter();
 
 
   const handleApplicationClick = () => {
-    router.push(`/projects/${projectId}/applications/${application.id}/dashboard`);
+    router.push(`/projects/${projectName}/applications/${application.name}/dashboard`);
   };
     return(
         <div 
