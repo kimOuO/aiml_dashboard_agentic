@@ -1,6 +1,5 @@
 import { useEffect ,useState, useMemo } from "react";
 import axios from "axios";
-import { useFetchProjects } from "../service";
 import {
     Pagination,
     PaginationContent,
@@ -10,21 +9,18 @@ import {
     PaginationPrevious,
   } from "@/components/ui/pagination";
 
-export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) => {
+export const useFetchDatasets = (projectName,activeTab,searchQuery,currentPage) => {
     const [dataset, setDatasets] = useState([]);
-    //project的loading，在dataset這邊用不到
-    const {projects, isLoading:projectLoading} = useFetchProjects();
-    const [projectName, setProjectName] = useState(null);
     //判斷dataset是否還在抓取資料
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(()=>{
-        if (projectId) {
+        if (projectName) {
             const fetchDatasets = async () => {
                 try{
                     //開始抓取資料，畫面顯示loading
                     setIsLoading(true);
-                    const response = await axios.get(`/api/projects/${projectId}/datasets/${activeTab}`)
+                    const response = await axios.get(`/api/projects/${projectName}/datasets/${activeTab}`)
                     setDatasets(response.data);
                 }catch(error){
                     console.error("Error fetching datasets:", error);
@@ -32,21 +28,13 @@ export const useFetchDatasets = (projectId,activeTab,searchQuery,currentPage) =>
                     //結束抓資料，畫面顯示資料
                     setIsLoading(false);
                 }
-            }
+            };
 
             fetchDatasets();
         }
-    },[projectId, activeTab, searchQuery, currentPage])
+    },[projectName, activeTab, searchQuery, currentPage])
 
-    useEffect(()=> {
-        //抓取projectName
-        if(projects.length>0 && projectId){
-            const fetchProjectName = projects.find(proj => proj.id.toString() === projectId)
-            setProjectName(fetchProjectName ? fetchProjectName.name : 'Unknown Project')
-        }
-    },[projects,projectId])
-
-    return {dataset,projectName,isLoading};
+    return {dataset,isLoading};
 }
 
 //管理dataset動作
