@@ -41,7 +41,7 @@ const ModelCard = ({ model, projectName, applicationName }) => {
               </div>
             </div>
             <div>
-              <AccordionTrigger className="py-14 px-4 border border-gray-300 rounded-md cursor-pointe"></AccordionTrigger>
+              <AccordionTrigger className="py-14 px-4 border border-gray-300 rounded-md cursor-pointer transition duration-300 ease-in-out transform hover:bg-gray-300 hover:shadow-lg"></AccordionTrigger>
             </div>
           </div>
 
