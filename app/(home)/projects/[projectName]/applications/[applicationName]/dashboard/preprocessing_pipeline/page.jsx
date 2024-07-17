@@ -4,7 +4,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import {useFetchPreprocessingPipeline, handleLinkClick} from "./service"
-import {PreprocessingCard} from "./preprocessingCard"
+import {PipelineCard} from "./pipelineCard"
 
 export default function PreprocessingPipelinePage() {
   const { projectName, applicationName } = useParams();
@@ -63,9 +63,9 @@ export default function PreprocessingPipelinePage() {
         ):(
           <div className="space-y-4">
             {preprocessingPipelines.map((prePipe)=>(
-              <PreprocessingCard
+              <PipelineCard
                 key={prePipe.id}
-                preprocessingPipeline={prePipe}
+                pipeline={prePipe}
               />
             ))}
           </div>
