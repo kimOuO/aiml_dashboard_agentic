@@ -61,7 +61,7 @@ export default function ModelPage() {
             Upload Model
           </button>
         </div>
-        {/*放modelcard */}
+        {/*放card */}
         {isLoading ? (
           <div>Loading ...</div>
         ) : (

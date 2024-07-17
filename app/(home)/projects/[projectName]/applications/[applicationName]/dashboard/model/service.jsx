@@ -19,7 +19,7 @@ export const useFetchModels = (projectName, applicationName) => {
           );
           setModels(response.data);
         } catch (error) {
-          console.error("Error feching models：", error);
+          console.error("Error fetching models：", error);
         } finally {
           //結束抓資料，畫面顯示資料
           setIsLoading(false);
