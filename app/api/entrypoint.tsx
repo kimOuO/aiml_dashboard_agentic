@@ -84,6 +84,18 @@ const signup = async (data: JSON): Promise<AxiosResponse | Error> => {
   }
 };
 
+const getTestAPI = async (endpoint: string):Promise<AxiosResponse | Error> => {
+  const BASE_URL = "http://140.118.2.52:39303";
+  const url = `${BASE_URL}/${endpoint}`;
+  try {
+    const response = await axios.get(url);
+    return handleApiResponse(response);
+  }catch(error){
+    handleApiError(error);
+    return error;
+  }
+};
+
 const getAPI = async (
   api_key: string,
   data: any,
@@ -157,4 +169,5 @@ export {
   getAPI,
   login,
   signup,
+  getTestAPI,
 };

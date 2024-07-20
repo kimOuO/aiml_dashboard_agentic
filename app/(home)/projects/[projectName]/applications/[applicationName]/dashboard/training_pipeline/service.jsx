@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import { getTestAPI } from "@/app/api/entrypoint";
 
 export const useFetchTrainingPipeline = (projectName, applicationName) => {
   const [trainingPipelines, setTrainingPipelines] = useState([]);
@@ -10,18 +10,14 @@ export const useFetchTrainingPipeline = (projectName, applicationName) => {
   useEffect(() => {
     if (projectName && applicationName) {
       const fetchTrainingPipeline = async () => {
-        try {
-          //開始抓資料，畫面顯示loading
-          setIsLoading(true);
-          const response = await axios.get(
-            `/api/projects/${projectName}/applications/${applicationName}/trainingPipelines`
-          );
+        const response = await getTestAPI(
+          `projects/${projectName}/applications/${applicationName}/trainingPipelines`
+        );
+        if (response && response.data) {
           setTrainingPipelines(response.data);
-        } catch (error) {
-          console.log("Error fetching training pipeline：", error);
-        } finally {
-          //結束抓資料，畫面顯示資料
           setIsLoading(false);
+        } else if (response && response instanceof Error) {
+          console.log("Error fetching training pipeline：", response.message);
         }
       };
       fetchTrainingPipeline();
@@ -44,5 +40,5 @@ export const handleLinkClick = (projectName, applicationName) => {
     );
   };
 
-  return { handleModelClick, handlePreprocessingPipelineClick};
+  return { handleModelClick, handlePreprocessingPipelineClick };
 };

@@ -22,13 +22,5 @@ module.exports = {
   },
   typescript: {
     ignoreBuildErrors: true,
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:5000/:path*' // 代理到 API 服務器
-      }
-    ];
-  },
+  }
 };

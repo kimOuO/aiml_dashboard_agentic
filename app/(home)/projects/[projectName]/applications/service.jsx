@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { getTestAPI } from "@/app/api/entrypoint";
 
 export const useFetchApplications = (projectName) => {
   const [applications, setApplications] = useState([]);
@@ -10,18 +10,15 @@ export const useFetchApplications = (projectName) => {
   useEffect(() => {
     if (projectName) {
       const fetchApplications = async () => {
-        try {
-          //開始抓取資料，畫面顯示loading
-          setIsLoading(true);
-          const response = await axios.get(
-            `/api/projects/${projectName}/applications`
-          );
+        //開始抓取資料，畫面顯示loading
+        const response = await getTestAPI(
+          `projects/${projectName}/applications`
+        );
+        if (response && response.data) {
           setApplications(response.data);
-        } catch (error) {
-          console.error("Error fetching applications:", error);
-        } finally {
-          //結束抓資料，畫面顯示資料
           setIsLoading(false);
+        } else if (response && response instanceof Error) {
+          console.error("Error fetching applications:", response.message);
         }
       };
 

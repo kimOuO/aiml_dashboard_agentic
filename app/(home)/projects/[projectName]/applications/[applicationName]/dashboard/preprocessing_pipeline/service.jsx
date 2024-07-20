@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import { getTestAPI } from "@/app/api/entrypoint";
 
 export const useFetchPreprocessingPipeline = (projectName, applicationName) => {
   const [preprocessingPipelines, setPreprocessingPipelines] = useState([]);
@@ -10,18 +10,17 @@ export const useFetchPreprocessingPipeline = (projectName, applicationName) => {
   useEffect(() => {
     if (projectName && applicationName) {
       const fetchPreprocessingPipeline = async () => {
-        try {
-          //開始抓取資料，畫面顯示loading
-          setIsLoading(true);
-          const response = await axios.get(
-            `/api/projects/${projectName}/applications/${applicationName}/preprocessingPipelines`
-          );
+        const response = await getTestAPI(
+          `projects/${projectName}/applications/${applicationName}/preprocessingPipelines`
+        );
+        if (response && response.data) {
           setPreprocessingPipelines(response.data);
-        } catch (error) {
-          console.error("Error fetching preprocessing pipeline：", error);
-        } finally {
-          //結束抓資料，畫面顯示資料
           setIsLoading(false);
+        } else if (response && response instanceof Error) {
+          console.error(
+            "Error fetching preprocessing pipeline：",
+            response.message
+          );
         }
       };
       fetchPreprocessingPipeline();

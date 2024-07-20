@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import { getTestAPI } from "@/app/api/entrypoint";
 
 export const useFetchModels = (projectName, applicationName) => {
   const [models, setModels] = useState([]);
@@ -11,18 +11,14 @@ export const useFetchModels = (projectName, applicationName) => {
   useEffect(() => {
     if (projectName && applicationName) {
       const fetchModels = async () => {
-        try {
-          //開始抓取資料，畫面顯示loading
-          setIsLoading(true);
-          const response = await axios.get(
-            `/api/projects/${projectName}/applications/${applicationName}/models`
-          );
+        const response = await getTestAPI(
+          `projects/${projectName}/applications/${applicationName}/models`
+        );
+        if (response && response.data) {
           setModels(response.data);
-        } catch (error) {
-          console.error("Error fetching models：", error);
-        } finally {
-          //結束抓資料，畫面顯示資料
           setIsLoading(false);
+        } else if (response && response instanceof Error) {
+          console.error("Error fetching models：", response.message);
         }
       };
       fetchModels();

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import { getTestAPI } from "@/app/api/entrypoint";
 
 export const useFetchProjects = () => {
   const [projects, setProjects] = useState([]);
@@ -7,16 +7,13 @@ export const useFetchProjects = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      try {
-        //開始抓取資料，畫面顯示loading
-        setIsLoading(true);
-        const response = await axios.get("/api/projects");
+      //開始抓取資料，畫面顯示loading
+      const response = await getTestAPI("projects");
+      if (response && response.data) {
         setProjects(response.data);
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      } finally {
-        //結束抓取資料，畫面顯示資料
         setIsLoading(false);
+      } else if (response && response instanceof Error) {
+        console.error("Error fetching projects:", response.message);
       }
     };
 
