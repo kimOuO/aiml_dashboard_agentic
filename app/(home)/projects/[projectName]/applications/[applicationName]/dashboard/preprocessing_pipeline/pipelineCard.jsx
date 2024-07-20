@@ -1,12 +1,12 @@
 import React from "react";
 
-const DatasetCard = ({ dataset }) => {
+export const PipelineCard = ({pipeline}) => {
   return (
-    <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
+    <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer">
       <div>
-        <div className="bg-blue-300 rounded-lg p-0.5">{dataset.id}</div>
-        <h2 className="text-xl font-semibold p-1">{dataset.name}</h2>
-        <p className="text-gray-500">{dataset.description}</p>
+        <div className="bg-blue-300 rounded-lg p-0.5">{pipeline.id}</div>
+        <h2 className="text-xl font-semibold p-1">{pipeline.name}</h2>
+        <p className="text-gray-500">{pipeline.description}</p>
       </div>
       <div className="space-x-8 px-5">
         <button>
@@ -23,4 +23,4 @@ const DatasetCard = ({ dataset }) => {
   );
 };
 
-export default DatasetCard;
+

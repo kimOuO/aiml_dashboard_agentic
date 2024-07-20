@@ -3,16 +3,38 @@ import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DatasetCard from "./datasetCard";
 import { DatasetsPagination } from "./service";
 
-const DatasetsTabsContent = ({ 
-  activeTab, inputValue, handleSearchChange, handleSearchClick, filteredDatasets, isLoading,
-  currentPage, totalPage, handlePageChange}) => {
+const DatasetsTabsContent = ({
+  activeTab,
+  inputValue,
+  handleSearchChange,
+  handleSearchClick,
+  filteredDatasets,
+  isLoading,
+  currentPage,
+  totalPage,
+  handlePageChange,
+}) => {
   return (
     <>
       <TabsList className="flex mb-4">
-        <TabsTrigger value="original" className={`flex-1 py-2 cursor-pointer text-center rounded-t-lg border-b-2 ${activeTab === 'original' ? 'border-blue-400 bg-blue-400 text-white font-bold' : 'border-gray-300 bg-gray-200 text-black'}`}>
+        <TabsTrigger
+          value="original"
+          className={` text-lg flex-1 py-3 cursor-pointer text-center rounded-t-lg border-b-2 ${
+            activeTab === "original"
+              ? "border-blue-400 bg-blue-400 font-bold"
+              : "border-gray-400 bg-gray-200"
+          }`}
+        >
           Original Datasets
         </TabsTrigger>
-        <TabsTrigger value="training" className={`flex-1 py-2 cursor-pointer text-center rounded-t-lg border-b-2 ${activeTab === 'training' ? 'border-blue-400 bg-blue-400 text-white font-bold' : 'border-gray-300 bg-gray-200 text-black'}`}>
+        <TabsTrigger
+          value="training"
+          className={`text-lg flex-1 py-3 cursor-pointer text-center rounded-t-lg border-b-2 ${
+            activeTab === "training"
+              ? "border-blue-400 bg-blue-400 font-bold"
+              : "border-gray-400 bg-gray-200 "
+          }`}
+        >
           Training Datasets
         </TabsTrigger>
       </TabsList>
@@ -30,7 +52,7 @@ const DatasetsTabsContent = ({
               <img src="/project/search.svg" alt="Search" />
             </button>
           </div>
-          <button className="bg-green-500 text-white px-4 py-2 rounded-md">
+          <button className="text-lg bg-green-700 text-white px-4 py-2 rounded-md">
             Upload Original Dataset
           </button>
         </div>
@@ -45,8 +67,10 @@ const DatasetsTabsContent = ({
                 <DatasetCard key={dataset.id} dataset={dataset} />
               ))}
             </div>
-            <DatasetsPagination 
-              currentPage={currentPage} totalPage={totalPage} onPageChange={handlePageChange}
+            <DatasetsPagination
+              currentPage={currentPage}
+              totalPage={totalPage}
+              onPageChange={handlePageChange}
             />
           </>
         )}
@@ -65,7 +89,7 @@ const DatasetsTabsContent = ({
               <img src="/project/search.svg" alt="Search" />
             </button>
           </div>
-          <button className="bg-green-500 text-white px-4 py-2 rounded-md">
+          <button className="text-lg bg-green-700 text-white px-4 py-2 rounded-md">
             Upload Training Dataset
           </button>
         </div>
@@ -80,8 +104,10 @@ const DatasetsTabsContent = ({
                 <DatasetCard key={dataset.id} dataset={dataset} />
               ))}
             </div>
-            <DatasetsPagination 
-              currentPage={currentPage} totalPage={totalPage} onPageChange={handlePageChange}
+            <DatasetsPagination
+              currentPage={currentPage}
+              totalPage={totalPage}
+              onPageChange={handlePageChange}
             />
           </>
         )}
