@@ -65,7 +65,10 @@ export default function Training_Pipeline_Page() {
             {trainingPipelines.map((traPipe)=>(
               <PipelineCard
                 key={traPipe.id}
+                projectName={projectNameDecode}
+                applicationName={applicationNameDecode}
                 pipeline={traPipe}
+                path="training_pipeline"
               />
             ))}
           </div>
