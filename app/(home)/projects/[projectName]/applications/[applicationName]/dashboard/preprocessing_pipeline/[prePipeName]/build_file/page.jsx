@@ -3,28 +3,27 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchTrainingTask, handleLinkClick } from "./service";
-import { TaskCard } from "../../../preprocessing_pipeline/[preprocessing_pipelineName]/tasks/taskCard"
+import { useFetchPreprocessingTask, handleLinkClick } from "./service";
+import { BuildFileCard } from "./buildFileCard";
 
-export default function TrainingPipelinePage() {
+export default function PreprocessingBuildFilePage() {
   const { projectName, applicationName } = useParams();
   const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
-  const { trainingTasks, isLoading } = useFetchTrainingTask(projectNameDecode,applicationNameDecode);
+  const { preprocessingTasks, isLoading } = useFetchPreprocessingTask(projectNameDecode,applicationNameDecode);
   const { handleBuildFileClick, handleConfigClick } = handleLinkClick(
     projectNameDecode,
     applicationNameDecode
   );
-  const pipelineName = "UAV訓練管線";
-
+  const pipelineName = "UAV前處理管線";
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
         <div className="flex justify-between items-center mb-6">
           <div>
             <p className="text-gray-500">
-              Projects / {projectNameDecode} / Applications / {applicationNameDecode} / Training Pipeline /
+              Projects / {projectNameDecode} / Applications / {applicationNameDecode} / Preprocessing Pipeline /
               <span className="text-black"> {pipelineName} </span>
             </p>
             <div className="flex items-center mb-6 space-x-4">
@@ -59,7 +58,7 @@ export default function TrainingPipelinePage() {
             </div>
           </div>
           <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
-            Run Training Task
+            Run Preprocessing Task
           </button>
         </div>
         {/*放card */}
@@ -67,8 +66,8 @@ export default function TrainingPipelinePage() {
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {trainingTasks.map((trainTask) => (
-              <TaskCard key={trainTask.id} task={trainTask} />
+            {preprocessingTasks.map((preTask) => (
+              <TaskCard key={preTask.id} task={preTask} />
             ))}
           </div>
         )}
