@@ -3,24 +3,24 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchPreprocessingBuildFile, handleLinkClick } from "./service";
-import { BuildFileCard } from "./buildFileCard";
+import { useFetchTrainingBuildFile, handleLinkClick } from "./service";
+import { BuildFileCard } from "../../../preprocessing_pipeline/[prePipeName]/build_file/buildFileCard";
 
-export default function PreprocessingBuildFilePage() {
-  const { projectName, applicationName, prePipeName } = useParams();
+export default function TrainingBuildFilePage() {
+  const { projectName, applicationName, trainPipeName } = useParams();
   const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
-  const prePipeNameDecode = decodeURIComponent(prePipeName);
-  const { preprocessingBuildFile, isLoading } = useFetchPreprocessingBuildFile(
+  const trainPipeNameDecode = decodeURIComponent(trainPipeName);
+  const { trainingBuildFile, isLoading } = useFetchTrainingBuildFile(
     projectNameDecode,
     applicationNameDecode,
-    prePipeNameDecode
+    trainPipeNameDecode
   );
   const { handleConfigClick, handleTasksClick } = handleLinkClick(
     projectNameDecode,
     applicationNameDecode,
-    prePipeNameDecode
+    trainPipeNameDecode
   );
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -30,7 +30,7 @@ export default function PreprocessingBuildFilePage() {
             <p className="text-gray-500">
               Projects / {projectNameDecode} / Applications /{" "}
               {applicationNameDecode} / Preprocessing Pipeline /
-              <span className="text-black"> {prePipeNameDecode} </span>
+              <span className="text-black"> {trainPipeNameDecode} </span>
             </p>
             <div className="flex items-center mb-6 space-x-4">
               <button onClick={handleBackClick}>
@@ -72,8 +72,11 @@ export default function PreprocessingBuildFilePage() {
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {preprocessingBuildFile.map((preBuildFile) => (
-              <BuildFileCard key={preBuildFile.id} buildFile={preBuildFile} />
+            {trainingBuildFile.map((trainBuildFile) => (
+              <BuildFileCard
+                key={trainBuildFile.id}
+                buildFile={trainBuildFile}
+              />
             ))}
           </div>
         )}
