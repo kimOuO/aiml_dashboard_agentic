@@ -1,12 +1,12 @@
 import React from "react";
 
-export const BuildFileCard = ({ buildFile }) => {
+export const ConfigCard = ({ config }) => {
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer">
       <div>
-        <div className="bg-blue-300 rounded-lg p-0.5">{buildFile.id}</div>
-        <h2 className="text-xl font-semibold p-1">{buildFile.name}</h2>
-        <p className="text-gray-500">{buildFile.description}</p>
+        <div className="bg-blue-300 rounded-lg p-0.5">{config.id}</div>
+        <h2 className="text-xl font-semibold p-1">{config.name}</h2>
+        <p className="text-gray-500">{config.description}</p>
       </div>
       <div className="space-x-8 px-5">
         <button>

@@ -22,7 +22,6 @@ export default function TrainingTaskPage() {
     applicationNameDecode,
     trainPipeNameDecode
   );
-  const pipelineName = "UAV訓練管線";
 
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -32,7 +31,7 @@ export default function TrainingTaskPage() {
             <p className="text-gray-500">
               Projects / {projectNameDecode} / Applications /{" "}
               {applicationNameDecode} / Training Pipeline /
-              <span className="text-black"> {pipelineName} </span>
+              <span className="text-black"> {trainPipeNameDecode} </span>
             </p>
             <div className="flex items-center mb-6 space-x-4">
               <button onClick={handleBackClick}>
