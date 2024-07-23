@@ -29,7 +29,7 @@ export default function AgentsPage() {
         </div>
         <div>
           {agents.map((agent, index) => (
-            <Link href={`/agents/link/${agent.name}`} key={index}>
+            <Link href={`/agents/${agent.name}/link`} key={index}>
               <div
                 key={index}
                 className="bg-white p-4 rounded shadow mb-4 flex justify-between items-center border border-slate-300 w-full"
