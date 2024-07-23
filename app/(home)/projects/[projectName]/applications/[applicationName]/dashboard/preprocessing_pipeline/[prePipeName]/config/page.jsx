@@ -3,41 +3,51 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchTrainingPipeline, handleLinkClick } from "./service";
-import { PipelineCard } from "../preprocessing_pipeline/pipelineCard";
+import { useFetchPreprocessingConfig, handleLinkClick } from "./service";
+import { ConfigCard } from "./configCard";
 
-export default function TrainingPipelinePage() {
-  const { projectName, applicationName } = useParams();
+export default function PreprocessingConfigPage() {
+  const { projectName, applicationName, prePipeName } = useParams();
   const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
-  const { trainingPipelines, isLoading } = useFetchTrainingPipeline(
+  const prePipeNameDecode = decodeURIComponent(prePipeName);
+  const { preprocessingConfig, isLoading } = useFetchPreprocessingConfig(
     projectNameDecode,
-    applicationNameDecode
+    applicationNameDecode,
+    prePipeNameDecode
   );
-  const { handleModelClick, handlePreprocessingPipelineClick } =
-    handleLinkClick(projectNameDecode, applicationNameDecode);
+  const {
+    handleTasksClick,
+    handleTrainingPipelineClick,
+    handleBuildFileClick,
+  } = handleLinkClick(
+    projectNameDecode,
+    applicationNameDecode,
+    prePipeNameDecode
+  );
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
         <div className="flex justify-between items-center mb-6">
           <div>
             <p className="text-gray-500">
-              Projects / {projectNameDecode} / Applications /
-              <span className="text-black"> {applicationNameDecode}</span>
+              Projects / {projectNameDecode} / Applications /{" "}
+              {applicationNameDecode} / Preprocessing Pipeline /
+              <span className="text-black"> {prePipeNameDecode} </span>
             </p>
             <div className="flex items-center mb-6 space-x-4">
               <button onClick={handleBackClick}>
                 <img src="/project/vector_left.svg" alt="Back" />
               </button>
-              <p className="text-3xl">Training Pipeline</p>
+              <p className="text-3xl">Config</p>
             </div>
             <div className="flex space-x-4 mt-4">
               <div
                 className="bg-green-100 text-green-800 px-1 py-0.5 rounded-md cursor-pointer flex items-center space-x-2"
-                onClick={handleModelClick}
+                onClick={handleTasksClick}
               >
-                <span>Model</span>
+                <span>Tasks</span>
                 <img
                   src="/project/external-link.svg"
                   alt="External Link"
@@ -46,9 +56,20 @@ export default function TrainingPipelinePage() {
               </div>
               <div
                 className="bg-blue-100 text-blue-800 px-1 py-0.5 rounded-md cursor-pointer flex items-center space-x-2 "
-                onClick={handlePreprocessingPipelineClick}
+                onClick={handleTrainingPipelineClick}
               >
-                <span>Preprocessing Pipeline</span>
+                <span>Training Pipeline</span>
+                <img
+                  src="/project/external-link.svg"
+                  alt="External Link"
+                  className="w-4 h-4"
+                />
+              </div>
+              <div
+                className="bg-yellow-100 text-yellow-800 px-1 py-0.5 rounded-md cursor-pointer flex items-center space-x-2 "
+                onClick={handleBuildFileClick}
+              >
+                <span>Build File</span>
                 <img
                   src="/project/external-link.svg"
                   alt="External Link"
@@ -57,8 +78,8 @@ export default function TrainingPipelinePage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-6 py-4 rounded-2xl text-xl ">
-            Upload Training Pipeline
+          <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
+            Create Task Config
           </button>
         </div>
         {/*放card */}
@@ -66,14 +87,8 @@ export default function TrainingPipelinePage() {
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {trainingPipelines.map((traPipe) => (
-              <PipelineCard
-                key={traPipe.id}
-                projectName={projectNameDecode}
-                applicationName={applicationNameDecode}
-                pipeline={traPipe}
-                path="training_pipeline"
-              />
+            {preprocessingConfig.map((preConfig) => (
+              <ConfigCard key={preConfig.id} config={preConfig} />
             ))}
           </div>
         )}
