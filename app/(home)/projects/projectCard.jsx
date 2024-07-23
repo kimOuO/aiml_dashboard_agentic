@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { EditModal, DeleteModal } from "./projectModal";
 
-const ProjectCard = ({ project }) => {
+const ProjectCard = ({ project, onEdit, onDelete }) => {
   const router = useRouter();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleDatasetsClick = () => {
     router.push(`/projects/${project.name}/datasets`);
@@ -11,17 +14,35 @@ const ProjectCard = ({ project }) => {
   const handleApplicationsClick = () => {
     router.push(`/projects/${project.name}/applications`);
   };
+
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
       <div>
         <h2 className="text-xl font-semibold p-1">{project.name}</h2>
-        <p className="text-gray-500">{project.date}</p>
+        <p className="text-gray-500">{project.description}</p>
+        <p className="text-gray-500">{project.createdTime}</p>
       </div>
       <div className="flex space-x-8 px-5">
-        <button>
+        <button onClick={handleEditClick}>
           <img src="/project/edit.svg" alt="Edit" />
         </button>
-        <button>
+        <button onClick={handleDeleteClick}>
           <img src="/project/delete.svg" alt="Delete" />
         </button>
         <button onClick={handleDatasetsClick}>
@@ -37,6 +58,20 @@ const ProjectCard = ({ project }) => {
           </div>
         </button>
       </div>
+      {isEditModalOpen && (
+        <EditModal
+          project={project}
+          onClose={handleCloseEditModal}
+          onEdit={onEdit}
+        />
+      )}
+      {isDeleteModalOpen && (
+        <DeleteModal
+          project={project}
+          onClose={handleCloseDeleteModal}
+          onDelete={onDelete}
+        />
+      )}
     </div>
   );
 };
