@@ -10,21 +10,22 @@ import {
 import { getTestAPI } from "@/app/api/entrypoint";
 
 export const useFetchDatasets = (
-  projectName,
+  projectUID,
   activeTab,
   searchQuery,
   currentPage
 ) => {
   const [dataset, setDatasets] = useState([]);
   //判斷dataset是否還在抓取資料
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
-    if (projectName) {
+    setIsLoading(true);
+    if (projectUID && activeTab) {
       const fetchDatasets = async () => {
-        const response = await getTestAPI(
-          `projects/${projectName}/datasets/${activeTab}`
-        );
+        const response = await getTestAPI(`datasets`, {
+          projectUID,
+          activeTab,
+        });
         if (response && response.data) {
           setDatasets(response.data);
           setIsLoading(false);
@@ -35,8 +36,7 @@ export const useFetchDatasets = (
 
       fetchDatasets();
     }
-  }, [projectName, activeTab, searchQuery, currentPage]);
-
+  }, [projectUID, activeTab, searchQuery, currentPage]);
   return { dataset, isLoading };
 };
 

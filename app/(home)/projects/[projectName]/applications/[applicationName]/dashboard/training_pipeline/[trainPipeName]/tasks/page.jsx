@@ -1,26 +1,28 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchTrainingTask, handleLinkClick } from "./service";
+import { useFetchTask } from "../../../preprocessing_pipeline/[prePipeName]/tasks/service";
+import { handleLinkClick } from "./service";
 import { TaskCard } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskCard";
 
 export default function TrainingTaskPage() {
   const { projectName, applicationName, trainPipeName } = useParams();
-  const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
   const trainPipeNameDecode = decodeURIComponent(trainPipeName);
-  const { trainingTasks, isLoading } = useFetchTrainingTask(
-    projectNameDecode,
-    applicationNameDecode,
-    trainPipeNameDecode
-  );
+  const searchParams = useSearchParams();
+  const pipelineUID = searchParams.get("pipelineUID");
+  const type = "training";
+
+  const handleBackClick = useBackNavigation();
+  const { tasks: trainingTasks, isLoading } = useFetchTask(pipelineUID, type);
   const { handleBuildFileClick, handleConfigClick } = handleLinkClick(
     projectNameDecode,
     applicationNameDecode,
-    trainPipeNameDecode
+    trainPipeNameDecode,
+    pipelineUID
   );
 
   return (

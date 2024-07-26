@@ -1,18 +1,28 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import {useFetchPreprocessingPipeline, handleLinkClick} from "./service"
-import {PipelineCard} from "./pipelineCard"
+import { useFetchPipeline, handleLinkClick } from "./service";
+import { PipelineCard } from "./pipelineCard";
 
 export default function PreprocessingPipelinePage() {
   const { projectName, applicationName } = useParams();
-  const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
-  const {preprocessingPipelines, isLoading} = useFetchPreprocessingPipeline(projectNameDecode, applicationNameDecode);
-  const {handleTrainingPipelineClick, handleModelClick}=handleLinkClick(projectNameDecode, applicationNameDecode);
+  const handleBackClick = useBackNavigation();
+  const searchParams = useSearchParams();
+  const applicationUID = searchParams.get("applicationUID");
+  const type = "preprocessing";
+  const { pipelines: preprocessingpipelines, isLoading } = useFetchPipeline(
+    applicationUID,
+    type
+  );
+  const { handleTrainingPipelineClick, handleModelClick } = handleLinkClick(
+    projectNameDecode,
+    applicationNameDecode,
+    applicationUID
+  );
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -29,7 +39,7 @@ export default function PreprocessingPipelinePage() {
               <p className="text-3xl">Preprocessing Pipeline</p>
             </div>
             <div className="flex space-x-4 mt-4">
-              <div 
+              <div
                 className="bg-green-100 text-green-800 px-1 py-0.5 rounded-md cursor-pointer flex items-center space-x-2"
                 onClick={handleTrainingPipelineClick}
               >
@@ -40,7 +50,7 @@ export default function PreprocessingPipelinePage() {
                   className="w-4 h-4"
                 />
               </div>
-              <div 
+              <div
                 className="bg-blue-100 text-blue-800 px-1 py-0.5 rounded-md cursor-pointer flex items-center space-x-2 "
                 onClick={handleModelClick}
               >
@@ -60,9 +70,9 @@ export default function PreprocessingPipelinePage() {
         {/*放card */}
         {isLoading ? (
           <div>Loading ...</div>
-        ):(
+        ) : (
           <div className="space-y-4">
-            {preprocessingPipelines.map((prePipe)=>(
+            {preprocessingpipelines.map((prePipe) => (
               <PipelineCard
                 key={prePipe.id}
                 projectName={projectNameDecode}

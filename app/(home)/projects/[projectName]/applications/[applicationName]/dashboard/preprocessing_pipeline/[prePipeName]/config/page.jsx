@@ -1,21 +1,24 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchPreprocessingConfig, handleLinkClick } from "./service";
+import { useFetchConfigs, handleLinkClick } from "./service";
 import { ConfigCard } from "./configCard";
 
 export default function PreprocessingConfigPage() {
   const { projectName, applicationName, prePipeName } = useParams();
-  const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
   const prePipeNameDecode = decodeURIComponent(prePipeName);
-  const { preprocessingConfig, isLoading } = useFetchPreprocessingConfig(
-    projectNameDecode,
-    applicationNameDecode,
-    prePipeNameDecode
+  const searchParams = useSearchParams();
+  const pipelineUID = searchParams.get("pipelineUID");
+  const type = "preprocessing";
+
+  const handleBackClick = useBackNavigation();
+  const { configs: preprocessingConfigs, isLoading } = useFetchConfigs(
+    pipelineUID,
+    type
   );
   const {
     handleTasksClick,
@@ -24,7 +27,8 @@ export default function PreprocessingConfigPage() {
   } = handleLinkClick(
     projectNameDecode,
     applicationNameDecode,
-    prePipeNameDecode
+    prePipeNameDecode,
+    pipelineUID
   );
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -87,7 +91,7 @@ export default function PreprocessingConfigPage() {
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {preprocessingConfig.map((preConfig) => (
+            {preprocessingConfigs.map((preConfig) => (
               <ConfigCard key={preConfig.id} config={preConfig} />
             ))}
           </div>

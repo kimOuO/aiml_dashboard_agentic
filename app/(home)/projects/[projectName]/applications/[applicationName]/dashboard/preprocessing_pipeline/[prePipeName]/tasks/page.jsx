@@ -1,26 +1,29 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchPreprocessingTask, handleLinkClick } from "./service";
+import { useFetchTask, handleLinkClick } from "./service";
 import { TaskCard } from "./taskCard";
 
 export default function PreprocessingTaskPage() {
   const { projectName, applicationName, prePipeName } = useParams();
-  const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
   const prePipeNameDecode = decodeURIComponent(prePipeName);
-  const { preprocessingTasks, isLoading } = useFetchPreprocessingTask(
-    projectNameDecode,
-    applicationNameDecode,
-    prePipeNameDecode
+  const searchParams = useSearchParams();
+  const pipelineUID = searchParams.get("pipelineUID");
+  const type = "preprocessing";
+  const handleBackClick = useBackNavigation();
+  const { tasks: preprocessingTasks, isLoading } = useFetchTask(
+    pipelineUID,
+    type
   );
   const { handleBuildFileClick, handleConfigClick } = handleLinkClick(
     projectNameDecode,
     applicationNameDecode,
-    prePipeNameDecode
+    prePipeNameDecode,
+    pipelineUID
   );
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">

@@ -4,7 +4,7 @@ export const ConfigCard = ({ config }) => {
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer">
       <div>
-        <div className="bg-blue-300 rounded-lg p-0.5">{config.id}</div>
+        <div className="bg-blue-300 rounded-lg p-0.5">{config.uid}</div>
         <h2 className="text-xl font-semibold p-1">{config.name}</h2>
         <p className="text-gray-500">{config.description}</p>
       </div>

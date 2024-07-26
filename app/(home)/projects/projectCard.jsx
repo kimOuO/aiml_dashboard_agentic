@@ -8,11 +8,13 @@ const ProjectCard = ({ project, onEdit, onDelete }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleDatasetsClick = () => {
-    router.push(`/projects/${project.name}/datasets`);
+    router.push(`/projects/${project.name}/datasets?projectUID=${project.uid}`);
   };
 
   const handleApplicationsClick = () => {
-    router.push(`/projects/${project.name}/applications`);
+    router.push(
+      `/projects/${project.name}/applications?projectUID=${project.uid}`
+    );
   };
 
   const handleEditClick = () => {
@@ -36,7 +38,7 @@ const ProjectCard = ({ project, onEdit, onDelete }) => {
       <div>
         <h2 className="text-xl font-semibold p-1">{project.name}</h2>
         <p className="text-gray-500">{project.description}</p>
-        <p className="text-gray-500">{project.createdTime}</p>
+        <p className="text-gray-500">{project.created_time}</p>
       </div>
       <div className="flex space-x-8 px-5">
         <button onClick={handleEditClick}>

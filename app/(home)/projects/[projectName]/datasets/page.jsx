@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useSearchParams, useParams } from "next/navigation";
 import {
   useFetchDatasets,
   useDatasetHandlers,
@@ -63,8 +63,11 @@ const DatasetsPage = ({
 
 const Page = () => {
   const { projectName } = useParams();
-  const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
+  const searchParams = useSearchParams();
+  const projectUID = searchParams.get("projectUID");
+  const handleBackClick = useBackNavigation();
+
   const {
     activeTab,
     searchQuery,
@@ -76,7 +79,7 @@ const Page = () => {
     handlePageChange,
   } = useDatasetHandlers();
   const { dataset, isLoading } = useFetchDatasets(
-    projectName,
+    projectUID,
     activeTab,
     searchQuery,
     currentPage

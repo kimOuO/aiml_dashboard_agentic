@@ -85,41 +85,50 @@ const signup = async (data: JSON): Promise<AxiosResponse | Error> => {
   }
 };
 
-const getTestAPI = async (endpoint: string):Promise<AxiosResponse | Error> => {
+const getTestAPI = async (
+  endpoint: string,
+  params?: Params
+): Promise<AxiosResponse | Error> => {
   const BASE_URL = "http://140.118.2.52:39303";
   const url = `${BASE_URL}/${endpoint}`;
   try {
-    const response = await axios.get(url);
+    const response = await axios.get(url, { params });
     return handleApiResponse(response);
-  }catch(error){
+  } catch (error) {
     handleApiError(error);
     return error;
   }
 };
 
-const putTestAPI = async (endpoint: string, data:object):Promise<AxiosResponse | Error> => {
+const putTestAPI = async (
+  endpoint: string,
+  data: object
+): Promise<AxiosResponse | Error> => {
   const BASE_URL = "http://140.118.2.52:39303";
   const url = `${BASE_URL}/${endpoint}`;
   try {
     const response = await axios.put(url, data);
     return handleApiResponse(response);
-  }catch(error){
+  } catch (error) {
     handleApiError(error);
     return error;
   }
 };
 
-const deleteTestAPI = async(endpoint:string , uid:string):Promise<AxiosResponse | Error> => {
+const deleteTestAPI = async (
+  endpoint: string,
+  uid: string
+): Promise<AxiosResponse | Error> => {
   const BASE_URL = "http://140.118.2.52:39303";
   const url = `${BASE_URL}/${endpoint}`;
-  try{
+  try {
     const response = await axios.delete(url, uid);
     return handleApiResponse(response);
-  } catch(error){
+  } catch (error) {
     handleApiError(error);
     return error;
   }
-}
+};
 
 const getAPI = async (
   api_key: string,
@@ -196,5 +205,5 @@ export {
   signup,
   getTestAPI,
   putTestAPI,
-  deleteTestAPI
+  deleteTestAPI,
 };

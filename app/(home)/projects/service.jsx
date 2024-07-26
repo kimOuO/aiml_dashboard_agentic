@@ -3,11 +3,12 @@ import { getTestAPI, putTestAPI, deleteTestAPI } from "@/app/api/entrypoint";
 
 export const useFetchProjects = () => {
   const [projects, setProjects] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   //用於觸發重新抓取data
   const [fetchTrigger, setFetchTrigger] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     const fetchProjects = async () => {
       //開始抓取資料，畫面顯示loading
       const response = await getTestAPI(`projects`);
@@ -29,36 +30,36 @@ export const useFetchProjects = () => {
   };
 };
 
-export const useUpdateProjects = (projectId, formData) => {
+export const useUpdateProject = (projectUID, formData) => {
   const updateProject = async () => {
-    if (projectId) {
-      const response = await putTestAPI(`projects/${projectId}`, formData);
+    if (projectUID) {
+      const response = await putTestAPI(`projects/${projectUID}`, formData);
       if (response && response.data) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error updating projects:", response.message);
+        console.error("Error updating project:", response.message);
       }
     }
   };
   return { updateProject };
 };
 
-export const useDeleteProjects = (projectId) => {
+export const useDeleteProject = (projectUID) => {
   const deleteProject = async () => {
-    if (projectId) {
-      const response = await deleteTestAPI(`projects/${projectId}`);
+    if (projectUID) {
+      const response = await deleteTestAPI(`projects/${projectUID}`);
       if (response && response.data) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error deleting projects:", response.message);
+        console.error("Error deleting project:", response.message);
       }
     }
   };
   return { deleteProject };
 };
 
-export const handleUpdate = async (projectId, formData, onEdit, onClose) => {
-  const { updateProject } = useUpdateProjects(projectId, formData);
+export const handleUpdate = async (projectUID, formData, onEdit, onClose) => {
+  const { updateProject } = useUpdateProject(projectUID, formData);
   const response = await updateProject();
   if (response && !(response instanceof Error)) {
     onEdit();
@@ -66,8 +67,8 @@ export const handleUpdate = async (projectId, formData, onEdit, onClose) => {
   }
 };
 
-export const handleDelete = async (projectId, onDelete, onClose) => {
-  const { deleteProject } = useDeleteProjects(projectId);
+export const handleDelete = async (projectUID, onDelete, onClose) => {
+  const { deleteProject } = useDeleteProject(projectUID);
   const response = await deleteProject();
   if (response && !(response instanceof Error)) {
     onDelete();

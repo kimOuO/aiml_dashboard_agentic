@@ -17,7 +17,7 @@ export const EditModal = ({ project, onClose, onEdit }) => {
   };
 
   const handleUpdateClick = () => {
-    handleUpdate(project.id, formData, onEdit, onClose);
+    handleUpdate(project.uid, formData, onEdit, onClose);
   };
 
   return (
@@ -41,7 +41,7 @@ export const EditModal = ({ project, onClose, onEdit }) => {
           </label>
           <input
             type="text"
-            value={project.id}
+            value={project.uid}
             readOnly
             className="bg-gray-200 border-gray-400 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
@@ -76,7 +76,7 @@ export const EditModal = ({ project, onClose, onEdit }) => {
           </label>
           <input
             type="text"
-            value={project.createdTime}
+            value={project.created_time}
             readOnly
             className="bg-gray-200 border-gray-400 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
@@ -102,7 +102,7 @@ export const EditModal = ({ project, onClose, onEdit }) => {
 
 export const DeleteModal = ({ project, onClose, onDelete }) => {
   const handleDeleteClick = () => {
-    handleDelete(project.id, onDelete, onClose);
+    handleDelete(project.uid, onDelete, onClose);
   };
 
   return (

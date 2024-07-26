@@ -3,17 +3,15 @@
 import { useEffect, useState } from "react";
 import { getTestAPI } from "@/app/api/entrypoint";
 
-export const useFetchApplications = (projectName) => {
+export const useFetchApplications = (projectUID) => {
   const [applications, setApplications] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
-    if (projectName) {
+    setIsLoading(true);
+    if (projectUID) {
       const fetchApplications = async () => {
         //開始抓取資料，畫面顯示loading
-        const response = await getTestAPI(
-          `projects/${projectName}/applications`
-        );
+        const response = await getTestAPI(`applications`, { projectUID });
         if (response && response.data) {
           setApplications(response.data);
           setIsLoading(false);
@@ -24,7 +22,7 @@ export const useFetchApplications = (projectName) => {
 
       fetchApplications();
     }
-  }, [projectName]);
+  }, [projectUID]);
 
   return { applications, isLoading };
 };

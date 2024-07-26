@@ -1,27 +1,32 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchTrainingConfig, handleLinkClick } from "./service";
+import { handleLinkClick } from "./service";
+import { useFetchConfigs } from "../../../preprocessing_pipeline/[prePipeName]/config/service";
 import { ConfigCard } from "../../../preprocessing_pipeline/[prePipeName]/config/configCard";
 
 export default function TrainingConfigPage() {
   const { projectName, applicationName, trainPipeName } = useParams();
-  const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
   const trainPipeNameDecode = decodeURIComponent(trainPipeName);
-  const { trainingConfig, isLoading } = useFetchTrainingConfig(
-    projectNameDecode,
-    applicationNameDecode,
-    trainPipeNameDecode
+  const searchParams = useSearchParams();
+  const pipelineUID = searchParams.get("pipelineUID");
+  const type = "training";
+
+  const handleBackClick = useBackNavigation();
+  const { configs: trainingConfigs, isLoading } = useFetchConfigs(
+    pipelineUID,
+    type
   );
   const { handleTasksClick, handleModelClick, handleBuildFileClick } =
     handleLinkClick(
       projectNameDecode,
       applicationNameDecode,
-      trainPipeNameDecode
+      trainPipeNameDecode,
+      pipelineUID
     );
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -84,7 +89,7 @@ export default function TrainingConfigPage() {
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {trainingConfig.map((trainConfig) => (
+            {trainingConfigs.map((trainConfig) => (
               <ConfigCard key={trainConfig.id} config={trainConfig} />
             ))}
           </div>
