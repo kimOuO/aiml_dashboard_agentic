@@ -2,11 +2,8 @@
 
 import React from "react";
 import { useSearchParams, useParams } from "next/navigation";
-import {
-  useFetchDatasets,
-  useDatasetHandlers,
-  useFilteredDatasets,
-} from "./service";
+import { useFetchDatasets } from "./service";
+import { useDatasetHandlers, useFilteredDatasets } from "./handleService";
 import DatasetsTabsContent from "./datasetsTabsContent";
 import { Tabs } from "@/components/ui/tabs";
 import { useBackNavigation } from "@/app/backNavigation";
@@ -25,6 +22,8 @@ const DatasetsPage = ({
   totalPage,
   handlePageChange,
   handleBackClick,
+  triggerFetch,
+  projectNameDecode
 }) => {
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -45,7 +44,6 @@ const DatasetsPage = ({
             <DatasetsTabsContent
               activeTab={activeTab}
               inputValue={inputValue}
-              handleTabClick={handleTabClick}
               handleSearchChange={handleSearchChange}
               handleSearchClick={handleSearchClick}
               filteredDatasets={filteredDatasets}
@@ -53,6 +51,8 @@ const DatasetsPage = ({
               currentPage={currentPage}
               totalPage={totalPage}
               handlePageChange={handlePageChange}
+              triggerFetch={triggerFetch}
+              projectNameDecode={projectNameDecode}
             />
           </Tabs>
         </div>
@@ -61,7 +61,7 @@ const DatasetsPage = ({
   );
 };
 
-const Page = () => {
+export default function Page() {
   const { projectName } = useParams();
   const projectNameDecode = decodeURIComponent(projectName);
   const searchParams = useSearchParams();
@@ -78,7 +78,7 @@ const Page = () => {
     handleSearchClick,
     handlePageChange,
   } = useDatasetHandlers();
-  const { dataset, isLoading } = useFetchDatasets(
+  const { dataset, isLoading,triggerFetch } = useFetchDatasets(
     projectUID,
     activeTab,
     searchQuery,
@@ -93,7 +93,6 @@ const Page = () => {
     <DatasetsPage
       projectName={projectNameDecode}
       activeTab={activeTab}
-      searchQuery={searchQuery}
       inputValue={inputValue}
       handleTabClick={handleTabClick}
       handleSearchChange={handleSearchChange}
@@ -104,8 +103,8 @@ const Page = () => {
       totalPage={totalPage}
       handlePageChange={handlePageChange}
       handleBackClick={handleBackClick}
+      triggerFetch={triggerFetch}
+      projectNameDecode={projectNameDecode}
     />
   );
-};
-
-export default Page;
+}

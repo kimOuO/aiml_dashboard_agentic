@@ -1,13 +1,5 @@
-import { useEffect, useState, useMemo } from "react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { getTestAPI } from "@/app/api/entrypoint";
+import { useEffect, useState } from "react";
+import { getTestAPI, putTestAPI, deleteTestAPI } from "@/app/api/entrypoint";
 
 export const useFetchDatasets = (
   projectUID,
@@ -16,8 +8,8 @@ export const useFetchDatasets = (
   currentPage
 ) => {
   const [dataset, setDatasets] = useState([]);
-  //判斷dataset是否還在抓取資料
   const [isLoading, setIsLoading] = useState(false);
+  const [fetchTrigger, setFetchTrigger] = useState(false);
   useEffect(() => {
     setIsLoading(true);
     if (projectUID && activeTab) {
@@ -36,120 +28,57 @@ export const useFetchDatasets = (
 
       fetchDatasets();
     }
-  }, [projectUID, activeTab, searchQuery, currentPage]);
-  return { dataset, isLoading };
-};
-
-//管理dataset動作
-export const useDatasetHandlers = () => {
-  const [activeTab, setActiveTab] = useState("original");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [inputValue, setInputValue] = useState("");
-
-  //tabslist切換
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
-    //tabs切換會清除搜尋字串
-    setSearchQuery("");
-    //當切換tabs時會回到第一頁
-    setCurrentPage(1);
+  }, [projectUID, activeTab, searchQuery, currentPage, fetchTrigger]);
+  return {
+    dataset,
+    isLoading,
+    //用於觸發重新抓取
+    triggerFetch: () => setFetchTrigger(!fetchTrigger),
   };
-
-  //暫存輸入的text
-  const handleSearchChange = (e) => {
-    setInputValue(e.target.value);
-    //空字串時顯示所有dataset
-    if (e.target.value == "") {
-      setSearchQuery("");
+};
+//更新dataset
+export const useUpdateDataset = (datasetUID, formData) => {
+  const updateDataset = async () => {
+    if (datasetUID) {
+      const response = await putTestAPI(`datasets/${datasetUID}`, formData);
+      if (response && response.data) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error updating dataset：", response.message);
+      }
     }
   };
-
-  //button被按下後才query
-  const handleSearchClick = () => {
-    setSearchQuery(inputValue);
-    setCurrentPage(1);
+  return { updateDataset };
+};
+//刪除dataset
+export const useDeleteDataset = (datasetUID) => {
+  const deleteDataset = async () => {
+    if (datasetUID) {
+      const response = await deleteTestAPI(`datasets/${datasetUID}`);
+      if (response && response.data) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error deleting dataset：", response.message);
+      }
+    }
   };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-  return {
-    activeTab,
-    searchQuery,
-    currentPage,
-    inputValue,
-    handleTabClick,
-    handleSearchChange,
-    handleSearchClick,
-    handlePageChange,
-  };
+  return { deleteDataset };
 };
 
-export const useFilteredDatasets = (datasets, searchQuery, currentPage) => {
-  //搜尋以過濾dataset功能
-  const filteredDatasets = useMemo(() => {
-    return datasets.filter((dataset) =>
-      dataset.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [datasets, searchQuery]);
-
-  //每頁顯示之dataset數量
-  const datasetsPerPage = 5;
-  const totalPage = Math.ceil(filteredDatasets.length / datasetsPerPage);
-  //每個頁面要顯示哪一些dataset
-  const paginatedDatasets = filteredDatasets.slice(
-    (currentPage - 1) * datasetsPerPage,
-    currentPage * datasetsPerPage
-  );
-
-  return { paginatedDatasets, totalPage };
+export const handleUpdate = async (datasetUID, formData, onEdit, onClose) => {
+  const { updateDataset } = useUpdateDataset(datasetUID, formData);
+  const response = await updateDataset();
+  if (response && !(response instanceof Error)) {
+    onEdit();
+    onClose();
+  }
 };
 
-export const DatasetsPagination = ({
-  currentPage,
-  totalPage,
-  onPageChange,
-}) => {
-  return (
-    totalPage > 1 && (
-      <div className="flex justify-center mt-4">
-        <Pagination className="space-x-2">
-          {currentPage > 1 && (
-            <PaginationPrevious
-              onClick={() => onPageChange(currentPage - 1)}
-              className="transition duration-300 ease-in-out transform hover:-translate-x-1 hover:scale-105"
-            >
-              Provious
-            </PaginationPrevious>
-          )}
-          <PaginationContent className="flex space-x-2">
-            {Array.from({ length: totalPage }, (_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink
-                  active={currentPage === i + 1}
-                  onClick={() => onPageChange(i + 1)}
-                  className={`transition duration-300 ease-in-out transform hover:scale-105 ${
-                    currentPage === i + 1
-                      ? "bg-gray-600 text-white"
-                      : "bg-gray-200 text-black"
-                  }`}
-                >
-                  {i + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-          </PaginationContent>
-          {currentPage < totalPage && (
-            <PaginationNext
-              onClick={() => onPageChange(currentPage + 1)}
-              className="transition duration-300 ease-in-out transform hover:translate-x-1 hover:scale-105"
-            >
-              Next
-            </PaginationNext>
-          )}
-        </Pagination>
-      </div>
-    )
-  );
+export const handleDelete = async (datasetUID, onDelete, onClose) => {
+  const { deleteDataset } = useDeleteDataset(datasetUID);
+  const response = await deleteDataset();
+  if (response && !(response instanceof Error)) {
+    onDelete();
+    onClose();
+  }
 };

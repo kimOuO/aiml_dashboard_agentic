@@ -1,6 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
+import { DeleteModal,EditModal } from "./datasetModal";
+const DatasetCard = ({ dataset, onEdit, onDelete, projectName }) => {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-const DatasetCard = ({ dataset }) => {
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
       <div>
@@ -9,16 +28,31 @@ const DatasetCard = ({ dataset }) => {
         <p className="text-gray-500">{dataset.description}</p>
       </div>
       <div className="space-x-8 px-5">
-        <button>
+        <button onClick={handleEditClick}>
           <img src="/project/edit.svg" alt="Edit" />
         </button>
         <button>
           <img src="/project/download.svg" alt="Download" />
         </button>
-        <button>
+        <button onClick={handleDeleteClick}>
           <img src="/project/delete.svg" alt="Delete" />
         </button>
       </div>
+      {isEditModalOpen && (
+        <EditModal
+          dataset={dataset}
+          onClose={handleCloseEditModal}
+          onEdit={onEdit}
+          projectName={projectName}
+        />
+      )}
+      {isDeleteModalOpen && (
+        <DeleteModal
+          dataset={dataset}
+          onClose={handleCloseDeleteModal}
+          onDelete={onDelete}
+        />
+      )}
     </div>
   );
 };

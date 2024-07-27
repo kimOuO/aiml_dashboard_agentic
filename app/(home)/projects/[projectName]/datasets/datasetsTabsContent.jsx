@@ -1,7 +1,7 @@
 import React from "react";
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DatasetCard from "./datasetCard";
-import { DatasetsPagination } from "./service";
+import { DatasetsPagination } from "./handleService";
 
 const DatasetsTabsContent = ({
   activeTab,
@@ -13,6 +13,8 @@ const DatasetsTabsContent = ({
   currentPage,
   totalPage,
   handlePageChange,
+  triggerFetch,
+  projectNameDecode
 }) => {
   return (
     <>
@@ -64,7 +66,13 @@ const DatasetsTabsContent = ({
           <>
             <div className="space-y-4">
               {filteredDatasets.map((dataset) => (
-                <DatasetCard key={dataset.id} dataset={dataset} />
+                <DatasetCard 
+                  key={dataset.id} 
+                  dataset={dataset} 
+                  onEdit={triggerFetch}
+                  onDelete={triggerFetch}
+                  projectName={projectNameDecode}
+                  />
               ))}
             </div>
             <DatasetsPagination

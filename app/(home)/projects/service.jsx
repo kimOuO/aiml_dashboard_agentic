@@ -29,7 +29,7 @@ export const useFetchProjects = () => {
     triggerFetch: () => setFetchTrigger(!fetchTrigger),
   };
 };
-
+//更新project
 export const useUpdateProject = (projectUID, formData) => {
   const updateProject = async () => {
     if (projectUID) {
@@ -43,7 +43,7 @@ export const useUpdateProject = (projectUID, formData) => {
   };
   return { updateProject };
 };
-
+//刪除project
 export const useDeleteProject = (projectUID) => {
   const deleteProject = async () => {
     if (projectUID) {
