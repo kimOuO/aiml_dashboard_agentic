@@ -1,11 +1,11 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
-export const ApplicationDashboard = ({
+export default function ApplicationDashboard({
   projectName,
   applicationName,
   applicationUID,
-}) => {
+}) {
   const router = useRouter();
 
   const handleModelClick = () => {
@@ -87,4 +87,4 @@ export const ApplicationDashboard = ({
       </div>
     </div>
   );
-};
+}

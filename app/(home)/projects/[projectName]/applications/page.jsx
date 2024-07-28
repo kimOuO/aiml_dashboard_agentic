@@ -12,7 +12,7 @@ export default function ApplicationPage() {
   const handleBackClick = useBackNavigation();
   const searchParams = useSearchParams();
   const projectUID = searchParams.get("projectUID");
-  const { applications, isLoading } = useFetchApplications(projectUID);
+  const { applications, isLoading,triggerFetch } = useFetchApplications(projectUID);
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -41,6 +41,8 @@ export default function ApplicationPage() {
                 projectName={projectNameDecode}
                 key={application.id}
                 application={application}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
               />
             ))}
           </div>

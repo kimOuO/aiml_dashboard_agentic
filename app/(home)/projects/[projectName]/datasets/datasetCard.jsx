@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { DeleteModal,EditModal } from "./datasetModal";
-const DatasetCard = ({ dataset, onEdit, onDelete, projectName }) => {
+
+export const DatasetCard = ({ dataset, onEdit, onDelete, projectName }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -56,5 +57,3 @@ const DatasetCard = ({ dataset, onEdit, onDelete, projectName }) => {
     </div>
   );
 };
-
-export default DatasetCard;
