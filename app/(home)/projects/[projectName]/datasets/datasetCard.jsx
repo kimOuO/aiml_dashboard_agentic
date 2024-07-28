@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { DeleteModal,EditModal } from "./datasetModal";
 
-export const DatasetCard = ({ dataset, onEdit, onDelete, projectName }) => {
+export default function DatasetCard ({ dataset, onEdit, onDelete, projectName })  {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
