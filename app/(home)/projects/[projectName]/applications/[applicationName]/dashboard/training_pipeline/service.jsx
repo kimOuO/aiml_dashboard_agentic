@@ -1,8 +1,5 @@
 "use client";
-
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getTestAPI } from "@/app/api/entrypoint";
 
 export const handleLinkClick = (
   projectName,

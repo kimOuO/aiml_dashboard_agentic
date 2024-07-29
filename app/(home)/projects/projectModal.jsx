@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { handleDelete, handleUpdate } from "./service";
+import { ModalInput, BaseDeleteModal } from "@/app/modalComponent";
 
 export const EditModal = ({ project, onClose, onEdit }) => {
   const [formData, setFormData] = useState({
@@ -24,63 +25,29 @@ export const EditModal = ({ project, onClose, onEdit }) => {
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Project</h2>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Organization
-          </label>
-          <input
-            type="text"
-            value={project.organization}
-            readOnly
-            className="bg-gray-200 border-gray-400 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            UID
-          </label>
-          <input
-            type="text"
-            value={project.uid}
-            readOnly
-            className="bg-gray-200 border-gray-400 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Name
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            className="border-blue-500  shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Description
-          </label>
-          <input
-            type="text"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            className=" border-blue-500 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Created Time
-          </label>
-          <input
-            type="text"
-            value={project.created_time}
-            readOnly
-            className="bg-gray-200 border-gray-400 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
+        <ModalInput
+          label="Organization"
+          value={project.organization}
+          readOnly
+        />
+        <ModalInput label="UID" value={project.uid} readOnly />
+        <ModalInput
+          label="Name"
+          name="name"
+          value={formData.name}
+          onChange={handleInputChange}
+        />
+        <ModalInput
+          label="Description"
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
+        />
+        <ModalInput
+          label="Created Time"
+          value={project.created_time}
+          readOnly
+        />
         <div className="flex justify-between">
           <button
             onClick={handleUpdateClick}
@@ -101,32 +68,13 @@ export const EditModal = ({ project, onClose, onEdit }) => {
 };
 
 export const DeleteModal = ({ project, onClose, onDelete }) => {
-  const handleDeleteClick = () => {
-    handleDelete(project.uid, onDelete, onClose);
-  };
-
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Delete Project</h2>
-        <p className="mb-4">
-          Are you sure you want to delete the project＂{project.name}＂？
-        </p>
-        <div className="flex justify-between">
-          <button
-            onClick={handleDeleteClick}
-            className="bg-red-700 text-white px-4 py-2 rounded-md font-bold"
-          >
-            Delete
-          </button>
-          <button
-            onClick={onClose}
-            className="bg-gray-700 text-white px-4 py-2 rounded-md font-bold"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
+    <BaseDeleteModal
+      entity={project}
+      entityName="Project"
+      onClose={onClose}
+      onDelete={onDelete}
+      handleDelete={handleDelete}
+    />
   );
 };

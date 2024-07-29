@@ -2,12 +2,11 @@ import React, { useState } from "react";
 import { handleDelete, handleUpdate } from "./service";
 import { ModalInput, BaseDeleteModal } from "@/app/modalComponent";
 
-export const EditModal = ({ application, onClose, onEdit, projectName }) => {
+export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
   const [formData, setFormData] = useState({
-    name: application.name,
-    description: application.description,
+    name: pipeline.name,
+    description: pipeline.description,
   });
-
   //暫存更新的value
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -18,21 +17,22 @@ export const EditModal = ({ application, onClose, onEdit, projectName }) => {
   };
 
   const handleUpdateClick = () => {
-    handleUpdate(application.uid, formData, onEdit, onClose);
+    handleUpdate(pipeline.uid, formData, onEdit, onClose);
   };
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Application</h2>
-        <ModalInput label="Project" value={projectName} readOnly />
-        <ModalInput label="UID" value={application.uid} readOnly />
+        <h2 className="text-2xl font-bold mb-4">{pipeline.type} Pipeline</h2>
+        <ModalInput label="Application" value={applicationName} readOnly />
+        <ModalInput label="UID" value={pipeline.uid} readOnly />
         <ModalInput
           label="Name"
           name="name"
           value={formData.name}
           onChange={handleInputChange}
         />
+        <ModalInput label="File Extension" value="py" readOnly />
         <ModalInput
           label="Description"
           name="description"
@@ -41,7 +41,7 @@ export const EditModal = ({ application, onClose, onEdit, projectName }) => {
         />
         <ModalInput
           label="Created Time"
-          value={application.created_time}
+          value={pipeline.created_time}
           readOnly
         />
         <div className="flex justify-between">
@@ -63,11 +63,13 @@ export const EditModal = ({ application, onClose, onEdit, projectName }) => {
   );
 };
 
-export const DeleteModal = ({ application, onClose, onDelete }) => {
+export const DeleteModal = ({ pipeline, onClose, onDelete }) => {
+  const entityName = `${pipeline.type} Pipeline`;
+
   return (
     <BaseDeleteModal
-      entity={application}
-      entityName="Application"
+      entity={pipeline}
+      entityName={entityName}
       onClose={onClose}
       onDelete={onDelete}
       handleDelete={handleDelete}

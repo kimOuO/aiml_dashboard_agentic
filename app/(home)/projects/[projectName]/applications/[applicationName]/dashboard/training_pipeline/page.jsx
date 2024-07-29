@@ -15,10 +15,11 @@ export default function TrainingPipelinePage() {
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
   const type = "training";
-  const { pipelines: trainingPipelines, isLoading } = useFetchPipeline(
-    applicationUID,
-    type
-  );
+  const {
+    pipelines: trainingPipelines,
+    isLoading,
+    triggerFetch,
+  } = useFetchPipeline(applicationUID, type);
   const { handleModelClick, handlePreprocessingPipelineClick } =
     handleLinkClick(projectNameDecode, applicationNameDecode, applicationUID);
   return (
@@ -77,6 +78,8 @@ export default function TrainingPipelinePage() {
                 applicationName={applicationNameDecode}
                 pipeline={traPipe}
                 path="training_pipeline"
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
               />
             ))}
           </div>
