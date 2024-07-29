@@ -1,36 +1,40 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
-const ApplicationDashboard = ({ projectName, applicationName }) => {
+export default function ApplicationDashboard({
+  projectName,
+  applicationName,
+  applicationUID,
+}) {
   const router = useRouter();
 
   const handleModelClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/model`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/model?applicationUID=${applicationUID}`
     );
   };
 
   const handlePreprocessingPipelineClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/preprocessing_pipeline`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/preprocessing_pipeline?applicationUID=${applicationUID}`
     );
   };
 
   const handleTrainingPipelineClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/training_pipeline`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/training_pipeline?applicationUID=${applicationUID}`
     );
   };
 
   const handleOptimizationDatasetsClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/optimization_datasets`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/optimization_datasets?applicationUID=${applicationUID}`
     );
   };
 
   const handleValidationPipelineClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/validation_pipeline`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/validation_pipeline?applicationUID=${applicationUID}`
     );
   };
 
@@ -83,6 +87,4 @@ const ApplicationDashboard = ({ projectName, applicationName }) => {
       </div>
     </div>
   );
-};
-
-export default ApplicationDashboard;
+}

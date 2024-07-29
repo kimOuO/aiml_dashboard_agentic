@@ -2,15 +2,17 @@
 
 import React from "react";
 import ApplicationCard from "./applicationCard";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useFetchApplications } from "./service";
 import { useBackNavigation } from "@/app/backNavigation";
 
 export default function ApplicationPage() {
   const { projectName } = useParams();
-  const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
-  const { applications, isLoading } = useFetchApplications(projectNameDecode);
+  const handleBackClick = useBackNavigation();
+  const searchParams = useSearchParams();
+  const projectUID = searchParams.get("projectUID");
+  const { applications, isLoading,triggerFetch } = useFetchApplications(projectUID);
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -39,6 +41,8 @@ export default function ApplicationPage() {
                 projectName={projectNameDecode}
                 key={application.id}
                 application={application}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
               />
             ))}
           </div>

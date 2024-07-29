@@ -5,7 +5,7 @@ import { useFetchProjects } from "./service";
 import ProjectCard from "./projectCard";
 
 export default function ProjectPage() {
-  const { projects, isLoading } = useFetchProjects();
+  const { projects, isLoading, triggerFetch } = useFetchProjects();
 
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -23,7 +23,12 @@ export default function ProjectPage() {
         ) : (
           <div className="space-y-4">
             {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
+              />
             ))}
           </div>
         )}

@@ -1,22 +1,21 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import ModelCard from "./modelCard";
 import { useFetchModels, handleLinkClick } from "./service";
 import { useBackNavigation } from "@/app/backNavigation";
 
 export default function ModelPage() {
   const { projectName, applicationName } = useParams();
-  const handleBackClick = useBackNavigation();
   const proejectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
-  const { models, isLoading } = useFetchModels(
-    proejectNameDecode,
-    applicationNameDecode
-  );
+  const searchParams = useSearchParams();
+  const applicationUID = searchParams.get("applicationUID");
+  const handleBackClick = useBackNavigation();
+  const { models, isLoading } = useFetchModels(applicationUID);
   const { handlePreprocessingPipelineClick, handleTrainingPipelineClick } =
-    handleLinkClick(proejectNameDecode, applicationNameDecode);
+    handleLinkClick(proejectNameDecode, applicationNameDecode, applicationUID);
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>

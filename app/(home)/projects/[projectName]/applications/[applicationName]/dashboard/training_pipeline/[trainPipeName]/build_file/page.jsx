@@ -1,26 +1,31 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchTrainingBuildFile, handleLinkClick } from "./service";
+import { useFetchBuildFiles } from "../../../preprocessing_pipeline/[prePipeName]/build_file/service";
+import { handleLinkClick } from "./service";
 import { BuildFileCard } from "../../../preprocessing_pipeline/[prePipeName]/build_file/buildFileCard";
 
 export default function TrainingBuildFilePage() {
   const { projectName, applicationName, trainPipeName } = useParams();
-  const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
   const trainPipeNameDecode = decodeURIComponent(trainPipeName);
-  const { trainingBuildFile, isLoading } = useFetchTrainingBuildFile(
-    projectNameDecode,
-    applicationNameDecode,
-    trainPipeNameDecode
+  const searchParams = useSearchParams();
+  const pipelineUID = searchParams.get("pipelineUID");
+  const type = "training";
+
+  const handleBackClick = useBackNavigation();
+  const { buildFiles: trainingBuildFile, isLoading } = useFetchBuildFiles(
+    pipelineUID,
+    type
   );
   const { handleConfigClick, handleTasksClick } = handleLinkClick(
     projectNameDecode,
     applicationNameDecode,
-    trainPipeNameDecode
+    trainPipeNameDecode,
+    pipelineUID
   );
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">

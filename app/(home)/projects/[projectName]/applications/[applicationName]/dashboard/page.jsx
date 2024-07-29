@@ -1,15 +1,17 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import ApplicationDashboard from "./dashboardCard";
 import { useBackNavigation } from "@/app/backNavigation";
 
 export default function DashboardPage() {
   const { projectName, applicationName } = useParams();
-  const handleBackClick = useBackNavigation();
   const proejectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
+  const searchParams = useSearchParams();
+  const applicationUID = searchParams.get("applicationUID");
+  const handleBackClick = useBackNavigation();
 
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -32,6 +34,7 @@ export default function DashboardPage() {
           <ApplicationDashboard
             projectName={proejectNameDecode}
             applicationName={applicationNameDecode}
+            applicationUID={applicationUID}
           />
         </div>
       </div>

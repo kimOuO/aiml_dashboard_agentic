@@ -4,16 +4,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getTestAPI } from "@/app/api/entrypoint";
 
-export const useFetchModels = (projectName, applicationName) => {
+export const useFetchModels = (applicationUID) => {
   const [models, setModels] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (projectName && applicationName) {
+    setIsLoading(true);
+    if (applicationUID) {
       const fetchModels = async () => {
-        const response = await getTestAPI(
-          `projects/${projectName}/applications/${applicationName}/models`
-        );
+        const response = await getTestAPI(`models`, { applicationUID });
         if (response && response.data) {
           setModels(response.data);
           setIsLoading(false);
@@ -23,49 +22,27 @@ export const useFetchModels = (projectName, applicationName) => {
       };
       fetchModels();
     }
-  }, [projectName, applicationName]);
+  }, [applicationUID]);
 
   return { models, isLoading };
 };
 
-export const useFetchModelData = (projectName, applicationName, modelName) => {
-  const [modelData, setModelData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (projectName && applicationName && modelName) {
-      const fetchModelData = async () => {
-        try {
-          setIsLoading(true);
-          const response = await axios.get(
-            `/api/projects/${projectName}/applications/${applicationName}/models/${modelName}/retrainModels`
-          );
-          setModelData(response.data);
-        } catch (error) {
-          console.error("Error fetching model data:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchModelData();
-    }
-  }, [projectName, applicationName, modelName]);
-
-  return { modelData, isLoading };
-};
-
-export const handleLinkClick = (projectName, applicationName) => {
+export const handleLinkClick = (
+  projectName,
+  applicationName,
+  applicationUID
+) => {
   const router = useRouter();
 
   const handlePreprocessingPipelineClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/preprocessing_pipeline`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/preprocessing_pipeline?applicationUID=${applicationUID}`
     );
   };
 
   const handleTrainingPipelineClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/training_pipeline`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/training_pipeline?applicationUID=${applicationUID}`
     );
   };
 

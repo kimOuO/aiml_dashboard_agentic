@@ -1,26 +1,31 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchPreprocessingBuildFile, handleLinkClick } from "./service";
+import { useFetchBuildFiles, handleLinkClick } from "./service";
 import { BuildFileCard } from "./buildFileCard";
 
 export default function PreprocessingBuildFilePage() {
   const { projectName, applicationName, prePipeName } = useParams();
-  const handleBackClick = useBackNavigation();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
   const prePipeNameDecode = decodeURIComponent(prePipeName);
-  const { preprocessingBuildFile, isLoading } = useFetchPreprocessingBuildFile(
-    projectNameDecode,
-    applicationNameDecode,
-    prePipeNameDecode
+  const searchParams = useSearchParams();
+  const pipelineUID = searchParams.get("pipelineUID");
+  const type = "preprocessing";
+
+  const handleBackClick = useBackNavigation();
+
+  const { buildFiles: preprocessingBuildFiles, isLoading } = useFetchBuildFiles(
+    pipelineUID,
+    type
   );
   const { handleConfigClick, handleTasksClick } = handleLinkClick(
     projectNameDecode,
     applicationNameDecode,
-    prePipeNameDecode
+    prePipeNameDecode,
+    pipelineUID
   );
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -72,7 +77,7 @@ export default function PreprocessingBuildFilePage() {
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {preprocessingBuildFile.map((preBuildFile) => (
+            {preprocessingBuildFiles.map((preBuildFile) => (
               <BuildFileCard key={preBuildFile.id} buildFile={preBuildFile} />
             ))}
           </div>

@@ -6,7 +6,7 @@ export const PipelineCard = ({ projectName, applicationName, pipeline, path }) =
 
   const handlePreprocessingPipelineClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/${path}/${pipeline.name}/tasks`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/${path}/${pipeline.name}/tasks?pipelineUID=${pipeline.uid}`
     );
   };
   return (
@@ -15,7 +15,7 @@ export const PipelineCard = ({ projectName, applicationName, pipeline, path }) =
       onClick={handlePreprocessingPipelineClick}
     >
       <div>
-        <div className="bg-blue-300 rounded-lg p-0.5">{pipeline.id}</div>
+        <div className="bg-blue-300 rounded-lg p-0.5">{pipeline.uid}</div>
         <h2 className="text-xl font-semibold p-1">{pipeline.name}</h2>
         <p className="text-gray-500">{pipeline.description}</p>
       </div>

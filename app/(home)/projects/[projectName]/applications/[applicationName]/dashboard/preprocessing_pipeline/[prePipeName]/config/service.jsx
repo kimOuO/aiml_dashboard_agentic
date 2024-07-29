@@ -4,53 +4,70 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getTestAPI } from "@/app/api/entrypoint";
 
-export const useFetchPreprocessingConfig = (
-  projectName,
-  applicationName,
-  prePipeName
-) => {
-  const [preprocessingConfig, setPreprocessingConfig] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+export const useFetchConfigs = (pipelineUID, type) => {
+  const [configs, setConfigs] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
-    if (projectName && applicationName && prePipeName) {
-      const fetchPreprocessingConfig = async () => {
-        const response = await getTestAPI(
-          `projects/${projectName}/applications/${applicationName}/preprocessingPipelines/${prePipeName}/configs`
-        );
+    setIsLoading(true);
+    if (pipelineUID && type) {
+      const fetchConfigs = async () => {
+        const response = await getTestAPI(`configs`, { pipelineUID, type });
         if (response && response.data) {
-          setPreprocessingConfig(response.data);
+          setConfigs(response.data);
           setIsLoading(false);
         } else if (response && response instanceof Error) {
-          console.log(
-            "Error fetching preprocessing config：",
-            response.message
-          );
+          console.log("Error fetching config：", response.message);
         }
       };
-      fetchPreprocessingConfig();
+      fetchConfigs();
     }
-  }, [projectName, applicationName, prePipeName]);
-  return { preprocessingConfig, isLoading };
+  }, [pipelineUID, type]);
+  return { configs, isLoading };
 };
 
-export const handleLinkClick = (projectName, applicationName, prePipeName) => {
+const useFindApplicationUID = (pipelineUID) => {
+  const [applicationUID, setApplicationUID] = useState(null);
+  useEffect(() => {
+    if (pipelineUID) {
+      const fetchApplicationUID = async () => {
+        const response = await getTestAPI(`pipelines/${pipelineUID}`);
+        if (response && response.data) {
+          setApplicationUID(response.data.f_application_uid);
+        } else if (response && response instanceof Error) {
+          console.error("Error fetching pipelin：", response.message);
+        }
+      };
+      fetchApplicationUID();
+    }
+  }, [pipelineUID]);
+  return { applicationUID };
+};
+
+export const handleLinkClick = (
+  projectName,
+  applicationName,
+  prePipeName,
+  pipelineUID
+) => {
   const router = useRouter();
+
+  const { applicationUID } = useFindApplicationUID(pipelineUID);
 
   const handleTasksClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/preprocessing_pipeline/${prePipeName}/tasks`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/preprocessing_pipeline/${prePipeName}/tasks?pipelineUID=${pipelineUID}`
     );
   };
 
   const handleTrainingPipelineClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/training_pipeline`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/training_pipeline?applicationUID=${applicationUID}`
     );
   };
 
   const handleBuildFileClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/preprocessing_pipeline/${prePipeName}/build_file`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/preprocessing_pipeline/${prePipeName}/build_file?pipelineUID=${pipelineUID}`
     );
   };
 
