@@ -3,7 +3,7 @@
 import React from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { handleLinkClick } from "./service";
+import { HandleLinkClick } from "./service";
 import { useFetchConfigs } from "../../../preprocessing_pipeline/[prePipeName]/config/service";
 import { ConfigCard } from "../../../preprocessing_pipeline/[prePipeName]/config/configCard";
 
@@ -22,7 +22,7 @@ export default function TrainingConfigPage() {
     type
   );
   const { handleTasksClick, handleModelClick, handleBuildFileClick } =
-    handleLinkClick(
+    HandleLinkClick(
       projectNameDecode,
       applicationNameDecode,
       trainPipeNameDecode,

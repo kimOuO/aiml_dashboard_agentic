@@ -2,30 +2,34 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getTestAPI } from "@/app/api/entrypoint";
+import { testAPI } from "@/app/api/entrypoint";
 
 export const useFetchBuildFiles = (pipelineUID, type) => {
   const [buildFiles, setBuildFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
-    setIsLoading(true);
-    if (pipelineUID && type) {
-      const fetchBuildFiles = async () => {
-        const response = await getTestAPI(`buildFiles`, { pipelineUID, type });
+    const fetchBuildFiles = async () => {
+      //開始抓取資料，畫面顯示loading
+      setIsLoading(true);
+      if (pipelineUID && type) {
+        const response = await testAPI("getBuildFiles", {
+          uid: pipelineUID,
+          type,
+        });
         if (response && response.data) {
           setBuildFiles(response.data);
-          setIsLoading(false);
         } else if (response && response instanceof Error) {
           console.log("Error fetching build files：", response.message);
         }
-      };
-      fetchBuildFiles();
-    }
-  }, [pipelineUID && type]);
+        setIsLoading(false);
+      }
+    };
+    fetchBuildFiles();
+  }, [pipelineUID, type]);
   return { buildFiles, isLoading };
 };
 
-export const handleLinkClick = (
+export const HandleLinkClick = (
   projectName,
   applicationName,
   prePipeName,

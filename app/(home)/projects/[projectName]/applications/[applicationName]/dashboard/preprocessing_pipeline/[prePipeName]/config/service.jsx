@@ -2,25 +2,29 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getTestAPI } from "@/app/api/entrypoint";
+import { testAPI } from "@/app/api/entrypoint";
 
 export const useFetchConfigs = (pipelineUID, type) => {
   const [configs, setConfigs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
-    setIsLoading(true);
-    if (pipelineUID && type) {
-      const fetchConfigs = async () => {
-        const response = await getTestAPI(`configs`, { pipelineUID, type });
+    const fetchConfigs = async () => {
+      //開始抓取資料，畫面顯示loading
+      setIsLoading(true);
+      if (pipelineUID && type) {
+        const response = await testAPI("getConfigs", {
+          uid: pipelineUID,
+          type,
+        });
         if (response && response.data) {
           setConfigs(response.data);
-          setIsLoading(false);
         } else if (response && response instanceof Error) {
           console.log("Error fetching config：", response.message);
         }
-      };
-      fetchConfigs();
-    }
+        setIsLoading(false);
+      }
+    };
+    fetchConfigs();
   }, [pipelineUID, type]);
   return { configs, isLoading };
 };
@@ -28,22 +32,22 @@ export const useFetchConfigs = (pipelineUID, type) => {
 const useFindApplicationUID = (pipelineUID) => {
   const [applicationUID, setApplicationUID] = useState(null);
   useEffect(() => {
-    if (pipelineUID) {
-      const fetchApplicationUID = async () => {
-        const response = await getTestAPI(`pipelines/${pipelineUID}`);
+    const fetchApplicationUID = async () => {
+      if (pipelineUID) {
+        const response = await testAPI("getPipeline", { uid: pipelineUID });
         if (response && response.data) {
           setApplicationUID(response.data.f_application_uid);
         } else if (response && response instanceof Error) {
-          console.error("Error fetching pipelin：", response.message);
+          console.error("Error fetching pipeline：", response.message);
         }
-      };
-      fetchApplicationUID();
-    }
+      }
+    };
+    fetchApplicationUID();
   }, [pipelineUID]);
   return { applicationUID };
 };
 
-export const handleLinkClick = (
+export const HandleLinkClick = (
   projectName,
   applicationName,
   prePipeName,

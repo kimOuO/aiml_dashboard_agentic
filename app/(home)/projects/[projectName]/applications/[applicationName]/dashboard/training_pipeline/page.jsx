@@ -3,7 +3,7 @@
 import React from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { handleLinkClick } from "./service";
+import { HandleLinkClick } from "./service";
 import { useFetchPipeline } from "../preprocessing_pipeline/service";
 import { PipelineCard } from "../preprocessing_pipeline/pipelineCard";
 
@@ -21,7 +21,7 @@ export default function TrainingPipelinePage() {
     triggerFetch,
   } = useFetchPipeline(applicationUID, type);
   const { handleModelClick, handlePreprocessingPipelineClick } =
-    handleLinkClick(projectNameDecode, applicationNameDecode, applicationUID);
+    HandleLinkClick(projectNameDecode, applicationNameDecode, applicationUID);
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>

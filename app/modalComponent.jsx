@@ -49,7 +49,7 @@ export const BaseDeleteModal = ({
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Delete {entityName}</h2>
         <p className="mb-4">
-          Are you sure you want to delete the "{entity.name}"?
+          Are you sure you want to delete the &quot;{entity.name}&quot;?
         </p>
         <div className="flex justify-between">
           <button

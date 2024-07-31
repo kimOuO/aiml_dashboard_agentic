@@ -4,7 +4,7 @@ import React from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchTask } from "../../../preprocessing_pipeline/[prePipeName]/tasks/service";
-import { handleLinkClick } from "./service";
+import { HandleLinkClick } from "./service";
 import { TaskCard } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskCard";
 
 export default function TrainingTaskPage() {
@@ -18,7 +18,7 @@ export default function TrainingTaskPage() {
 
   const handleBackClick = useBackNavigation();
   const { tasks: trainingTasks, isLoading } = useFetchTask(pipelineUID, type);
-  const { handleBuildFileClick, handleConfigClick } = handleLinkClick(
+  const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
     trainPipeNameDecode,

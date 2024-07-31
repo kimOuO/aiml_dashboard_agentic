@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 
-export const handleLinkClick = (
+export const HandleLinkClick = (
   projectName,
   applicationName,
   applicationUID

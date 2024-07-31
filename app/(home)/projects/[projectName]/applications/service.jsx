@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { deleteTestAPI, getTestAPI, putTestAPI } from "@/app/api/entrypoint";
+import { testAPI } from "@/app/api/entrypoint";
 
 export const useFetchApplications = (projectUID) => {
   const [applications, setApplications] = useState([]);
@@ -10,21 +10,20 @@ export const useFetchApplications = (projectUID) => {
   const [fetchTrigger, setFetchTrigger] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
-    if (projectUID) {
-      const fetchApplications = async () => {
-        //開始抓取資料，畫面顯示loading
-        const response = await getTestAPI(`applications`, { projectUID });
+    const fetchApplications = async () => {
+      //開始抓取資料，畫面顯示loading
+      setIsLoading(true);
+      if (projectUID) {
+        const response = await testAPI("getApplications", { uid: projectUID });
         if (response && response.data) {
           setApplications(response.data);
-          setIsLoading(false);
         } else if (response && response instanceof Error) {
           console.error("Error fetching applications:", response.message);
         }
-      };
-
-      fetchApplications();
-    }
+        setIsLoading(false);
+      }
+    };
+    fetchApplications();
   }, [projectUID, fetchTrigger]);
 
   return {
@@ -38,10 +37,10 @@ export const useFetchApplications = (projectUID) => {
 export const useUpdateApplication = (applicationUID, formData) => {
   const updateApplication = async () => {
     if (applicationUID) {
-      const response = await putTestAPI(
-        `applications/${applicationUID}`,
-        formData
-      );
+      const response = await testAPI("updateApplication", {
+        uid: applicationUID,
+        ...formData,
+      });
       if (response && response.data) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -55,7 +54,9 @@ export const useUpdateApplication = (applicationUID, formData) => {
 export const useDeleteApplication = (applicationUID) => {
   const deleteApplication = async () => {
     if (applicationUID) {
-      const response = await deleteTestAPI(`applications/${applicationUID}`);
+      const response = await testAPI("deleteApplication", {
+        uid: applicationUID,
+      });
       if (response && response.data) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -66,7 +67,7 @@ export const useDeleteApplication = (applicationUID) => {
   return { deleteApplication };
 };
 
-export const handleUpdate = async (
+export const HandleUpdate = async (
   applicationUID,
   formData,
   onEdit,
@@ -80,7 +81,7 @@ export const handleUpdate = async (
   }
 };
 
-export const handleDelete = async (applicationUID, onDelete, onClose) => {
+export const HandleDelete = async (applicationUID, onDelete, onClose) => {
   const { deleteApplication } = useDeleteApplication(applicationUID);
   const response = await deleteApplication();
   if (response && !(response instanceof Error)) {

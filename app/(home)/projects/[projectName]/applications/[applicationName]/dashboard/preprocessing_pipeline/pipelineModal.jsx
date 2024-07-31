@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { handleDelete, handleUpdate } from "./service";
+import { HandleDelete, HandleUpdate } from "./service";
 import { ModalInput, BaseDeleteModal } from "@/app/modalComponent";
 
 export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
@@ -17,7 +17,7 @@ export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
   };
 
   const handleUpdateClick = () => {
-    handleUpdate(pipeline.uid, formData, onEdit, onClose);
+    HandleUpdate(pipeline.uid, formData, onEdit, onClose);
   };
 
   return (
@@ -72,7 +72,7 @@ export const DeleteModal = ({ pipeline, onClose, onDelete }) => {
       entityName={entityName}
       onClose={onClose}
       onDelete={onDelete}
-      handleDelete={handleDelete}
+      handleDelete={HandleDelete}
     />
   );
 };

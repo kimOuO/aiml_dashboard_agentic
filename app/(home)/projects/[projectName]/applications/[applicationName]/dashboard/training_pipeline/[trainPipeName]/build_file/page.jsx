@@ -4,7 +4,7 @@ import React from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchBuildFiles } from "../../../preprocessing_pipeline/[prePipeName]/build_file/service";
-import { handleLinkClick } from "./service";
+import { HandleLinkClick } from "./service";
 import { BuildFileCard } from "../../../preprocessing_pipeline/[prePipeName]/build_file/buildFileCard";
 
 export default function TrainingBuildFilePage() {
@@ -21,7 +21,7 @@ export default function TrainingBuildFilePage() {
     pipelineUID,
     type
   );
-  const { handleConfigClick, handleTasksClick } = handleLinkClick(
+  const { handleConfigClick, handleTasksClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
     trainPipeNameDecode,
