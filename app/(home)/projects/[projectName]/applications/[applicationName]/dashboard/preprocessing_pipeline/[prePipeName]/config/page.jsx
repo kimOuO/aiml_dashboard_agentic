@@ -3,7 +3,7 @@
 import React from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchConfigs, handleLinkClick } from "./service";
+import { useFetchConfigs, HandleLinkClick } from "./service";
 import { ConfigCard } from "./configCard";
 
 export default function PreprocessingConfigPage() {
@@ -24,7 +24,7 @@ export default function PreprocessingConfigPage() {
     handleTasksClick,
     handleTrainingPipelineClick,
     handleBuildFileClick,
-  } = handleLinkClick(
+  } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
     prePipeNameDecode,

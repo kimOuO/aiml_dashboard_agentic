@@ -3,7 +3,7 @@
 import React from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchPipeline, handleLinkClick } from "./service";
+import { useFetchPipeline, HandleLinkClick } from "./service";
 import { PipelineCard } from "./pipelineCard";
 
 export default function PreprocessingPipelinePage() {
@@ -18,7 +18,7 @@ export default function PreprocessingPipelinePage() {
     applicationUID,
     type
   );
-  const { handleTrainingPipelineClick, handleModelClick } = handleLinkClick(
+  const { handleTrainingPipelineClick, handleModelClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
     applicationUID

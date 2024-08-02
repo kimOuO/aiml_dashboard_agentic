@@ -3,7 +3,7 @@
 import React from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import ModelCard from "./modelCard";
-import { useFetchModels, handleLinkClick } from "./service";
+import { useFetchModels, HandleLinkClick } from "./service";
 import { useBackNavigation } from "@/app/backNavigation";
 
 export default function ModelPage() {
@@ -15,7 +15,7 @@ export default function ModelPage() {
   const handleBackClick = useBackNavigation();
   const { models, isLoading } = useFetchModels(applicationUID);
   const { handlePreprocessingPipelineClick, handleTrainingPipelineClick } =
-    handleLinkClick(proejectNameDecode, applicationNameDecode, applicationUID);
+    HandleLinkClick(proejectNameDecode, applicationNameDecode, applicationUID);
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>

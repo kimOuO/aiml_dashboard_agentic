@@ -2,32 +2,31 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getTestAPI } from "@/app/api/entrypoint";
+import { testAPI } from "@/app/api/entrypoint";
 
 export const useFetchModels = (applicationUID) => {
   const [models, setModels] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
   useEffect(() => {
-    setIsLoading(true);
-    if (applicationUID) {
-      const fetchModels = async () => {
-        const response = await getTestAPI(`models`, { applicationUID });
+    const fetchModels = async () => {
+      //開始抓取資料，畫面顯示loading
+      setIsLoading(true);
+      if (applicationUID) {
+        const response = await testAPI("getModels", { uid: applicationUID });
         if (response && response.data) {
           setModels(response.data);
-          setIsLoading(false);
         } else if (response && response instanceof Error) {
           console.error("Error fetching models：", response.message);
         }
-      };
-      fetchModels();
-    }
+        setIsLoading(false);
+      }
+    };
+    fetchModels();
   }, [applicationUID]);
-
   return { models, isLoading };
 };
 
-export const handleLinkClick = (
+export const HandleLinkClick = (
   projectName,
   applicationName,
   applicationUID

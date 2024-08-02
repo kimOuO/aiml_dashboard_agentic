@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getTestAPI, putTestAPI, deleteTestAPI } from "@/app/api/entrypoint";
+import { testAPI } from "@/app/api/entrypoint";
 
 export const useFetchDatasets = (
   projectUID,
@@ -11,23 +11,23 @@ export const useFetchDatasets = (
   const [isLoading, setIsLoading] = useState(false);
   const [fetchTrigger, setFetchTrigger] = useState(false);
   useEffect(() => {
-    setIsLoading(true);
-    if (projectUID && activeTab) {
-      const fetchDatasets = async () => {
-        const response = await getTestAPI(`datasets`, {
-          projectUID,
+    const fetchDatasets = async () => {
+      //開始抓取資料，畫面顯示loading
+      setIsLoading(true);
+      if (projectUID && activeTab) {
+        const response = await testAPI("getDatasets", {
+          uid: projectUID,
           activeTab,
         });
         if (response && response.data) {
           setDatasets(response.data);
-          setIsLoading(false);
         } else if (response && response instanceof Error) {
           console.error("Error fetching datasets:", response.message);
         }
-      };
-
-      fetchDatasets();
-    }
+        setIsLoading(false);
+      }
+    };
+    fetchDatasets();
   }, [projectUID, activeTab, searchQuery, currentPage, fetchTrigger]);
   return {
     dataset,
@@ -40,7 +40,10 @@ export const useFetchDatasets = (
 export const useUpdateDataset = (datasetUID, formData) => {
   const updateDataset = async () => {
     if (datasetUID) {
-      const response = await putTestAPI(`datasets/${datasetUID}`, formData);
+      const response = await testAPI("updateDataset", {
+        uid: datasetUID,
+        ...formData,
+      });
       if (response && response.data) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -54,7 +57,7 @@ export const useUpdateDataset = (datasetUID, formData) => {
 export const useDeleteDataset = (datasetUID) => {
   const deleteDataset = async () => {
     if (datasetUID) {
-      const response = await deleteTestAPI(`datasets/${datasetUID}`);
+      const response = await testAPI("deleteDataset", { uid: datasetUID });
       if (response && response.data) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -65,7 +68,7 @@ export const useDeleteDataset = (datasetUID) => {
   return { deleteDataset };
 };
 
-export const handleUpdate = async (datasetUID, formData, onEdit, onClose) => {
+export const HandleUpdate = async (datasetUID, formData, onEdit, onClose) => {
   const { updateDataset } = useUpdateDataset(datasetUID, formData);
   const response = await updateDataset();
   if (response && !(response instanceof Error)) {
@@ -74,7 +77,7 @@ export const handleUpdate = async (datasetUID, formData, onEdit, onClose) => {
   }
 };
 
-export const handleDelete = async (datasetUID, onDelete, onClose) => {
+export const HandleDelete = async (datasetUID, onDelete, onClose) => {
   const { deleteDataset } = useDeleteDataset(datasetUID);
   const response = await deleteDataset();
   if (response && !(response instanceof Error)) {

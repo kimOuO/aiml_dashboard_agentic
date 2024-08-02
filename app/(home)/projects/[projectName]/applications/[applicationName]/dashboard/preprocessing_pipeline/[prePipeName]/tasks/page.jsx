@@ -3,7 +3,7 @@
 import React from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchTask, handleLinkClick } from "./service";
+import { useFetchTask, HandleLinkClick } from "./service";
 import { TaskCard } from "./taskCard";
 
 export default function PreprocessingTaskPage() {
@@ -19,7 +19,7 @@ export default function PreprocessingTaskPage() {
     pipelineUID,
     type
   );
-  const { handleBuildFileClick, handleConfigClick } = handleLinkClick(
+  const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
     prePipeNameDecode,

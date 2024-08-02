@@ -32,6 +32,12 @@ export default function ApplicationDashboard({
     );
   };
 
+  const handleOptimizationPipelineClick = () => {
+    router.push(
+      `/projects/${projectName}/applications/${applicationName}/dashboard/optimization_pipeline??applicationUID=${applicationUID}`
+    );
+  };
+
   const handleValidationPipelineClick = () => {
     router.push(
       `/projects/${projectName}/applications/${applicationName}/dashboard/validation_pipeline?applicationUID=${applicationUID}`
@@ -73,6 +79,15 @@ export default function ApplicationDashboard({
       >
         <div className="flex space-x-4">
           <h2 className=" text-xl font-semibold p-1">Optimization Datasets</h2>
+          <span className="text-2xl font-bold">→</span>
+        </div>
+      </div>
+      <div
+        className="relative bg-indigo-100 shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer border-2 border-indigo-300"
+        onClick={handleOptimizationPipelineClick}
+      >
+        <div className="flex space-x-4">
+          <h2 className=" text-xl font-semibold p-1">Optimization Pipeline</h2>
           <span className="text-2xl font-bold">→</span>
         </div>
       </div>
