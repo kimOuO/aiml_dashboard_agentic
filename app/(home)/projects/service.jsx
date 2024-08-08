@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { testAPI } from "@/app/api/entrypoint";
+import test from "node:test";
 
 export const useFetchProjects = () => {
   const [projects, setProjects] = useState([]);
@@ -29,6 +30,42 @@ export const useFetchProjects = () => {
     triggerFetch: () => setFetchTrigger(!fetchTrigger),
   };
 };
+
+//取得organization
+export const useFetchOrganization = () => {
+  const [organization, setOrganization] = useState(null);
+
+  useEffect(() => {
+    const fetchOrganization = async () => {
+      const response = await testAPI("getOrganization");
+      if (response && response.data) {
+        setOrganization(response.data);
+      } else {
+        console.error("Error fetching organization:", response.message);
+      }
+    };
+
+    fetchOrganization();
+  }, []); // 這裡的空依賴數組確保 fetch 只執行一次
+
+  return organization;
+};
+
+//創建project
+export const useCreateProject = (projectData) => {
+  const createProject = async () => {
+    if (projectData) {
+      const response = await testAPI("/createProject", projectData);
+      if (response && response.data) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error creating project:", response.message);
+      }
+    }
+  };
+  return { createProject };
+};
+
 //更新project
 export const useUpdateProject = (projectUID, formData) => {
   const updateProject = async () => {
@@ -78,5 +115,13 @@ export const HandleDelete = async (projectUID, onDelete, onClose) => {
   if (response && !(response instanceof Error)) {
     onDelete();
     onClose();
+  }
+};
+
+export const HandleCreate = async (projectData, onCreate) => {
+  const { createProject } = useCreateProject();
+  const response = await createProject(projectData);
+  if (response && !(response instanceof Error)) {
+    onCreate();
   }
 };
