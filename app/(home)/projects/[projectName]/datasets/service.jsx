@@ -73,7 +73,6 @@ export const useDeleteDataset = (datasetUID) => {
 //創建dataset
 export const useCreateDataset = () => {
   const createDataset = async (formData) => {
-    console.log("Creating dataset with data:", formData);
     if (formData) {
       const response = await testAPI("createDataset", formData);
       if (response && response.data) {
@@ -107,7 +106,6 @@ export const HandleDelete = async (datasetUID, onDelete, onClose) => {
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createDataset } = useCreateDataset();
   const response = await createDataset(formData);
-  console.log(response);
   if (response && !(response instanceof Error)) {
     onCreate();
     onClose();

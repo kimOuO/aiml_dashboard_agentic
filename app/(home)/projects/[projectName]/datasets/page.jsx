@@ -23,7 +23,7 @@ const DatasetsPage = ({
   totalPage,
   handlePageChange,
   handleBackClick,
-  triggerFetch
+  triggerFetch,
 }) => {
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">

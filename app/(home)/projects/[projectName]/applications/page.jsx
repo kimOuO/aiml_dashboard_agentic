@@ -1,18 +1,30 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import ApplicationCard from "./applicationCard";
 import { useParams, useSearchParams } from "next/navigation";
 import { useFetchApplications } from "./service";
 import { useBackNavigation } from "@/app/backNavigation";
+import { CreateModal } from "./applicationModal";
 
 export default function ApplicationPage() {
   const { projectName } = useParams();
   const projectNameDecode = decodeURIComponent(projectName);
-  const handleBackClick = useBackNavigation();
   const searchParams = useSearchParams();
   const projectUID = searchParams.get("projectUID");
-  const { applications, isLoading,triggerFetch } = useFetchApplications(projectUID);
+
+  const handleBackClick = useBackNavigation();
+  const { applications, isLoading, triggerFetch } =
+    useFetchApplications(projectUID);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -28,7 +40,10 @@ export default function ApplicationPage() {
               <p className="text-3xl">Applications</p>
             </div>
           </div>
-          <button className="bg-green-700 text-white px-4 py-2 rounded-md font-bold">
+          <button
+            className="bg-green-700 text-white px-4 py-2 rounded-md font-bold"
+            onClick={handleCreateClick}
+          >
             Create Application
           </button>
         </div>
@@ -48,6 +63,14 @@ export default function ApplicationPage() {
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          projectName={projectNameDecode}
+          projectUID={projectUID}
+          onClose={handleCloseCreateModal}
+          onCreate={triggerFetch}
+        />
+      )}
     </div>
   );
 }

@@ -4,8 +4,8 @@ import { ModalInput, BaseDeleteModal } from "@/app/modalComponent";
 
 export const CreateModal = ({ organization, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
-    organizationUID:organization.uid,
-    organizationName:organization.name,
+    organizationUID: organization.uid,
+    organizationName: organization.name,
     name: "",
     description: "",
   });
@@ -25,15 +25,16 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
     const newErrors = {};
     //判斷字串是否為空字串或只輸入空白
     if (!formData.name.trim()) newErrors.name = "Project name cannot be blank.";
-    if (!formData.description.trim()) newErrors.description = "Project description cannot be blank.";
+    if (!formData.description.trim())
+      newErrors.description = "Project description cannot be blank.";
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
-  
+
   const handleCreateClick = () => {
     if (validateForm()) {
-      HandleCreate(formData, onCreate,onClose);
+      HandleCreate(formData, onCreate, onClose);
     }
   };
 

@@ -16,7 +16,7 @@ const TabsContentComponent = ({
   handlePageChange,
   triggerFetch,
   projectName,
-  handleOpenModal
+  handleOpenModal,
 }) => (
   <TabsContent value={activeTab}>
     <div className="flex items-center mb-4 justify-between">
@@ -32,10 +32,10 @@ const TabsContentComponent = ({
           <img src="/project/search.svg" alt="Search" />
         </button>
       </div>
-      <button 
+      <button
         className="text-lg bg-green-700 text-white px-4 py-2 rounded-md"
         //傳遞activeTab確認當前標籤頁
-        onClick={()=>handleOpenModal(activeTab)}
+        onClick={() => handleOpenModal(activeTab)}
       >
         {activeTab === "Original"
           ? "Upload Original Dataset"
@@ -81,17 +81,17 @@ const DatasetsTabsContent = ({
   handlePageChange,
   triggerFetch,
   projectName,
-  projectUID
+  projectUID,
 }) => {
-  const [isModalOpen,setIsModalOpen] = useState(false);
-  const [modalTabType,setModalTabType]=useState("Original");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTabType, setModalTabType] = useState("Original");
   //打開modal
-  const handleOpenModal=(activeTab)=>{
+  const handleOpenModal = (activeTab) => {
     setModalTabType(activeTab);
     setIsModalOpen(true);
   };
   //關閉modal
-  const handleCloseModal=()=>{
+  const handleCloseModal = () => {
     setIsModalOpen(false);
   };
 

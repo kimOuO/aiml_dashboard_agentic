@@ -49,6 +49,7 @@ export const CreateModal = ({
 
   const validateForm = () => {
     const newErrors = {};
+    //判斷字串是否為空字串或只輸入空白
     if (!formData.name.trim()) newErrors.name = "Dataset name cannot be blank.";
     if (!formData.description.trim())
       newErrors.description = "Dataset description cannot be blank";

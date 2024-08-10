@@ -76,50 +76,49 @@ export const useFilteredDatasets = (datasets, searchQuery, currentPage) => {
 
 //dataset分頁邏輯
 export const DatasetsPagination = ({
-    currentPage,
-    totalPage,
-    onPageChange,
-  }) => {
-    return (
-      totalPage > 1 && (
-        <div className="flex justify-center mt-4">
-          <Pagination className="space-x-2">
-            {currentPage > 1 && (
-              <PaginationPrevious
-                onClick={() => onPageChange(currentPage - 1)}
-                className="transition duration-300 ease-in-out transform hover:-translate-x-1 hover:scale-105"
-              >
-                Provious
-              </PaginationPrevious>
-            )}
-            <PaginationContent className="flex space-x-2">
-              {Array.from({ length: totalPage }, (_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    active={currentPage === i + 1}
-                    onClick={() => onPageChange(i + 1)}
-                    className={`transition duration-300 ease-in-out transform hover:scale-105 ${
-                      currentPage === i + 1
-                        ? "bg-gray-600 text-white"
-                        : "bg-gray-200 text-black"
-                    }`}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-            </PaginationContent>
-            {currentPage < totalPage && (
-              <PaginationNext
-                onClick={() => onPageChange(currentPage + 1)}
-                className="transition duration-300 ease-in-out transform hover:translate-x-1 hover:scale-105"
-              >
-                Next
-              </PaginationNext>
-            )}
-          </Pagination>
-        </div>
-      )
-    );
-  };
-  
+  currentPage,
+  totalPage,
+  onPageChange,
+}) => {
+  return (
+    totalPage > 1 && (
+      <div className="flex justify-center mt-4">
+        <Pagination className="space-x-2">
+          {currentPage > 1 && (
+            <PaginationPrevious
+              onClick={() => onPageChange(currentPage - 1)}
+              className="transition duration-300 ease-in-out transform hover:-translate-x-1 hover:scale-105"
+            >
+              Provious
+            </PaginationPrevious>
+          )}
+          <PaginationContent className="flex space-x-2">
+            {Array.from({ length: totalPage }, (_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  active={currentPage === i + 1}
+                  onClick={() => onPageChange(i + 1)}
+                  className={`transition duration-300 ease-in-out transform hover:scale-105 ${
+                    currentPage === i + 1
+                      ? "bg-gray-600 text-white"
+                      : "bg-gray-200 text-black"
+                  }`}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+          </PaginationContent>
+          {currentPage < totalPage && (
+            <PaginationNext
+              onClick={() => onPageChange(currentPage + 1)}
+              className="transition duration-300 ease-in-out transform hover:translate-x-1 hover:scale-105"
+            >
+              Next
+            </PaginationNext>
+          )}
+        </Pagination>
+      </div>
+    )
+  );
+};

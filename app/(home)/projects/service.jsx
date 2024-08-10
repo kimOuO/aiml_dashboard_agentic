@@ -118,7 +118,7 @@ export const HandleDelete = async (projectUID, onDelete, onClose) => {
   }
 };
 
-export const HandleCreate = async (formData, onCreate,onClose) => {
+export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createProject } = useCreateProject();
   const response = await createProject(formData);
   if (response && !(response instanceof Error)) {
