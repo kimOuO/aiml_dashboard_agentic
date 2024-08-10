@@ -36,6 +36,7 @@ export const useFetchDatasets = (
     triggerFetch: () => setFetchTrigger(!fetchTrigger),
   };
 };
+
 //更新dataset
 export const useUpdateDataset = (datasetUID, formData) => {
   const updateDataset = async () => {
@@ -53,6 +54,7 @@ export const useUpdateDataset = (datasetUID, formData) => {
   };
   return { updateDataset };
 };
+
 //刪除dataset
 export const useDeleteDataset = (datasetUID) => {
   const deleteDataset = async () => {
@@ -66,6 +68,22 @@ export const useDeleteDataset = (datasetUID) => {
     }
   };
   return { deleteDataset };
+};
+
+//創建dataset
+export const useCreateDataset = () => {
+  const createDataset = async (formData) => {
+    console.log("Creating dataset with data:", formData);
+    if (formData) {
+      const response = await testAPI("createDataset", formData);
+      if (response && response.data) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error creating dataset:", response.message);
+      }
+    }
+  };
+  return { createDataset };
 };
 
 export const HandleUpdate = async (datasetUID, formData, onEdit, onClose) => {
@@ -82,6 +100,16 @@ export const HandleDelete = async (datasetUID, onDelete, onClose) => {
   const response = await deleteDataset();
   if (response && !(response instanceof Error)) {
     onDelete();
+    onClose();
+  }
+};
+
+export const HandleCreate = async (formData, onCreate, onClose) => {
+  const { createDataset } = useCreateDataset();
+  const response = await createDataset(formData);
+  console.log(response);
+  if (response && !(response instanceof Error)) {
+    onCreate();
     onClose();
   }
 };

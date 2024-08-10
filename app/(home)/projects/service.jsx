@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { testAPI } from "@/app/api/entrypoint";
-import test from "node:test";
 
 export const useFetchProjects = () => {
   const [projects, setProjects] = useState([]);
@@ -46,16 +45,16 @@ export const useFetchOrganization = () => {
     };
 
     fetchOrganization();
-  }, []); // 這裡的空依賴數組確保 fetch 只執行一次
+  }, []);
 
   return organization;
 };
 
 //創建project
-export const useCreateProject = (projectData) => {
-  const createProject = async () => {
-    if (projectData) {
-      const response = await testAPI("/createProject", projectData);
+export const useCreateProject = () => {
+  const createProject = async (formData) => {
+    if (formData) {
+      const response = await testAPI("createProject", formData);
       if (response && response.data) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -83,6 +82,7 @@ export const useUpdateProject = (projectUID, formData) => {
   };
   return { updateProject };
 };
+
 //刪除project
 export const useDeleteProject = (projectUID) => {
   const deleteProject = async () => {
@@ -118,10 +118,11 @@ export const HandleDelete = async (projectUID, onDelete, onClose) => {
   }
 };
 
-export const HandleCreate = async (projectData, onCreate) => {
+export const HandleCreate = async (formData, onCreate,onClose) => {
   const { createProject } = useCreateProject();
-  const response = await createProject(projectData);
+  const response = await createProject(formData);
   if (response && !(response instanceof Error)) {
     onCreate();
+    onClose();
   }
 };

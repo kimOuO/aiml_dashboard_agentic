@@ -10,7 +10,7 @@ import {
 
 //管理dataset動作
 export const useDatasetHandlers = () => {
-  const [activeTab, setActiveTab] = useState("original");
+  const [activeTab, setActiveTab] = useState("Original");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [inputValue, setInputValue] = useState("");
@@ -53,6 +53,7 @@ export const useDatasetHandlers = () => {
     handlePageChange,
   };
 };
+
 //搜尋以過濾dataset功能
 export const useFilteredDatasets = (datasets, searchQuery, currentPage) => {
   const filteredDatasets = useMemo(() => {

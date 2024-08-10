@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DatasetCard from "./datasetCard";
+import { CreateModal } from "./datasetModal";
 import { DatasetsPagination } from "./handleService";
 
 const TabsContentComponent = ({
+  activeTab,
   inputValue,
   handleSearchChange,
   handleSearchClick,
@@ -13,10 +15,10 @@ const TabsContentComponent = ({
   totalPage,
   handlePageChange,
   triggerFetch,
-  projectNameDecode,
-  tabType,
+  projectName,
+  handleOpenModal
 }) => (
-  <TabsContent value={tabType}>
+  <TabsContent value={activeTab}>
     <div className="flex items-center mb-4 justify-between">
       <div className="items-center space-x-2">
         <input
@@ -30,8 +32,12 @@ const TabsContentComponent = ({
           <img src="/project/search.svg" alt="Search" />
         </button>
       </div>
-      <button className="text-lg bg-green-700 text-white px-4 py-2 rounded-md">
-        {tabType === "original"
+      <button 
+        className="text-lg bg-green-700 text-white px-4 py-2 rounded-md"
+        //傳遞activeTab確認當前標籤頁
+        onClick={()=>handleOpenModal(activeTab)}
+      >
+        {activeTab === "Original"
           ? "Upload Original Dataset"
           : "Upload Training Dataset"}
       </button>
@@ -49,7 +55,7 @@ const TabsContentComponent = ({
               dataset={dataset}
               onEdit={triggerFetch}
               onDelete={triggerFetch}
-              projectName={projectNameDecode}
+              projectName={projectName}
             />
           ))}
         </div>
@@ -74,15 +80,28 @@ const DatasetsTabsContent = ({
   totalPage,
   handlePageChange,
   triggerFetch,
-  projectNameDecode,
+  projectName,
+  projectUID
 }) => {
+  const [isModalOpen,setIsModalOpen] = useState(false);
+  const [modalTabType,setModalTabType]=useState("Original");
+  //打開modal
+  const handleOpenModal=(activeTab)=>{
+    setModalTabType(activeTab);
+    setIsModalOpen(true);
+  };
+  //關閉modal
+  const handleCloseModal=()=>{
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       <TabsList className="flex mb-4">
         <TabsTrigger
-          value="original"
+          value="Original"
           className={` text-lg flex-1 py-3 cursor-pointer text-center rounded-t-lg border-b-2 ${
-            activeTab === "original"
+            activeTab === "Original"
               ? "border-blue-400 bg-blue-400 font-bold"
               : "border-gray-400 bg-gray-200"
           }`}
@@ -90,9 +109,9 @@ const DatasetsTabsContent = ({
           Original Datasets
         </TabsTrigger>
         <TabsTrigger
-          value="training"
+          value="Training"
           className={`text-lg flex-1 py-3 cursor-pointer text-center rounded-t-lg border-b-2 ${
-            activeTab === "training"
+            activeTab === "Training"
               ? "border-blue-400 bg-blue-400 font-bold"
               : "border-gray-400 bg-gray-200 "
           }`}
@@ -111,23 +130,20 @@ const DatasetsTabsContent = ({
         totalPage={totalPage}
         handlePageChange={handlePageChange}
         triggerFetch={triggerFetch}
-        projectNameDecode={projectNameDecode}
-        tabType="original"
+        projectName={projectName}
+        projectUID={projectUID}
+        handleOpenModal={handleOpenModal}
       />
-      <TabsContentComponent
-        activeTab={activeTab}
-        inputValue={inputValue}
-        handleSearchChange={handleSearchChange}
-        handleSearchClick={handleSearchClick}
-        filteredDatasets={filteredDatasets}
-        isLoading={isLoading}
-        currentPage={currentPage}
-        totalPage={totalPage}
-        handlePageChange={handlePageChange}
-        triggerFetch={triggerFetch}
-        projectNameDecode={projectNameDecode}
-        tabType="training"
-      />
+      {/*渲染CreateModal*/}
+      {isModalOpen && (
+        <CreateModal
+          projectUID={projectUID}
+          projectName={projectName}
+          activeTab={modalTabType}
+          onClose={handleCloseModal}
+          onCreate={triggerFetch} //新增後刷新頁面
+        />
+      )}
     </>
   );
 };

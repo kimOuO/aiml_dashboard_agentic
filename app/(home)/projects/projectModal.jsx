@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
 import { ModalInput, BaseDeleteModal } from "@/app/modalComponent";
-import { describe } from "node:test";
 
 export const CreateModal = ({ organization, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
+    organizationUID:organization.uid,
+    organizationName:organization.name,
     name: "",
     description: "",
   });
@@ -18,40 +19,36 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
       ...formData,
       [name]: value,
     });
-    // Remove errors for the current input
-    setErrors({
-      ...errors,
-      [name]: "",
-    });
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = "Project name cannot be blank.";
-    if (!formData.description)
-      newErrors.description = "Project description cannot be blank.";
+    //判斷字串是否為空字串或只輸入空白
+    if (!formData.name.trim()) newErrors.name = "Project name cannot be blank.";
+    if (!formData.description.trim()) newErrors.description = "Project description cannot be blank.";
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
-
+  
   const handleCreateClick = () => {
     if (validateForm()) {
-      HandleCreate(formData, onCreate);
+      HandleCreate(formData, onCreate,onClose);
     }
   };
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Create Project</h2>
         <ModalInput
           label="Organization UID"
-          value={organization.uid}
+          value={formData.organizationUID}
           readOnly
         />
         <ModalInput
           label="Organization Name"
-          value={organization.name}
+          value={formData.organizationName}
           readOnly
         />
         <ModalInput
@@ -59,24 +56,21 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
           name="name"
           value={formData.name}
           onChange={handleInputChange}
+          error={errors.name}
         />
         <ModalInput
           label="Description"
           name="description"
           value={formData.description}
           onChange={handleInputChange}
-        />
-        <ModalInput
-          label="Created Time"
-          value={project.created_time}
-          readOnly
+          error={errors.description}
         />
         <div className="flex justify-between">
           <button
-            onClick={handleUpdateClick}
+            onClick={handleCreateClick}
             className="bg-green-700 text-white px-4 py-2 rounded-md font-bold"
           >
-            Update
+            Create
           </button>
           <button
             onClick={onClose}

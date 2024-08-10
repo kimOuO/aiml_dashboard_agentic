@@ -11,6 +11,7 @@ import { useBackNavigation } from "@/app/backNavigation";
 //dataset頁面內容
 const DatasetsPage = ({
   projectName,
+  projectUID,
   activeTab,
   inputValue,
   handleTabClick,
@@ -22,8 +23,7 @@ const DatasetsPage = ({
   totalPage,
   handlePageChange,
   handleBackClick,
-  triggerFetch,
-  projectNameDecode
+  triggerFetch
 }) => {
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -52,7 +52,8 @@ const DatasetsPage = ({
               totalPage={totalPage}
               handlePageChange={handlePageChange}
               triggerFetch={triggerFetch}
-              projectNameDecode={projectNameDecode}
+              projectName={projectName}
+              projectUID={projectUID}
             />
           </Tabs>
         </div>
@@ -68,6 +69,7 @@ export default function Page() {
   const projectUID = searchParams.get("projectUID");
   const handleBackClick = useBackNavigation();
 
+  //tab切換、過濾dataset、分頁功能
   const {
     activeTab,
     searchQuery,
@@ -78,12 +80,14 @@ export default function Page() {
     handleSearchClick,
     handlePageChange,
   } = useDatasetHandlers();
-  const { dataset, isLoading,triggerFetch } = useFetchDatasets(
+
+  const { dataset, isLoading, triggerFetch } = useFetchDatasets(
     projectUID,
     activeTab,
     searchQuery,
     currentPage
   );
+
   const { paginatedDatasets, totalPage } = useFilteredDatasets(
     dataset,
     searchQuery,
@@ -92,6 +96,7 @@ export default function Page() {
   return (
     <DatasetsPage
       projectName={projectNameDecode}
+      projectUID={projectUID}
       activeTab={activeTab}
       inputValue={inputValue}
       handleTabClick={handleTabClick}
@@ -104,7 +109,6 @@ export default function Page() {
       handlePageChange={handlePageChange}
       handleBackClick={handleBackClick}
       triggerFetch={triggerFetch}
-      projectNameDecode={projectNameDecode}
     />
   );
 }
