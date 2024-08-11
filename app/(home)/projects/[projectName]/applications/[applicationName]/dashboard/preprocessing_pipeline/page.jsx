@@ -13,11 +13,14 @@ export default function PreprocessingPipelinePage() {
   const handleBackClick = useBackNavigation();
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
-  const type = "preprocessing";
-  const { pipelines: preprocessingpipelines, isLoading } = useFetchPipeline(
-    applicationUID,
-    type
-  );
+  const type = "Preprocessing";
+
+  const {
+    pipelines: preprocessingpipelines,
+    isLoading,
+    triggerFetch,
+  } = useFetchPipeline(applicationUID, type);
+
   const { handleTrainingPipelineClick, handleModelClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
@@ -79,6 +82,8 @@ export default function PreprocessingPipelinePage() {
                 applicationName={applicationNameDecode}
                 pipeline={prePipe}
                 path="preprocessing_pipeline"
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
               />
             ))}
           </div>

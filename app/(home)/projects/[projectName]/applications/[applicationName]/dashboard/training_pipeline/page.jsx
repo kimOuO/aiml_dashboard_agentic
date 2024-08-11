@@ -11,10 +11,12 @@ export default function TrainingPipelinePage() {
   const { projectName, applicationName } = useParams();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
-  const handleBackClick = useBackNavigation();
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
-  const type = "training";
+
+  const handleBackClick = useBackNavigation();
+  const type = "Training";
+
   const {
     pipelines: trainingPipelines,
     isLoading,
@@ -22,6 +24,7 @@ export default function TrainingPipelinePage() {
   } = useFetchPipeline(applicationUID, type);
   const { handleModelClick, handlePreprocessingPipelineClick } =
     HandleLinkClick(projectNameDecode, applicationNameDecode, applicationUID);
+
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
