@@ -76,7 +76,7 @@ export default function OptimizationPipelinePage() {
           </button>
         </div>
         {/*放card */}
-        {(tuningLoading && retrainLoading) ? (
+        {tuningLoading && retrainLoading ? (
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
@@ -86,6 +86,7 @@ export default function OptimizationPipelinePage() {
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
                 pipeline={tunPipe}
+                path="optimization_pipeline"
                 onEdit={tuningTriggerFetch}
                 onDelete={tuningTriggerFetch}
               />
@@ -96,6 +97,7 @@ export default function OptimizationPipelinePage() {
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
                 pipeline={retrainPipe}
+                path="optimization_pipeline"
                 onEdit={retrainTriggerFetch}
                 onDelete={retrainTriggerFetch}
               />

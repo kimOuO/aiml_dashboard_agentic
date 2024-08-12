@@ -3,30 +3,28 @@
 import React from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchConfigs, HandleLinkClick } from "./service";
-import { ConfigCard } from "./configCard";
+import { HandleLinkClick } from "./service";
+import { useFetchConfigs } from "../../../preprocessing_pipeline/[prePipeName]/config/service";
+import { ConfigCard } from "../../../preprocessing_pipeline/[prePipeName]/config/configCard";
 
-export default function PreprocessingConfigPage() {
-  const { projectName, applicationName, prePipeName } = useParams();
+export default function TrainingConfigPage() {
+  const { projectName, applicationName, optimiPipeName } = useParams();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
-  const prePipeNameDecode = decodeURIComponent(prePipeName);
+  const optimiPipeNameDecode = decodeURIComponent(optimiPipeName);
   const searchParams = useSearchParams();
   const pipelineUID = searchParams.get("pipelineUID");
 
   const handleBackClick = useBackNavigation();
-  const { configs: preprocessingConfigs, isLoading } =
+  const { configs: optimizationConfigs, isLoading } =
     useFetchConfigs(pipelineUID);
-  const {
-    handleTasksClick,
-    handleTrainingPipelineClick,
-    handleBuildFileClick,
-  } = HandleLinkClick(
-    projectNameDecode,
-    applicationNameDecode,
-    prePipeNameDecode,
-    pipelineUID
-  );
+  const { handleTasksClick, handleModelClick, handleBuildFileClick } =
+    HandleLinkClick(
+      projectNameDecode,
+      applicationNameDecode,
+      optimiPipeNameDecode,
+      pipelineUID
+    );
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -34,8 +32,8 @@ export default function PreprocessingConfigPage() {
           <div>
             <p className="text-gray-500">
               Projects / {projectNameDecode} / Applications /{" "}
-              {applicationNameDecode} / Preprocessing Pipeline /
-              <span className="text-black"> {prePipeNameDecode} </span>
+              {applicationNameDecode} / Optimization Pipeline /
+              <span className="text-black"> {optimiPipeNameDecode} </span>
             </p>
             <div className="flex items-center mb-6 space-x-4">
               <button onClick={handleBackClick}>
@@ -57,9 +55,9 @@ export default function PreprocessingConfigPage() {
               </div>
               <div
                 className="bg-blue-100 text-blue-800 px-1 py-0.5 rounded-md cursor-pointer flex items-center space-x-2 "
-                onClick={handleTrainingPipelineClick}
+                onClick={handleModelClick}
               >
-                <span>Training Pipeline</span>
+                <span>Model</span>
                 <img
                   src="/project/external-link.svg"
                   alt="External Link"
@@ -88,8 +86,8 @@ export default function PreprocessingConfigPage() {
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {preprocessingConfigs.map((preConfig) => (
-              <ConfigCard key={preConfig.id} config={preConfig} />
+            {optimizationConfigs.map((optimiConfig) => (
+              <ConfigCard key={optimiConfig.id} config={optimiConfig} />
             ))}
           </div>
         )}

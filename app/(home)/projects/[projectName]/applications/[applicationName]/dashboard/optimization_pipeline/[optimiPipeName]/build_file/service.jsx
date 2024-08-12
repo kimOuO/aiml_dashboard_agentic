@@ -5,19 +5,19 @@ import { useRouter } from "next/navigation";
 export const HandleLinkClick = (
   projectName,
   applicationName,
-  trainpipeName,
+  optimiPipeName,
   pipelineUID
 ) => {
   const router = useRouter();
 
   const handleConfigClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/training_pipeline/${trainpipeName}/config?pipelineUID=${pipelineUID}`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/optimization_pipeline/${optimiPipeName}/config?pipelineUID=${pipelineUID}`
     );
   };
   const handleTasksClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/training_pipeline/${trainpipeName}/tasks?pipelineUID=${pipelineUID}`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/optimization_pipeline/${optimiPipeName}/tasks?pipelineUID=${pipelineUID}`
     );
   };
 

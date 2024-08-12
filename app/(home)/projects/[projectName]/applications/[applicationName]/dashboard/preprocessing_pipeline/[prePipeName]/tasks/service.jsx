@@ -4,15 +4,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { testAPI } from "@/app/api/entrypoint";
 
-export const useFetchTask = (pipelineUID, type) => {
+export const useFetchTask = (pipelineUID) => {
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     const fetchTasks = async () => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
-      if (pipelineUID && type) {
-        const response = await testAPI("getTasks", { uid: pipelineUID, type });
+      if (pipelineUID) {
+        const response = await testAPI("getTasks", { uid: pipelineUID });
         if (response && response.data) {
           setTasks(response.data);
         } else if (response && response instanceof Error) {
@@ -22,7 +22,7 @@ export const useFetchTask = (pipelineUID, type) => {
       }
     };
     fetchTasks();
-  }, [pipelineUID, type]);
+  }, [pipelineUID]);
   return { tasks, isLoading };
 };
 

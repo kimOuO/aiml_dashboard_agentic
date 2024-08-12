@@ -11,11 +11,8 @@ export const useFetchBuildFiles = (pipelineUID, type) => {
     const fetchBuildFiles = async () => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
-      if (pipelineUID && type) {
-        const response = await testAPI("getBuildFiles", {
-          uid: pipelineUID,
-          type,
-        });
+      if (pipelineUID) {
+        const response = await testAPI("getBuildFiles", { uid: pipelineUID });
         if (response && response.data) {
           setBuildFiles(response.data);
         } else if (response && response instanceof Error) {
@@ -25,7 +22,7 @@ export const useFetchBuildFiles = (pipelineUID, type) => {
       }
     };
     fetchBuildFiles();
-  }, [pipelineUID, type]);
+  }, [pipelineUID]);
   return { buildFiles, isLoading };
 };
 
