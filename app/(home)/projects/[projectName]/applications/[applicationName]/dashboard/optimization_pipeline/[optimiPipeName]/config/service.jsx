@@ -16,12 +16,6 @@ export const HandleLinkClick = (
     );
   };
 
-  const handleModelClick = () => {
-    router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/model?pipelineUID=${pipelineUID}`
-    );
-  };
-
   const handleBuildFileClick = () => {
     router.push(
       `/projects/${projectName}/applications/${applicationName}/dashboard/optimization_pipeline/${optimiPipeName}/build_file?pipelineUID=${pipelineUID}`
@@ -30,7 +24,6 @@ export const HandleLinkClick = (
 
   return {
     handleTasksClick,
-    handleModelClick,
     handleBuildFileClick,
   };
 };

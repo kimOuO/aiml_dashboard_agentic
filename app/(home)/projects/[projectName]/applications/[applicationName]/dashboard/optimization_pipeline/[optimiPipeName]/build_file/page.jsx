@@ -33,7 +33,7 @@ export default function OptimizationBuildFilePage() {
           <div>
             <p className="text-gray-500">
               Projects / {projectNameDecode} / Applications /{" "}
-              {applicationNameDecode} / Optimizat Pipeline /
+              {applicationNameDecode} / Optimization Pipeline /
               <span className="text-black"> {optimiPipeNameDecode} </span>
             </p>
             <div className="flex items-center mb-6 space-x-4">

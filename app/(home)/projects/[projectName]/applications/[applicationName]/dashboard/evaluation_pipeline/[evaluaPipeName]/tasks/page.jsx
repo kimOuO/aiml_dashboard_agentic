@@ -7,21 +7,20 @@ import { useFetchTask } from "../../../preprocessing_pipeline/[prePipeName]/task
 import { HandleLinkClick } from "./service";
 import { TaskCard } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskCard";
 
-export default function OptimizationTaskPage() {
-  const { projectName, applicationName, optimiPipeName } = useParams();
+export default function EvaluationTaskPage() {
+  const { projectName, applicationName, evaluaPipeName } = useParams();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
-  const optimiPipeNameDecode = decodeURIComponent(optimiPipeName);
+  const evaluaPipeNameDecode = decodeURIComponent(evaluaPipeName);
   const searchParams = useSearchParams();
   const pipelineUID = searchParams.get("pipelineUID");
 
   const handleBackClick = useBackNavigation();
-  const { tasks: optimizationTasks, isLoading } = useFetchTask(pipelineUID);
-
+  const { tasks: evaluationTasks, isLoading } = useFetchTask(pipelineUID);
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
-    optimiPipeNameDecode,
+    evaluaPipeNameDecode,
     pipelineUID
   );
 
@@ -32,8 +31,8 @@ export default function OptimizationTaskPage() {
           <div>
             <p className="text-gray-500">
               Projects / {projectNameDecode} / Applications /{" "}
-              {applicationNameDecode} / Optimization Pipeline /
-              <span className="text-black"> {optimiPipeNameDecode} </span>
+              {applicationNameDecode} / Evaluation Pipeline /
+              <span className="text-black"> {evaluaPipeNameDecode} </span>
             </p>
             <div className="flex items-center mb-6 space-x-4">
               <button onClick={handleBackClick}>
@@ -67,7 +66,7 @@ export default function OptimizationTaskPage() {
             </div>
           </div>
           <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
-            Run Optimization Task
+            Run Evaluation Task
           </button>
         </div>
         {/*放card */}
@@ -75,8 +74,8 @@ export default function OptimizationTaskPage() {
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {optimizationTasks.map((optimiTask) => (
-              <TaskCard key={optimiTask.id} task={optimiTask} />
+            {evaluationTasks.map((evaluaTask) => (
+              <TaskCard key={evaluaTask.id} task={evaluaTask} />
             ))}
           </div>
         )}

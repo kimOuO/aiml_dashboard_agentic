@@ -7,7 +7,7 @@ import { HandleLinkClick } from "./service";
 import { useFetchConfigs } from "../../../preprocessing_pipeline/[prePipeName]/config/service";
 import { ConfigCard } from "../../../preprocessing_pipeline/[prePipeName]/config/configCard";
 
-export default function TrainingConfigPage() {
+export default function OptimizationConfigPage() {
   const { projectName, applicationName, optimiPipeName } = useParams();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
@@ -18,13 +18,12 @@ export default function TrainingConfigPage() {
   const handleBackClick = useBackNavigation();
   const { configs: optimizationConfigs, isLoading } =
     useFetchConfigs(pipelineUID);
-  const { handleTasksClick, handleModelClick, handleBuildFileClick } =
-    HandleLinkClick(
-      projectNameDecode,
-      applicationNameDecode,
-      optimiPipeNameDecode,
-      pipelineUID
-    );
+  const { handleTasksClick, handleBuildFileClick } = HandleLinkClick(
+    projectNameDecode,
+    applicationNameDecode,
+    optimiPipeNameDecode,
+    pipelineUID
+  );
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -47,17 +46,6 @@ export default function TrainingConfigPage() {
                 onClick={handleTasksClick}
               >
                 <span>Tasks</span>
-                <img
-                  src="/project/external-link.svg"
-                  alt="External Link"
-                  className="w-4 h-4"
-                />
-              </div>
-              <div
-                className="bg-blue-100 text-blue-800 px-1 py-0.5 rounded-md cursor-pointer flex items-center space-x-2 "
-                onClick={handleModelClick}
-              >
-                <span>Model</span>
                 <img
                   src="/project/external-link.svg"
                   alt="External Link"
