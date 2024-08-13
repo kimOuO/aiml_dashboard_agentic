@@ -13,7 +13,7 @@ export default function ModelPage() {
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
   const handleBackClick = useBackNavigation();
-  const { models, isLoading } = useFetchModels(applicationUID);
+  const { models, isLoading,triggerFetch } = useFetchModels(applicationUID);
   const { handlePreprocessingPipelineClick, handleTrainingPipelineClick } =
     HandleLinkClick(proejectNameDecode, applicationNameDecode, applicationUID);
   return (
@@ -71,6 +71,8 @@ export default function ModelPage() {
                 model={model}
                 projectName={proejectNameDecode}
                 applicationName={applicationNameDecode}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
               />
             ))}
           </div>
