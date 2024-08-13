@@ -33,6 +33,21 @@ export const useFetchModels = (applicationUID) => {
   };
 };
 
+//創建model
+export const useCreateModel = () => {
+  const createModel = async (formData) => {
+    if (formData) {
+      const response = await testAPI("createModel", formData);
+      if (response && response.data) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error creating model:", response.message);
+      }
+    }
+  };
+  return { createModel };
+};
+
 //更新model
 export const useUpdateModel = (modelUID, formData) => {
   const updateModel = async () => {
@@ -80,6 +95,15 @@ export const HandleDelete = async (modelUID, onDelete, onClose) => {
   const response = await deleteModel();
   if (response && !(response instanceof Error)) {
     onDelete();
+    onClose();
+  }
+};
+
+export const HandleCreate = async (formData, onCreate, onClose) => {
+  const { createModel } = useCreateModel();
+  const response = await createModel(formData);
+  if (response && !(response instanceof Error)) {
+    onCreate();
     onClose();
   }
 };

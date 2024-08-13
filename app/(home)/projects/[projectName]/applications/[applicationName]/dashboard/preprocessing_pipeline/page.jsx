@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchPipeline, HandleLinkClick } from "./service";
 import { PipelineCard } from "./pipelineCard";
+import { CreateModal } from "./pipelineModal";
 
 export default function PreprocessingPipelinePage() {
   const { projectName, applicationName } = useParams();
@@ -26,6 +27,16 @@ export default function PreprocessingPipelinePage() {
     applicationNameDecode,
     applicationUID
   );
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -66,7 +77,10 @@ export default function PreprocessingPipelinePage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-6 py-4 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-6 py-4 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Upload Preprocessing Pipeline
           </button>
         </div>
@@ -89,6 +103,15 @@ export default function PreprocessingPipelinePage() {
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          applicationUID={applicationUID}
+          applicationName={applicationNameDecode}
+          type={type}
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+        />
+      )}
     </div>
   );
 }

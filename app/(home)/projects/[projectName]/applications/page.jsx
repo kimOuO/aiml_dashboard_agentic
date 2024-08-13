@@ -16,6 +16,7 @@ export default function ApplicationPage() {
   const handleBackClick = useBackNavigation();
   const { applications, isLoading, triggerFetch } =
     useFetchApplications(projectUID);
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const handleCreateClick = () => {

@@ -23,31 +23,29 @@ export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    //判斷字串是否為空字串或只輸入空白
-    if (!formData.name.trim())
-      newErrors.name = "Application name cannot be blank.";
-    if (!formData.description.trim())
-      newErrors.description = "Application description cannot be blank.";
+    const errorMessage = "The field cannot be blank.";
+    // 定義需要檢查的field
+    const fieldsToValidate = ["name", "description"];
+    fieldsToValidate.forEach((field) => {
+      if (!formData[field]?.trim()) {
+        newErrors[field] = errorMessage;
+      }
+    });
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
-  const handleCreateClick=()=>{
-    if(validateForm()){
-      HandleCreate(formData,onCreate,onClose)
+  const handleCreateClick = () => {
+    if (validateForm()) {
+      HandleCreate(formData, onCreate, onClose);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Create Application</h2>
-        <ModalInput
-          label="Project UID"
-          value={formData.projectUID}
-          readOnly
-        />
+        <ModalInput label="Project UID" value={formData.projectUID} readOnly />
         <ModalInput
           label="Project Name"
           value={formData.projectName}

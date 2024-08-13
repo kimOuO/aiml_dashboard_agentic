@@ -7,7 +7,9 @@ import { testAPI } from "@/app/api/entrypoint";
 export const useFetchPipeline = (applicationUID, type) => {
   const [pipelines, setPipelines] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  //用於觸發重新抓取data
   const [fetchTrigger, setFetchTrigger] = useState(false);
+
   useEffect(() => {
     const fetchPipeline = async () => {
       //開始抓取資料，畫面顯示loading
@@ -34,6 +36,21 @@ export const useFetchPipeline = (applicationUID, type) => {
     //用於觸發重新抓取
     triggerFetch: () => setFetchTrigger(!fetchTrigger),
   };
+};
+
+//創建pipeline
+export const useCreatePipeline = () => {
+  const createPipeline = async (formData) => {
+    if (formData) {
+      const response = await testAPI("createPipeline", formData);
+      if (response && response.data) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error creating pipeline:", response.message);
+      }
+    }
+  };
+  return { createPipeline };
 };
 
 //更新pipeline
@@ -83,6 +100,15 @@ export const HandleDelete = async (pipelineUID, onDelete, onClose) => {
   const response = await deletePipeline();
   if (response && !(response instanceof Error)) {
     onDelete();
+    onClose();
+  }
+};
+
+export const HandleCreate = async (formData, onCreate, onClose) => {
+  const { createPipeline } = useCreatePipeline();
+  const response = await createPipeline(formData);
+  if (response && !(response instanceof Error)) {
+    onCreate();
     onClose();
   }
 };

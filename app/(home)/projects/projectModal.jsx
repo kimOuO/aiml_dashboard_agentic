@@ -23,12 +23,15 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    //判斷字串是否為空字串或只輸入空白
-    if (!formData.name.trim()) newErrors.name = "Project name cannot be blank.";
-    if (!formData.description.trim())
-      newErrors.description = "Project description cannot be blank.";
+    const errorMessage = "The field cannot be blank.";
+    // 定義需要檢查的field
+    const fieldsToValidate = ["name", "description"];
+    fieldsToValidate.forEach((field) => {
+      if (!formData[field]?.trim()) {
+        newErrors[field] = errorMessage;
+      }
+    });
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 

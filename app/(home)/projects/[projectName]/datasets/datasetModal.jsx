@@ -49,13 +49,18 @@ export const CreateModal = ({
 
   const validateForm = () => {
     const newErrors = {};
-    //判斷字串是否為空字串或只輸入空白
-    if (!formData.name.trim()) newErrors.name = "Dataset name cannot be blank.";
-    if (!formData.description.trim())
-      newErrors.description = "Dataset description cannot be blank";
-    //if (!formData.file) newErrors.file = "Please select a ZIP file.";
+    const errorMessage = "The field cannot be blank.";
+    const fieldsToValidate = [
+      "name",
+      "description",
+      //"file",
+    ];
+    fieldsToValidate.forEach((field) => {
+      if (!formData[field]?.trim()) {
+        newErrors[field] = errorMessage;
+      }
+    });
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0; //Return true if no errors
   };
 

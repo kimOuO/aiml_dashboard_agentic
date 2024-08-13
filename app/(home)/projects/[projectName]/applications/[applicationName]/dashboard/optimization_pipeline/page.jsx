@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchPipeline } from "../preprocessing_pipeline/service";
 import { PipelineCard } from "../preprocessing_pipeline/pipelineCard";
+import { CreateModal } from "../preprocessing_pipeline/pipelineModal";
 
 export default function OptimizationPipelinePage() {
   const { projectName, applicationName } = useParams();
@@ -20,6 +21,15 @@ export default function OptimizationPipelinePage() {
     isLoading,
     triggerFetch,
   } = useFetchPipeline(applicationUID, type);
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
 
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -37,7 +47,10 @@ export default function OptimizationPipelinePage() {
               <p className="text-3xl">Optimization Pipeline</p>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-6 py-4 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-6 py-4 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Upload Optimization Pipeline
           </button>
         </div>
@@ -60,6 +73,15 @@ export default function OptimizationPipelinePage() {
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          applicationUID={applicationUID}
+          applicationName={applicationNameDecode}
+          type={type}
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+        />
+      )}
     </div>
   );
 }
