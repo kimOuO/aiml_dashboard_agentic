@@ -2,79 +2,81 @@ import { useEffect, useState } from "react";
 import { testAPI } from "@/app/api/entrypoint";
 
 export const useFetchDatasets = (
-  projectUID,
+  applicationUID,
   activeTab,
   searchQuery,
   currentPage
 ) => {
-  const [dataset, setDatasets] = useState([]);
+  const [optimiDatasets, setOptimiDatasets] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchTrigger, setFetchTrigger] = useState(false);
   useEffect(() => {
-    const fetchProjectDatasets = async () => {
+    const fetchOptimiDatasets = async () => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
-      if (projectUID && activeTab) {
-        const response = await testAPI("getDatasets", {
-          uid: projectUID,
+      if (applicationUID && activeTab) {
+        const response = await testAPI("getOptimiDatasets", {
+          uid: applicationUID,
           activeTab,
         });
         if (response && response.data) {
-          setDatasets(response.data);
+          setOptimiDatasets(response.data);
         } else if (response && response instanceof Error) {
           console.error("Error fetching datasets:", response.message);
         }
         setIsLoading(false);
       }
     };
-    fetchProjectDatasets();
-  }, [projectUID, activeTab, searchQuery, currentPage, fetchTrigger]);
+    fetchOptimiDatasets();
+  }, [applicationUID, activeTab, searchQuery, currentPage, fetchTrigger]);
   return {
-    dataset,
+    optimiDatasets,
     isLoading,
     //用於觸發重新抓取
     triggerFetch: () => setFetchTrigger(!fetchTrigger),
   };
 };
 
-//更新dataset
+//更新OptimiDataset
 export const useUpdateDataset = (datasetUID, formData) => {
-  const updateDataset = async () => {
+  const updateOptimiDataset = async () => {
     if (datasetUID) {
-      const response = await testAPI("updateDataset", {
+      const response = await testAPI("updateOptimiDataset", {
         uid: datasetUID,
         ...formData,
       });
       if (response && response.data) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error updating dataset：", response.message);
+        console.error("Error updating dataset:", response.message);
       }
     }
   };
-  return { updateDataset };
+  return { updateOptimiDataset };
 };
 
-//刪除dataset
+//刪除OptimiDataset
 export const useDeleteDataset = (datasetUID) => {
-  const deleteDataset = async () => {
+  const deleteOptimiDataset = async () => {
     if (datasetUID) {
-      const response = await testAPI("deleteDataset", { uid: datasetUID });
+      const response = await testAPI("deleteOptimiDataset", {
+        uid: datasetUID,
+      });
       if (response && response.data) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error deleting dataset：", response.message);
+        console.error("Error deleting dataset:", response.message);
       }
     }
   };
-  return { deleteDataset };
+  return { deleteOptimiDataset };
 };
 
-//創建dataset
+//創建OptimiDataset
 export const useCreateDataset = () => {
-  const createDataset = async (formData) => {
+  const createOptimiDataset = async (formData) => {
     if (formData) {
-      const response = await testAPI("createDataset", formData);
+      const response = await testAPI("createOptimiDataset", formData);
       if (response && response.data) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -82,12 +84,12 @@ export const useCreateDataset = () => {
       }
     }
   };
-  return { createDataset };
+  return { createOptimiDataset };
 };
 
 export const HandleUpdate = async (datasetUID, formData, onEdit, onClose) => {
-  const { updateDataset } = useUpdateDataset(datasetUID, formData);
-  const response = await updateDataset();
+  const { updateOptimiDataset } = useUpdateDataset(datasetUID, formData);
+  const response = await updateOptimiDataset();
   if (response && !(response instanceof Error)) {
     onEdit();
     onClose();
@@ -95,8 +97,8 @@ export const HandleUpdate = async (datasetUID, formData, onEdit, onClose) => {
 };
 
 export const HandleDelete = async (datasetUID, onDelete, onClose) => {
-  const { deleteDataset } = useDeleteDataset(datasetUID);
-  const response = await deleteDataset();
+  const { deleteOptimiDataset } = useDeleteDataset(datasetUID);
+  const response = await deleteOptimiDataset();
   if (response && !(response instanceof Error)) {
     onDelete();
     onClose();
@@ -104,8 +106,8 @@ export const HandleDelete = async (datasetUID, onDelete, onClose) => {
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
-  const { createDataset } = useCreateDataset();
-  const response = await createDataset(formData);
+  const { createOptimiDataset } = useCreateDataset();
+  const response = await createOptimiDataset(formData);
   if (response && !(response instanceof Error)) {
     onCreate();
     onClose();
