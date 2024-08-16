@@ -173,5 +173,5 @@ export {
   getAPI,
   login,
   signup,
-  testAPI
+  testAPI,
 };

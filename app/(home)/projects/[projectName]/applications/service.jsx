@@ -33,6 +33,7 @@ export const useFetchApplications = (projectUID) => {
     triggerFetch: () => setFetchTrigger(!fetchTrigger),
   };
 };
+
 //更新application
 export const useUpdateApplication = (applicationUID, formData) => {
   const updateApplication = async () => {
@@ -50,6 +51,7 @@ export const useUpdateApplication = (applicationUID, formData) => {
   };
   return { updateApplication };
 };
+
 //刪除application
 export const useDeleteApplication = (applicationUID) => {
   const deleteApplication = async () => {
@@ -65,6 +67,21 @@ export const useDeleteApplication = (applicationUID) => {
     }
   };
   return { deleteApplication };
+};
+
+//創建application
+export const useCreateApplication = () => {
+  const createApplication = async (formData) => {
+    if (formData) {
+      const response = await testAPI("createApplication", formData);
+      if (response && response.data) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error creating application:", response.message);
+      }
+    }
+  };
+  return { createApplication };
 };
 
 export const HandleUpdate = async (
@@ -86,6 +103,15 @@ export const HandleDelete = async (applicationUID, onDelete, onClose) => {
   const response = await deleteApplication();
   if (response && !(response instanceof Error)) {
     onDelete();
+    onClose();
+  }
+};
+
+export const HandleCreate = async (formData, onCreate, onClose) => {
+  const { createApplication } = useCreateApplication();
+  const response = await createApplication(formData);
+  if (response && !(response instanceof Error)) {
+    onCreate();
     onClose();
   }
 };

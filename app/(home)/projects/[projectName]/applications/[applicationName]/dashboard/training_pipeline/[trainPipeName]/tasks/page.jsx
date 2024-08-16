@@ -14,10 +14,9 @@ export default function TrainingTaskPage() {
   const trainPipeNameDecode = decodeURIComponent(trainPipeName);
   const searchParams = useSearchParams();
   const pipelineUID = searchParams.get("pipelineUID");
-  const type = "training";
 
   const handleBackClick = useBackNavigation();
-  const { tasks: trainingTasks, isLoading } = useFetchTask(pipelineUID, type);
+  const { tasks: trainingTasks, isLoading } = useFetchTask(pipelineUID);
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,

@@ -14,13 +14,10 @@ export default function TrainingBuildFilePage() {
   const trainPipeNameDecode = decodeURIComponent(trainPipeName);
   const searchParams = useSearchParams();
   const pipelineUID = searchParams.get("pipelineUID");
-  const type = "training";
 
   const handleBackClick = useBackNavigation();
-  const { buildFiles: trainingBuildFile, isLoading } = useFetchBuildFiles(
-    pipelineUID,
-    type
-  );
+  const { buildFiles: trainingBuildFile, isLoading } =
+    useFetchBuildFiles(pipelineUID);
   const { handleConfigClick, handleTasksClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,

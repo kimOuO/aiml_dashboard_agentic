@@ -1,20 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { HandleLinkClick } from "./service";
 import { useFetchPipeline } from "../preprocessing_pipeline/service";
 import { PipelineCard } from "../preprocessing_pipeline/pipelineCard";
+import { CreateModal } from "../preprocessing_pipeline/pipelineModal";
 
 export default function TrainingPipelinePage() {
   const { projectName, applicationName } = useParams();
   const projectNameDecode = decodeURIComponent(projectName);
   const applicationNameDecode = decodeURIComponent(applicationName);
-  const handleBackClick = useBackNavigation();
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
-  const type = "training";
+
+  const handleBackClick = useBackNavigation();
+  const type = "Training";
+
   const {
     pipelines: trainingPipelines,
     isLoading,
@@ -22,6 +25,16 @@ export default function TrainingPipelinePage() {
   } = useFetchPipeline(applicationUID, type);
   const { handleModelClick, handlePreprocessingPipelineClick } =
     HandleLinkClick(projectNameDecode, applicationNameDecode, applicationUID);
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -62,7 +75,10 @@ export default function TrainingPipelinePage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-6 py-4 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-6 py-4 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Upload Training Pipeline
           </button>
         </div>
@@ -85,6 +101,15 @@ export default function TrainingPipelinePage() {
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          applicationUID={applicationUID}
+          applicationName={applicationNameDecode}
+          type={type}
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+        />
+      )}
     </div>
   );
 }

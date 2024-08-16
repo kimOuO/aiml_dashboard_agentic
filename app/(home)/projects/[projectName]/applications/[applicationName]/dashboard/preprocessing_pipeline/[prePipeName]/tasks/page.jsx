@@ -13,12 +13,9 @@ export default function PreprocessingTaskPage() {
   const prePipeNameDecode = decodeURIComponent(prePipeName);
   const searchParams = useSearchParams();
   const pipelineUID = searchParams.get("pipelineUID");
-  const type = "preprocessing";
+
   const handleBackClick = useBackNavigation();
-  const { tasks: preprocessingTasks, isLoading } = useFetchTask(
-    pipelineUID,
-    type
-  );
+  const { tasks: preprocessingTasks, isLoading } = useFetchTask(pipelineUID);
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,

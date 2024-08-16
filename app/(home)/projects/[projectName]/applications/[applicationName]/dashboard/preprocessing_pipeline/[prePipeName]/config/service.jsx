@@ -11,11 +11,8 @@ export const useFetchConfigs = (pipelineUID, type) => {
     const fetchConfigs = async () => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
-      if (pipelineUID && type) {
-        const response = await testAPI("getConfigs", {
-          uid: pipelineUID,
-          type,
-        });
+      if (pipelineUID) {
+        const response = await testAPI("getConfigs", { uid: pipelineUID });
         if (response && response.data) {
           setConfigs(response.data);
         } else if (response && response instanceof Error) {
@@ -25,7 +22,7 @@ export const useFetchConfigs = (pipelineUID, type) => {
       }
     };
     fetchConfigs();
-  }, [pipelineUID, type]);
+  }, [pipelineUID]);
   return { configs, isLoading };
 };
 

@@ -29,6 +29,42 @@ export const useFetchProjects = () => {
     triggerFetch: () => setFetchTrigger(!fetchTrigger),
   };
 };
+
+//取得organization
+export const useFetchOrganization = () => {
+  const [organization, setOrganization] = useState(null);
+
+  useEffect(() => {
+    const fetchOrganization = async () => {
+      const response = await testAPI("getOrganization");
+      if (response && response.data) {
+        setOrganization(response.data);
+      } else {
+        console.error("Error fetching organization:", response.message);
+      }
+    };
+
+    fetchOrganization();
+  }, []);
+
+  return organization;
+};
+
+//創建project
+export const useCreateProject = () => {
+  const createProject = async (formData) => {
+    if (formData) {
+      const response = await testAPI("createProject", formData);
+      if (response && response.data) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error creating project:", response.message);
+      }
+    }
+  };
+  return { createProject };
+};
+
 //更新project
 export const useUpdateProject = (projectUID, formData) => {
   const updateProject = async () => {
@@ -46,6 +82,7 @@ export const useUpdateProject = (projectUID, formData) => {
   };
   return { updateProject };
 };
+
 //刪除project
 export const useDeleteProject = (projectUID) => {
   const deleteProject = async () => {
@@ -77,6 +114,15 @@ export const HandleDelete = async (projectUID, onDelete, onClose) => {
   const response = await deleteProject();
   if (response && !(response instanceof Error)) {
     onDelete();
+    onClose();
+  }
+};
+
+export const HandleCreate = async (formData, onCreate, onClose) => {
+  const { createProject } = useCreateProject();
+  const response = await createProject(formData);
+  if (response && !(response instanceof Error)) {
+    onCreate();
     onClose();
   }
 };

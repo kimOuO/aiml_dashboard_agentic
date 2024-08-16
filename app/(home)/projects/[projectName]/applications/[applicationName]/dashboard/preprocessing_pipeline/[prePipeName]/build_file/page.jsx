@@ -13,14 +13,11 @@ export default function PreprocessingBuildFilePage() {
   const prePipeNameDecode = decodeURIComponent(prePipeName);
   const searchParams = useSearchParams();
   const pipelineUID = searchParams.get("pipelineUID");
-  const type = "preprocessing";
 
   const handleBackClick = useBackNavigation();
 
-  const { buildFiles: preprocessingBuildFiles, isLoading } = useFetchBuildFiles(
-    pipelineUID,
-    type
-  );
+  const { buildFiles: preprocessingBuildFiles, isLoading } =
+    useFetchBuildFiles(pipelineUID);
   const { handleConfigClick, handleTasksClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,

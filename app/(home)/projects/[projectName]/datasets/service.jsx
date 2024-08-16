@@ -11,7 +11,7 @@ export const useFetchDatasets = (
   const [isLoading, setIsLoading] = useState(false);
   const [fetchTrigger, setFetchTrigger] = useState(false);
   useEffect(() => {
-    const fetchDatasets = async () => {
+    const fetchProjectDatasets = async () => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
       if (projectUID && activeTab) {
@@ -27,7 +27,7 @@ export const useFetchDatasets = (
         setIsLoading(false);
       }
     };
-    fetchDatasets();
+    fetchProjectDatasets();
   }, [projectUID, activeTab, searchQuery, currentPage, fetchTrigger]);
   return {
     dataset,
@@ -36,6 +36,7 @@ export const useFetchDatasets = (
     triggerFetch: () => setFetchTrigger(!fetchTrigger),
   };
 };
+
 //更新dataset
 export const useUpdateDataset = (datasetUID, formData) => {
   const updateDataset = async () => {
@@ -53,6 +54,7 @@ export const useUpdateDataset = (datasetUID, formData) => {
   };
   return { updateDataset };
 };
+
 //刪除dataset
 export const useDeleteDataset = (datasetUID) => {
   const deleteDataset = async () => {
@@ -66,6 +68,21 @@ export const useDeleteDataset = (datasetUID) => {
     }
   };
   return { deleteDataset };
+};
+
+//創建dataset
+export const useCreateDataset = () => {
+  const createDataset = async (formData) => {
+    if (formData) {
+      const response = await testAPI("createDataset", formData);
+      if (response && response.data) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error creating dataset:", response.message);
+      }
+    }
+  };
+  return { createDataset };
 };
 
 export const HandleUpdate = async (datasetUID, formData, onEdit, onClose) => {
@@ -82,6 +99,15 @@ export const HandleDelete = async (datasetUID, onDelete, onClose) => {
   const response = await deleteDataset();
   if (response && !(response instanceof Error)) {
     onDelete();
+    onClose();
+  }
+};
+
+export const HandleCreate = async (formData, onCreate, onClose) => {
+  const { createDataset } = useCreateDataset();
+  const response = await createDataset(formData);
+  if (response && !(response instanceof Error)) {
+    onCreate();
     onClose();
   }
 };

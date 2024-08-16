@@ -34,13 +34,13 @@ export default function ApplicationDashboard({
 
   const handleOptimizationPipelineClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/optimization_pipeline??applicationUID=${applicationUID}`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/optimization_pipeline?applicationUID=${applicationUID}`
     );
   };
 
-  const handleValidationPipelineClick = () => {
+  const handleEvaluationPipelineClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/validation_pipeline?applicationUID=${applicationUID}`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/evaluation_pipeline?applicationUID=${applicationUID}`
     );
   };
 
@@ -93,10 +93,10 @@ export default function ApplicationDashboard({
       </div>
       <div
         className="relative bg-red-100 shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer border-2 border-red-300"
-        onClick={handleValidationPipelineClick}
+        onClick={handleEvaluationPipelineClick}
       >
         <div className="flex space-x-4">
-          <h2 className=" text-xl font-semibold p-1">Validation Pipeline</h2>
+          <h2 className=" text-xl font-semibold p-1">Evaluation Pipeline</h2>
           <span className="text-2xl font-bold">→</span>
         </div>
       </div>

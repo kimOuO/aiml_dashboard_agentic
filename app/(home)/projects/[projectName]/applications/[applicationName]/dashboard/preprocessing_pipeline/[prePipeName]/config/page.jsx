@@ -13,13 +13,10 @@ export default function PreprocessingConfigPage() {
   const prePipeNameDecode = decodeURIComponent(prePipeName);
   const searchParams = useSearchParams();
   const pipelineUID = searchParams.get("pipelineUID");
-  const type = "preprocessing";
 
   const handleBackClick = useBackNavigation();
-  const { configs: preprocessingConfigs, isLoading } = useFetchConfigs(
-    pipelineUID,
-    type
-  );
+  const { configs: preprocessingConfigs, isLoading } =
+    useFetchConfigs(pipelineUID);
   const {
     handleTasksClick,
     handleTrainingPipelineClick,

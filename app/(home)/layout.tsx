@@ -2,6 +2,7 @@ import "@/app/globals.css";
 import { Inter as FontSans } from "next/font/google";
 import Footer from "@/components/base/Footer";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -24,11 +25,10 @@ export default function RootLayout({
       >
         <main className="w-full h-screen flex flex-col">
           <Header></Header>
-          <div className="flex-grow p-6">
-            {children}
-          </div>
+          <div className="flex-grow p-6">{children}</div>
           <Footer></Footer>
         </main>
+        <Toaster />
       </body>
     </html>
   );
