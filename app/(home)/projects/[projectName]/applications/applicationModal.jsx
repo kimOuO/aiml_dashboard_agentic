@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
-import { ModalInput, BaseDeleteModal } from "@/app/modalComponent";
+import {
+  ModalInput,
+  BaseDeleteModal,
+  ValidateForm,
+} from "@/app/modalComponent";
 
 export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
-    projectUID: projectUID,
-    projectName: projectName,
+    projectUID,
+    projectName,
     name: "",
     description: "",
   });
@@ -21,22 +25,12 @@ export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
     });
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    const errorMessage = "The field cannot be blank.";
-    // 定義需要檢查的field
-    const fieldsToValidate = ["name", "description"];
-    fieldsToValidate.forEach((field) => {
-      if (!formData[field]?.trim()) {
-        newErrors[field] = errorMessage;
-      }
-    });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
-  };
-
   const handleCreateClick = () => {
-    if (validateForm()) {
+    const fieldsToValidate = ["name", "description"]; //file還沒加上去
+    const validationErrors = ValidateForm(formData, fieldsToValidate);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length === 0) {
       HandleCreate(formData, onCreate, onClose);
     }
   };

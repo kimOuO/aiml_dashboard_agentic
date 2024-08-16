@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { ModalInput, BaseDeleteModal } from "@/app/modalComponent";
+import {
+  ModalInput,
+  BaseDeleteModal,
+  ValidateForm,
+  FileInput,
+} from "@/app/modalComponent";
 import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
 
 export const CreateModal = ({
@@ -9,8 +14,8 @@ export const CreateModal = ({
   onClose,
 }) => {
   const [formData, setFormData] = useState({
-    applicationUID: applicationUID,
-    applicationName: applicationName,
+    applicationUID,
+    applicationName,
     name: "",
     model_input_format: "",
     model_output_format: "",
@@ -21,7 +26,6 @@ export const CreateModal = ({
   });
 
   const [errors, setErrors] = useState({});
-  const [fileName, setFileName] = useState("未選擇任何檔案");
 
   //暫存更新的value
   const handleInputChange = (e) => {
@@ -32,46 +36,25 @@ export const CreateModal = ({
     });
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({
-        ...formData,
-        file: file,
-      });
-      setFileName(file.name);
-    } else {
-      setFormData({
-        ...formData,
-        file: null,
-      });
-      setFileName("未選擇任何檔案");
-    }
+  const handleFileChange = (file) => {
+    setFormData({
+      ...formData,
+      file: file,
+    });
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    const errorMessage = "The field cannot be blank.";
-    // 定義需要檢查的field
+  const handleCreateClick = () => {
     const fieldsToValidate = [
       "name",
       "description",
       "model_input_format",
       "model_output_format",
       "version",
-      //"file",
-    ];
-    fieldsToValidate.forEach((field) => {
-      if (!formData[field]?.trim()) {
-        newErrors[field] = errorMessage;
-      }
-    });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; //Return true if no errors
-  };
+    ]; //file還沒加上去
+    const validationErrors = ValidateForm(formData, fieldsToValidate);
+    setErrors(validationErrors);
 
-  const handleCreateClick = () => {
-    if (validateForm()) {
+    if (Object.keys(validationErrors).length === 0) {
       HandleCreate(formData, onCreate, onClose);
     }
   };
@@ -118,37 +101,12 @@ export const CreateModal = ({
           onChange={handleInputChange}
           error={errors.version}
         />
-        <ModalInput label="Model File Extension" value="zip" readOnly />
-        {/*上傳檔案的欄位*/}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Model File
-          </label>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => document.getElementById("fileInput").click()}
-              className="absolute right-0 top-0 bottom-0 bg-blue-500 text-white px-4 py-2 rounded-r-md"
-            >
-              選擇檔案
-            </button>
-            <input
-              type="file"
-              id="fileInput"
-              accept=".py"
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-            />
-            <input
-              type="text"
-              value={fileName}
-              readOnly
-              className="border-blue-500 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
-          </div>
-          {/*{errors.file && <span className="text-red-500">{errors.file}</span>}*/}
-        </div>
-        {/*上傳檔案的欄位*/}
+        <FileInput
+          label="Pipeline File"
+          onChange={handleFileChange}
+          accept=".zip"
+          error={errors.file}
+        />
         <ModalInput
           label="Model Description"
           name="description"

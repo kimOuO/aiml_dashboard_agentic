@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 
 //通用的ModalInput Component
@@ -82,4 +83,72 @@ BaseDeleteModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   handleDelete: PropTypes.func.isRequired,
+};
+
+//通用的FileInput Component
+export const FileInput = ({ label, onChange, accept, error }) => {
+  const [fileName, setFileName] = useState("未選擇任何檔案");
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFileName(file.name);
+      onChange(file);
+    } else {
+      setFileName("未選擇任何檔案");
+      onChange(null);
+    }
+  };
+
+  return (
+    <div className="mb-4">
+      <label className="block text-gray-700 text-sm font-bold mb-2">
+        {label}
+      </label>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => document.getElementById("fileInput").click()}
+          className="absolute right-0 top-0 bottom-0 bg-blue-500 text-white px-4 py-2 rounded-r-md"
+        >
+          選擇檔案
+        </button>
+        <input
+          type="file"
+          id="fileInput"
+          accept={accept}
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+        />
+        <input
+          type="text"
+          value={fileName}
+          readOnly
+          className="border-blue-500 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        />
+      </div>
+      {error && <span className="text-red-500 mt-1">{error}</span>}
+    </div>
+  );
+};
+
+FileInput.propTypes = {
+  label: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  accept: PropTypes.string,
+  error: PropTypes.string,
+};
+
+//表單驗證
+export const ValidateForm = (formData, fieldsToValidate) => {
+  const errors = {};
+  const errorMessage = "This field is required.";
+
+  fieldsToValidate.forEach((field) => {
+    if (!formData[field] || formData[field].trim() === "") {
+      errors[field] = errorMessage;
+    }
+  });
+
+  return errors;
 };

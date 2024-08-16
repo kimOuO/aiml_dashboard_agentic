@@ -13,7 +13,6 @@ export default function EvaluationPipelinePage() {
   const applicationNameDecode = decodeURIComponent(applicationName);
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
-  console.log(applicationUID);
 
   const handleBackClick = useBackNavigation();
   const type = "Evaluation";
