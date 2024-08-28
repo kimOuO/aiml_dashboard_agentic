@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { testAPI } from "@/app/api/entrypoint";
+import { getAPI } from "@/app/api/entrypoint";
 
 export const useFetchModels = (applicationUID) => {
   const [models, setModels] = useState([]);
@@ -14,11 +14,13 @@ export const useFetchModels = (applicationUID) => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
       if (applicationUID) {
-        const response = await testAPI("getModels", { uid: applicationUID });
-        if (response && response.data) {
-          setModels(response.data);
+        //ModelMetadataWriter/filter_by_application
+        const data = { f_application_uid: applicationUID };
+        const response = await getAPI("EU2X3oWVHQiEoYBi", data);
+        if (response.status === 200) {
+          setModels(response.data.data);
         } else if (response && response instanceof Error) {
-          console.error("Error fetching models：", response.message);
+          console.error("Error fetching models：", response.data);
         }
         setIsLoading(false);
       }
@@ -37,11 +39,12 @@ export const useFetchModels = (applicationUID) => {
 export const useCreateModel = () => {
   const createModel = async (formData) => {
     if (formData) {
-      const response = await testAPI("createModel", formData);
-      if (response && response.data) {
+      //ModelMetadataWriter/create
+      const response = await getAPI("OBF4f9guOmzitGvC", formData, true);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error creating model:", response.message);
+        console.error("Error creating model:", response.data);
       }
     }
   };
@@ -49,17 +52,15 @@ export const useCreateModel = () => {
 };
 
 //更新model
-export const useUpdateModel = (modelUID, formData) => {
+export const useUpdateModel = (formData) => {
   const updateModel = async () => {
-    if (modelUID) {
-      const response = await testAPI("updateModel", {
-        uid: modelUID,
-        ...formData,
-      });
-      if (response && response.data) {
+    if (formData) {
+      //ModelMetadataWriter/update
+      const response = await getAPI("3bfcpDzw20XiCGn1", formData);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error updating model:", response.message);
+        console.error("Error updating model:", response.data);
       }
     }
   };
@@ -70,19 +71,21 @@ export const useUpdateModel = (modelUID, formData) => {
 export const useDeleteModel = (modelUID) => {
   const deleteModel = async () => {
     if (modelUID) {
-      const response = await testAPI("deleteModel", { uid: modelUID });
-      if (response && response.data) {
+      //ModelMetadataWriter/delete
+      const data = { uid: modelUID };
+      const response = await getAPI("8qFsmTELrN0lag20", data);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error deleting model:", response.message);
+        console.error("Error deleting model:", response.data);
       }
     }
   };
   return { deleteModel };
 };
 
-export const HandleUpdate = async (modelUID, formData, onEdit, onClose) => {
-  const { updateModel } = useUpdateModel(modelUID, formData);
+export const HandleUpdate = async (formData, onEdit, onClose) => {
+  const { updateModel } = useUpdateModel(formData);
   const response = await updateModel();
   if (response && !(response instanceof Error)) {
     onEdit();
@@ -108,10 +111,17 @@ export const HandleCreate = async (formData, onCreate, onClose) => {
   }
 };
 
-export const HandlePublishToggle = async (modelUID, originalStatus) => {
+export const HandlePublishToggle = async (model, originalStatus) => {
   const newStatus = originalStatus ? "unpublish" : "publish";
-  // 使用 useUpdateModel 進行更新
-  const { updateModel } = useUpdateModel(modelUID, { status: newStatus });
+  const data = {
+    uid: model.uid,
+    name: model.name,
+    description: model.description,
+    model_input_format: model.model_input_format,
+    model_output_format: model.model_output_format,
+    status: newStatus,
+  };
+  const { updateModel } = useUpdateModel(data);
   const response = await updateModel();
   if (response && !(response instanceof Error)) {
     return response;

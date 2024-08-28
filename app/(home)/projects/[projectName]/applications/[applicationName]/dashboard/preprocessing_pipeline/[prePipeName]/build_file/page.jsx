@@ -94,7 +94,7 @@ export default function PreprocessingBuildFilePage() {
           <div className="space-y-4">
             {preprocessingBuildFiles.map((preBuildFile) => (
               <BuildFileCard
-                key={preBuildFile.id}
+                key={preBuildFile.uid}
                 buildFile={preBuildFile}
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}

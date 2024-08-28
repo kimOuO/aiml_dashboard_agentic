@@ -4,7 +4,6 @@ import {
   ModalInput,
   BaseDeleteModal,
   ValidateForm,
-  FileInput,
 } from "@/app/modalComponent";
 import {
   Accordion,
@@ -24,21 +23,21 @@ export const CreateModal = ({
   title3,
 }) => {
   const [formData, setFormData] = useState({
-    pipelineUID,
-    pipelineName,
     name1: "",
-    sequence1: "1",
+    sequence1: "Download",
     description1: "",
     file1: null,
     name2: "",
-    sequence2: "2",
+    sequence2: "Running",
     description2: "",
     file2: null,
     name3: "",
-    sequence3: "3",
+    sequence3: "Upload",
     description3: "",
     file3: null,
+    f_pipeline_uid: pipelineUID,
   });
+
   const accordionItems = [
     { id: 1, title: title1, prefix: "1" },
     { id: 2, title: title2, prefix: "2" },
@@ -46,6 +45,12 @@ export const CreateModal = ({
   ];
 
   const [errors, setErrors] = useState({});
+  //用於保存每個file的filename
+  const [fileNames, setFileNames] = useState({
+    file1: "未選擇任何檔案",
+    file2: "未選擇任何檔案",
+    file3: "未選擇任何檔案",
+  });
 
   //暫存更新的value
   const handleInputChange = (e) => {
@@ -56,20 +61,24 @@ export const CreateModal = ({
     });
   };
 
-  const handleFileChange = (file) => {
+  const handleFileChange = (file, prefix) => {
     setFormData({
       ...formData,
-      file: file,
+      [`file${prefix}`]: file,
+    });
+    setFileNames({
+      ...fileNames,
+      [`file${prefix}`]: file ? file.name : "未選擇任何檔案",
     });
   };
 
   const handleCreateClick = () => {
     const prefixes = ["1", "2", "3"];
-    const allErrors = {}; // 儲存錯誤的fields
-    const submissions = []; // 準備提交的資料
+    const allErrors = {}; // 保存验证错误的字段
+    const submissions = []; // 准备提交的数据
 
     prefixes.forEach((prefix) => {
-      const fieldsToValidate = [`name${prefix}`, `description${prefix}`];
+      const fieldsToValidate = [`name${prefix}`, `file${prefix}`];
       const validationErrors = ValidateForm(formData, fieldsToValidate);
 
       if (validationErrors && Object.keys(validationErrors).length > 0) {
@@ -77,24 +86,25 @@ export const CreateModal = ({
           allErrors[field] = validationErrors[field];
         });
       } else {
-        // 如果這組資料沒有錯誤，將其加入提交陣列
         const submissionData = {
-          pipelineUID: formData.pipelineUID,
-          pipelineName: formData.pipelineName,
+          f_pipeline_uid: formData.f_pipeline_uid,
           name: formData[`name${prefix}`],
           sequence: formData[`sequence${prefix}`],
           description: formData[`description${prefix}`],
           file: formData[`file${prefix}`],
+          extension: "null",
         };
         submissions.push(submissionData);
       }
     });
 
-    setErrors(allErrors); // 更新錯誤信息
+    setErrors(allErrors);
 
     if (Object.keys(allErrors).length === 0) {
-      // 如果所有的字段都通過了驗證，則提交
-      HandleCreate(submissions, onCreate, onClose);
+      submissions.forEach((submission) => {
+        //一次創建一個buildFile
+        HandleCreate(submission, onCreate, onClose);
+      });
     }
   };
 
@@ -111,12 +121,12 @@ export const CreateModal = ({
                 <div>
                   <ModalInput
                     label={`${type} Pipeline UID`}
-                    value={formData.pipelineUID}
+                    value={formData.f_pipeline_uid}
                     readOnly
                   />
                   <ModalInput
                     label={`${type} Pipeline Name`}
-                    value={formData.pipelineName}
+                    value={pipelineName}
                     readOnly
                   />
                   <ModalInput
@@ -138,14 +148,44 @@ export const CreateModal = ({
                     onChange={handleInputChange}
                     error={errors[`description${item.prefix}`]}
                   />
-                  <FileInput
-                    label={`${type} Build File`}
-                    onChange={(file) =>
-                      handleFileChange(file, `file${item.prefix}`)
-                    }
-                    accept=""
-                    error={errors[`file${item.prefix}`]}
-                  />
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                      {`${type} Build File`}
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          document
+                            .getElementById(`fileInput${item.prefix}`)
+                            .click()
+                        }
+                        className="absolute right-0 top-0 bottom-0 bg-blue-500 text-white px-4 py-2 rounded-r-md"
+                      >
+                        選擇檔案
+                      </button>
+                      <input
+                        type="file"
+                        id={`fileInput${item.prefix}`}
+                        accept=""
+                        onChange={(e) =>
+                          handleFileChange(e.target.files[0], item.prefix)
+                        }
+                        style={{ display: "none" }}
+                      />
+                      <input
+                        type="text"
+                        value={fileNames[`file${item.prefix}`]}
+                        readOnly
+                        className="border-blue-500 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      />
+                    </div>
+                    {errors[`file${item.prefix}`] && (
+                      <span className="text-red-500 mt-1">
+                        {errors[`file${item.prefix}`]}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -172,6 +212,7 @@ export const CreateModal = ({
 
 export const EditModal = ({ buildFile, onClose, onEdit }) => {
   const [formData, setFormData] = useState({
+    uid: buildFile.uid,
     name: buildFile.name,
     description: buildFile.description,
   });
@@ -185,14 +226,14 @@ export const EditModal = ({ buildFile, onClose, onEdit }) => {
   };
 
   const handleUpdateClick = () => {
-    HandleUpdate(buildFile.uid, formData, onEdit, onClose);
+    HandleUpdate(formData, onEdit, onClose);
   };
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Build File</h2>
-        <ModalInput label="UID" value={buildFile.uid} readOnly />
+        <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
           label="Name"
           name="name"

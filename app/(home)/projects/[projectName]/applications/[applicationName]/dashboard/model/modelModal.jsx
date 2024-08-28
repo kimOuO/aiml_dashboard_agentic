@@ -14,15 +14,16 @@ export const CreateModal = ({
   onClose,
 }) => {
   const [formData, setFormData] = useState({
-    applicationUID,
-    applicationName,
     name: "",
+    description: "",
+    type: "Default",
     model_input_format: "",
     model_output_format: "",
-    status: "unpublish",
-    version: "",
+    source: "",
+    status: "Unpublish",
+    f_application_uid: applicationUID,
     file: null,
-    description: "",
+    extension: "zip",
   });
 
   const [errors, setErrors] = useState({});
@@ -46,11 +47,10 @@ export const CreateModal = ({
   const handleCreateClick = () => {
     const fieldsToValidate = [
       "name",
-      "description",
       "model_input_format",
       "model_output_format",
-      "version",
-    ]; //file還沒加上去
+      "file",
+    ];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -65,14 +65,10 @@ export const CreateModal = ({
         <h2 className="text-2xl font-bold mb-4">Upload Model</h2>
         <ModalInput
           label="Application UID"
-          value={formData.applicationUID}
+          value={formData.f_application_uid}
           readOnly
         />
-        <ModalInput
-          label="Application Name"
-          value={formData.applicationName}
-          readOnly
-        />
+        <ModalInput label="Application Name" value={applicationName} readOnly />
         <ModalInput
           label="Model Name"
           name="name"
@@ -93,13 +89,6 @@ export const CreateModal = ({
           value={formData.model_output_format}
           onChange={handleInputChange}
           error={errors.model_output_format}
-        />
-        <ModalInput
-          label="Model Version"
-          name="version"
-          value={formData.version}
-          onChange={handleInputChange}
-          error={errors.version}
         />
         <FileInput
           label="Pipeline File"
@@ -158,9 +147,12 @@ export const PerformanceModal = ({ model, onClose }) => {
 
 export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
   const [formData, setFormData] = useState({
+    uid: model.uid,
     name: model.name,
-    version: model.version,
     description: model.description,
+    model_input_format: model.model_input_format,
+    model_output_format: model.model_output_format,
+    status: model.status,
   });
 
   //暫存更新的value
@@ -173,7 +165,7 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
   };
 
   const handleUpdateClick = () => {
-    HandleUpdate(model.uid, formData, onEdit, onClose);
+    HandleUpdate(formData, onEdit, onClose);
   };
 
   return (
@@ -181,7 +173,7 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Model</h2>
         <ModalInput label="Application" value={applicationName} readOnly />
-        <ModalInput label="UID" value={model.uid} readOnly />
+        <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
           label="Name"
           name="name"
@@ -190,19 +182,21 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
         />
         <ModalInput
           label="Input Format"
-          value={model.model_input_format}
-          readOnly
+          name="model_input_format"
+          value={formData.model_input_format}
+          onChange={handleInputChange}
         />
         <ModalInput
           label="Output Format"
-          value={model.model_output_format}
-          readOnly
+          name="model_output_format"
+          value={formData.model_output_format}
+          onChange={handleInputChange}
         />
         <ModalInput
           label="Version"
           name="version"
-          value={formData.version}
-          onChange={handleInputChange}
+          value={String(formData.version)}
+          readOnly
         />
         <ModalInput label="Access Token" value={model.access_token} readOnly />
         <ModalInput label="File Extension" value="zip" readOnly />

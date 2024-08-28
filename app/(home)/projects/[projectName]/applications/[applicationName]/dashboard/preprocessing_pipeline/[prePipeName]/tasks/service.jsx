@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { testAPI } from "@/app/api/entrypoint";
+import { getAPI } from "@/app/api/entrypoint";
 
 export const useFetchTask = (pipelineUID) => {
   const [tasks, setTasks] = useState([]);
@@ -12,11 +12,13 @@ export const useFetchTask = (pipelineUID) => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
       if (pipelineUID) {
-        const response = await testAPI("getTasks", { uid: pipelineUID });
-        if (response && response.data) {
-          setTasks(response.data);
+        //TaskMetadataWriter/filter_by_pipeline
+        const data = { f_pipeline_uid: pipelineUID };
+        const response = await getAPI("getTasks", data);
+        if (response.status === 200) {
+          setTasks(response.data.data);
         } else if (response && response instanceof Error) {
-          console.error("Error fetching task：", response.message);
+          console.error("Error fetching task：", response.data);
         }
         setIsLoading(false);
       }

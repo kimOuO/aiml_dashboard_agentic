@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { testAPI } from "@/app/api/entrypoint";
+import { getAPI } from "@/app/api/entrypoint";
 
-export const useFetchBuildFiles = (pipelineUID, type) => {
+export const useFetchBuildFiles = (pipelineUID) => {
   const [buildFiles, setBuildFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   //用於觸發重新抓取data
@@ -15,11 +15,13 @@ export const useFetchBuildFiles = (pipelineUID, type) => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
       if (pipelineUID) {
-        const response = await testAPI("getBuildFiles", { uid: pipelineUID });
-        if (response && response.data) {
-          setBuildFiles(response.data);
+        //ImageMetadataWriter/filter_by_pipeline
+        const data = { f_pipeline_uid: pipelineUID };
+        const response = await getAPI("eu4oNOb8E0KVaOdo", data);
+        if (response.status === 200) {
+          setBuildFiles(response.data.data);
         } else if (response && response instanceof Error) {
-          console.log("Error fetching build files：", response.message);
+          console.log("Error fetching build files：", response.data);
         }
         setIsLoading(false);
       }
@@ -38,11 +40,11 @@ export const useFetchBuildFiles = (pipelineUID, type) => {
 export const useCreateBuildFile = () => {
   const createBuildFile = async (formData) => {
     if (formData) {
-      const response = await testAPI("createBuildFile", formData);
-      if (response && response.data) {
+      const response = await getAPI("lwO7afcqdKtKEAhb", formData, true);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error creating build file:", response.message);
+        console.error("Error creating build file:", response.data);
       }
     }
   };
@@ -50,17 +52,15 @@ export const useCreateBuildFile = () => {
 };
 
 //更新buildFile
-export const useUpdateBuildFile = (buildFileUID, formData) => {
+export const useUpdateBuildFile = (formData) => {
   const updateBuildFile = async () => {
-    if (buildFileUID) {
-      const response = await testAPI("updateBuildFile", {
-        uid: buildFileUID,
-        ...formData,
-      });
-      if (response && response.data) {
+    if (formData) {
+      //ImageMetadataWriter/update
+      const response = await getAPI("fQVBVFsISiNWCCzx", formData);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error updating pipeline：", response.message);
+        console.error("Error updating pipeline：", response.data);
       }
     }
   };
@@ -71,19 +71,21 @@ export const useUpdateBuildFile = (buildFileUID, formData) => {
 export const useDeleteBuildFile = (buildFileUID) => {
   const deleteBuildFile = async () => {
     if (buildFileUID) {
-      const response = await testAPI("deleteBuildFile", { uid: buildFileUID });
-      if (response && response.data) {
+      //ImageMetadataWriter/delete
+      const data = { uid: buildFileUID };
+      const response = await getAPI("Ho7YDcRfgifigJvn", data);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error deleting build file", response.message);
+        console.error("Error deleting build file", response.data);
       }
     }
   };
   return { deleteBuildFile };
 };
 
-export const HandleUpdate = async (buildFileUID, formData, onEdit, onClose) => {
-  const { updateBuildFile } = useUpdateBuildFile(buildFileUID, formData);
+export const HandleUpdate = async (formData, onEdit, onClose) => {
+  const { updateBuildFile } = useUpdateBuildFile(formData);
   const response = await updateBuildFile();
   if (response && !(response instanceof Error)) {
     onEdit();
