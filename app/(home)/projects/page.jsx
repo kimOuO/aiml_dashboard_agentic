@@ -2,12 +2,15 @@
 
 import React, { useState } from "react";
 import { useFetchProjects, useFetchOrganization } from "./service";
+import {useSearchParams } from "next/navigation";
 import { CreateModal } from "./projectModal";
 import ProjectCard from "./projectCard";
 
 export default function ProjectPage() {
-  const { projects, isLoading, triggerFetch } = useFetchProjects();
-  const organization = useFetchOrganization();
+  const searchParams = useSearchParams();
+  const organizationUID = searchParams.get('organizationUID')
+  const { projects, isLoading, triggerFetch } = useFetchProjects(organizationUID);
+  const organization = useFetchOrganization(organizationUID);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -38,10 +41,11 @@ export default function ProjectPage() {
           <div className="space-y-4">
             {projects.map((project) => (
               <ProjectCard
-                key={project.id}
+                key={project.uid}
                 project={project}
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}
+                organization={organization}
               />
             ))}
           </div>

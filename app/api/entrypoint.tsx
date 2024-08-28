@@ -9,7 +9,7 @@ const PROTOCAL = process.env.PROTOCAL;
 const HOST = process.env.HOST;
 const API_PORT = process.env.API_PORT ? `:${process.env.API_PORT}` : "";
 const API_ROOT = process.env.API_ROOT;
-const API_VERSION = "v0.1";
+const API_VERSION = process.env.API_VERSION;
 const API_TYPE = "entrypoint";
 
 // Authorization
@@ -87,12 +87,11 @@ const signup = async (data: JSON): Promise<AxiosResponse | Error> => {
 
 const testAPI = async (
   endpoint: string,
-  data: object
+  data: any
 ): Promise<AxiosResponse | Error> => {
-  const TEST_API_BASE_URL = process.env.NEXT_PUBLIC_TEST_API;
-  const url = `${TEST_API_BASE_URL}/${endpoint}`;
+  const TEST_API_URL = `${API}/${endpoint}`;
   try {
-    const response = await axios.post(url, data);
+    const response = await axios.post(TEST_API_URL, data);
     return handleApiResponse(response);
   } catch (error) {
     handleApiError(error);

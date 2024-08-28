@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { testAPI } from "@/app/api/entrypoint";
+import { getAPI } from "@/app/api/entrypoint";
 
-export const useFetchProjects = () => {
+export const useFetchProjects = (organizationUID) => {
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   //用於觸發重新抓取data
@@ -11,11 +11,13 @@ export const useFetchProjects = () => {
     const fetchProjects = async () => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
-      const response = await testAPI("/getProjects");
-      if (response && response.data) {
-        setProjects(response.data);
+      //ProjectMetadataWriter/filter_by_organization
+      const data = { f_organization_uid: organizationUID };
+      const response = await getAPI("a75vPQAyPqVGFwiZ", data);
+      if (response.status === 200) {
+        setProjects(response.data.data);
       } else if (response && response instanceof Error) {
-        console.error("Error fetching projects:", response.message);
+        console.error("Error fetching projects:", response.data);
       }
       setIsLoading(false);
     };
@@ -31,16 +33,18 @@ export const useFetchProjects = () => {
 };
 
 //取得organization
-export const useFetchOrganization = () => {
+export const useFetchOrganization = (organizationUID) => {
   const [organization, setOrganization] = useState(null);
 
   useEffect(() => {
     const fetchOrganization = async () => {
-      const response = await testAPI("getOrganization");
-      if (response && response.data) {
-        setOrganization(response.data);
+      //OrganizationMetadataWriter/retrieve
+      const data = { uid: organizationUID };
+      const response = await getAPI("mGlkFLqgBQgNRvU3", data);
+      if (response.status === 200) {
+        setOrganization(response.data.data);
       } else {
-        console.error("Error fetching organization:", response.message);
+        console.error("Error fetching organization:", response.data);
       }
     };
 
@@ -54,11 +58,12 @@ export const useFetchOrganization = () => {
 export const useCreateProject = () => {
   const createProject = async (formData) => {
     if (formData) {
-      const response = await testAPI("createProject", formData);
-      if (response && response.data) {
-        return response.data;
+      //ProjectMetadataWriter/create
+      const response = await getAPI("9Q1lCs56iud4oPcS", formData);
+      if (response.status === 200) {
+        return response.data.data;
       } else if (response && response instanceof Error) {
-        console.error("Error creating project:", response.message);
+        console.error("Error creating project:", response.data);
       }
     }
   };
@@ -69,14 +74,15 @@ export const useCreateProject = () => {
 export const useUpdateProject = (projectUID, formData) => {
   const updateProject = async () => {
     if (projectUID) {
-      const response = await testAPI("updateProject", {
+      //ProjectMetadataWriter/update
+      const response = await getAPI("KIW6ZqwTMbMF4bWl", {
         uid: projectUID,
         ...formData,
       });
-      if (response && response.data) {
-        return response.data;
+      if (response.status === 200) {
+        return response.data.data;
       } else if (response && response instanceof Error) {
-        console.error("Error updating project:", response.message);
+        console.error("Error updating project:", response.data);
       }
     }
   };
@@ -87,13 +93,14 @@ export const useUpdateProject = (projectUID, formData) => {
 export const useDeleteProject = (projectUID) => {
   const deleteProject = async () => {
     if (projectUID) {
-      const response = await testAPI("/deleteProject", {
+      //ProjectMetadataWriter/delete
+      const response = await getAPI("ThQHZcLlnq6GQ3zW", {
         uid: projectUID,
       });
-      if (response && response.data) {
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error deleting project:", response.message);
+        console.error("Error deleting project:", response.data);
       }
     }
   };
