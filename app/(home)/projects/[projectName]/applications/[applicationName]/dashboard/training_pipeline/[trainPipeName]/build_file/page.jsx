@@ -95,8 +95,10 @@ export default function TrainingBuildFilePage() {
           <div className="space-y-4">
             {trainingBuildFile.map((trainBuildFile) => (
               <BuildFileCard
-                key={trainBuildFile.id}
+                key={trainBuildFile.uid}
                 buildFile={trainBuildFile}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
               />
             ))}
           </div>

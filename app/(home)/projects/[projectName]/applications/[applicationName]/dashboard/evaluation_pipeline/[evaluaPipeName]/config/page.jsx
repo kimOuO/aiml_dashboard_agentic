@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { HandleLinkClick } from "./service";
 import { useFetchConfigs } from "../../../preprocessing_pipeline/[prePipeName]/config/service";
 import { ConfigCard } from "../../../preprocessing_pipeline/[prePipeName]/config/configCard";
+import { CreateModal } from "../../../preprocessing_pipeline/[prePipeName]/config/configModal";
 
 export default function EvaluationConfigPage() {
   const { projectName, applicationName, evaluaPipeName } = useParams();
@@ -16,8 +17,12 @@ export default function EvaluationConfigPage() {
   const pipelineUID = searchParams.get("pipelineUID");
 
   const handleBackClick = useBackNavigation();
-  const { configs: evaluationConfigs, isLoading } =
-    useFetchConfigs(pipelineUID);
+  const {
+    configs: evaluationConfigs,
+    isLoading,
+    triggerFetch,
+  } = useFetchConfigs(pipelineUID);
+
   const { handleTasksClick, handleModelClick, handleBuildFileClick } =
     HandleLinkClick(
       projectNameDecode,
@@ -25,6 +30,16 @@ export default function EvaluationConfigPage() {
       evaluaPipeNameDecode,
       pipelineUID
     );
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -77,7 +92,10 @@ export default function EvaluationConfigPage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Create Task Config
           </button>
         </div>
@@ -86,12 +104,27 @@ export default function EvaluationConfigPage() {
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {evaluaPipeName.map((evaluaConfig) => (
-              <ConfigCard key={evaluaConfig.id} config={evaluaConfig} />
+            {evaluationConfigs.map((evaluaConfig) => (
+              <ConfigCard
+                key={evaluaConfig.uid}
+                config={evaluaConfig}
+                pipelineName={evaluaPipeNameDecode}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
+              />
             ))}
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          pipelineUID={pipelineUID}
+          pipelineName={evaluaPipeNameDecode}
+          type="Evaluation"
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+        />
+      )}
     </div>
   );
 }

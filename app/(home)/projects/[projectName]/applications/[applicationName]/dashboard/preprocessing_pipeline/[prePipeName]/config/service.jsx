@@ -7,6 +7,9 @@ import { getAPI } from "@/app/api/entrypoint";
 export const useFetchConfigs = (pipelineUID) => {
   const [configs, setConfigs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  //用於觸發重新抓取data
+  const [fetchTrigger, setFetchTrigger] = useState(false);
+
   useEffect(() => {
     const fetchConfigs = async () => {
       //開始抓取資料，畫面顯示loading
@@ -24,8 +27,13 @@ export const useFetchConfigs = (pipelineUID) => {
       }
     };
     fetchConfigs();
-  }, [pipelineUID]);
-  return { configs, isLoading };
+  }, [pipelineUID, fetchTrigger]);
+  return {
+    configs,
+    isLoading,
+    //用於觸發重新抓取
+    triggerFetch: () => setFetchTrigger(!fetchTrigger),
+  };
 };
 
 const useFindApplicationUID = (pipelineUID) => {

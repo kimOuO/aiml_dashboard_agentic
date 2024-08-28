@@ -7,6 +7,9 @@ import { getAPI } from "@/app/api/entrypoint";
 export const useFetchTask = (pipelineUID) => {
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  //用於觸發重新抓取data
+  const [fetchTrigger, setFetchTrigger] = useState(false);
+
   useEffect(() => {
     const fetchTasks = async () => {
       //開始抓取資料，畫面顯示loading
@@ -14,7 +17,7 @@ export const useFetchTask = (pipelineUID) => {
       if (pipelineUID) {
         //TaskMetadataWriter/filter_by_pipeline
         const data = { f_pipeline_uid: pipelineUID };
-        const response = await getAPI("getTasks", data);
+        const response = await getAPI("s8i1TNiTXwwv02mv", data);
         if (response.status === 200) {
           setTasks(response.data.data);
         } else if (response && response instanceof Error) {
@@ -24,8 +27,89 @@ export const useFetchTask = (pipelineUID) => {
       }
     };
     fetchTasks();
-  }, [pipelineUID]);
-  return { tasks, isLoading };
+  }, [pipelineUID, fetchTrigger]);
+  return {
+    tasks,
+    isLoading,
+    //用於觸發重新抓取
+    triggerFetch: () => setFetchTrigger(!fetchTrigger),
+  };
+};
+
+//創建task
+export const useCreateTask = () => {
+  const createTask = async (formData) => {
+    if (formData) {
+      //TaskMetadataWriter/create
+      const response = await getAPI("Za0lf5Tf5pI3fhMx", formData);
+      if (response.status === 200) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error creating task:", response.data);
+      }
+    }
+  };
+  return { createTask };
+};
+
+//更新task
+export const useUpdateTask = (formData) => {
+  const updateTask = async () => {
+    if (formData) {
+      //TaskMetadataWriter/update
+      const response = await getAPI("05wVeQQBhvFRTq54", formData);
+      if (response.status === 200) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error updating task:", response.data);
+      }
+    }
+  };
+  return { updateTask };
+};
+
+//刪除config
+export const useDeleteTask = (taskUID) => {
+  const deleteTask = async () => {
+    if (taskUID) {
+      //TaskMetadataWriter/delete
+      const data = { uid: taskUID };
+      const response = await getAPI("AoTqlTmu8l47CbMU", data);
+      if (response.status === 200) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error deleting task", response.data);
+      }
+    }
+  };
+  return { deleteTask };
+};
+
+export const HandleUpdate = async (formData, onEdit, onClose) => {
+  const { updateTask } = useUpdateTask(formData);
+  const response = await updateTask();
+  if (response && !(response instanceof Error)) {
+    onEdit();
+    onClose();
+  }
+};
+
+export const HandleDelete = async (configUID, onDelete, onClose) => {
+  const { deleteTask } = useDeleteTask(configUID);
+  const response = await deleteTask();
+  if (response && !(response instanceof Error)) {
+    onDelete();
+    onClose();
+  }
+};
+
+export const HandleCreate = async (formData, onCreate, onClose) => {
+  const { createTask } = useCreateTask();
+  const response = await createTask(formData);
+  if (response && !(response instanceof Error)) {
+    onCreate();
+    onClose();
+  }
 };
 
 export const HandleLinkClick = (

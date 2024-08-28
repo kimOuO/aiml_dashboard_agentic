@@ -1,6 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
+import { EditModal, DeleteModal } from "./taskModal";
 
-export const TaskCard = ({ task }) => {
+export const TaskCard = ({ task, pipelineName, onEdit, onDelete }) => {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer">
       <div>
@@ -13,16 +32,31 @@ export const TaskCard = ({ task }) => {
         <p className="text-gray-500">{task.date}</p>
       </div>
       <div className="space-x-8 px-5">
-        <button>
+        <button onClick={handleEditClick}>
           <img src="/project/edit.svg" alt="Edit" />
         </button>
-        <button>
+        <button onClick={handleDeleteClick}>
           <img src="/project/delete.svg" alt="Delete" />
         </button>
         <button className="bg-gray-200 rounded-xl px-2 py-1 border border-gray-400">
           Log
         </button>
       </div>
+      {isEditModalOpen && (
+        <EditModal
+          task={task}
+          pipelineName={pipelineName}
+          onClose={handleCloseEditModal}
+          onEdit={onEdit}
+        />
+      )}
+      {isDeleteModalOpen && (
+        <DeleteModal
+          task={task}
+          onClose={handleCloseDeleteModal}
+          onDelete={onDelete}
+        />
+      )}
     </div>
   );
 };

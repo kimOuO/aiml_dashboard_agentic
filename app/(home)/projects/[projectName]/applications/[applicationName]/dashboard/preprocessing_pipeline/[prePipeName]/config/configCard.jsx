@@ -1,7 +1,7 @@
-import React from "react";
-import {EditModal,DeleteModal} from "./configModal"
+import React, { useState } from "react";
+import { EditModal, DeleteModal } from "./configModal";
 
-export const ConfigCard = ({ config,pipelineName }) => {
+export const ConfigCard = ({ config, pipelineName, onEdit, onDelete }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -27,7 +27,7 @@ export const ConfigCard = ({ config,pipelineName }) => {
         <div className="bg-blue-300 rounded-lg p-0.5">{config.uid}</div>
         <h2 className="text-xl font-semibold p-1">{config.name}</h2>
         <p className="text-gray-500">{config.description}</p>
-      </div >
+      </div>
       <div className="space-x-8 px-5">
         <button onClick={handleEditClick}>
           <img src="/project/edit.svg" alt="Edit" />
@@ -39,13 +39,13 @@ export const ConfigCard = ({ config,pipelineName }) => {
           <img src="/project/delete.svg" alt="Delete" />
         </button>
       </div>
-      {isEditModalOpen&&(
+      {isEditModalOpen && (
         <EditModal
-        config={config}
-        pipelineName={pipelineName}
-        onClose={handleCloseEditModal}
-        onEdit={onEdit}
-      />
+          config={config}
+          pipelineName={pipelineName}
+          onClose={handleCloseEditModal}
+          onEdit={onEdit}
+        />
       )}
       {isDeleteModalOpen && (
         <DeleteModal

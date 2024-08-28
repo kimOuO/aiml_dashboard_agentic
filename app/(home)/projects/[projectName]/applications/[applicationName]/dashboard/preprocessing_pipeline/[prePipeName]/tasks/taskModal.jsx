@@ -16,7 +16,6 @@ export const CreateModal = ({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    data: "",
     f_pipeline_uid: pipelineUID,
   });
 
@@ -32,7 +31,7 @@ export const CreateModal = ({
   };
 
   const handleCreateClick = () => {
-    const fieldsToValidate = ["name", "data"];
+    const fieldsToValidate = ["name"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -44,7 +43,7 @@ export const CreateModal = ({
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Upload {type} Config</h2>
+        <h2 className="text-2xl font-bold mb-4">Upload {type} Task</h2>
         <ModalInput
           label="Pipeline UID"
           value={formData.f_pipeline_uid}
@@ -63,13 +62,6 @@ export const CreateModal = ({
           name="description"
           value={formData.description}
           onChange={handleInputChange}
-        />
-        <ModalInput
-          label="Data"
-          name="data"
-          value={formData.data}
-          onChange={handleInputChange}
-          error={errors.data}
         />
         <div className="flex justify-between">
           <button
@@ -90,12 +82,11 @@ export const CreateModal = ({
   );
 };
 
-export const EditModal = ({ config, onClose, onEdit, pipelineName }) => {
+export const EditModal = ({ task, onClose, onEdit, pipelineName }) => {
   const [formData, setFormData] = useState({
-    uid: config.uid,
-    name: config.name,
-    description: config.description,
-    data: config.data,
+    uid: task.uid,
+    name: task.name,
+    description: task.description,
   });
 
   //暫存更新的value
@@ -114,7 +105,7 @@ export const EditModal = ({ config, onClose, onEdit, pipelineName }) => {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Config</h2>
+        <h2 className="text-2xl font-bold mb-4">Task</h2>
         <ModalInput label="Pipeline" value={pipelineName} readOnly />
         <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
@@ -129,13 +120,7 @@ export const EditModal = ({ config, onClose, onEdit, pipelineName }) => {
           value={formData.description}
           onChange={handleInputChange}
         />
-        <ModalInput
-          label="Data"
-          name="data"
-          value={formData.data}
-          onChange={handleInputChange}
-        />
-        <ModalInput label="Created Time" value={config.created_time} readOnly />
+        <ModalInput label="Created Time" value={task.created_time} readOnly />
         <div className="flex justify-between">
           <button
             onClick={handleUpdateClick}
@@ -155,11 +140,11 @@ export const EditModal = ({ config, onClose, onEdit, pipelineName }) => {
   );
 };
 
-export const DeleteModal = ({ config, onClose, onDelete }) => {
+export const DeleteModal = ({ task, onClose, onDelete }) => {
   return (
     <BaseDeleteModal
-      entity={config}
-      entityName="Config"
+      entity={task}
+      entityName="Task"
       onClose={onClose}
       onDelete={onDelete}
       handleDelete={HandleDelete}

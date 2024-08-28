@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchBuildFiles } from "../../../preprocessing_pipeline/[prePipeName]/build_file/service";
 import { HandleLinkClick } from "./service";
 import { BuildFileCard } from "../../../preprocessing_pipeline/[prePipeName]/build_file/buildFileCard";
+import { CreateModal } from "../../../preprocessing_pipeline/[prePipeName]/build_file/buildFileModal";
 
 export default function OptimizationBuildFilePage() {
   const { projectName, applicationName, optimiPipeName } = useParams();
@@ -16,8 +17,11 @@ export default function OptimizationBuildFilePage() {
   const pipelineUID = searchParams.get("pipelineUID");
 
   const handleBackClick = useBackNavigation();
-  const { buildFiles: optimiBuildFile, isLoading } =
-    useFetchBuildFiles(pipelineUID);
+  const {
+    buildFiles: optimiBuildFile,
+    isLoading,
+    triggerFetch,
+  } = useFetchBuildFiles(pipelineUID);
 
   const { handleConfigClick, handleTasksClick } = HandleLinkClick(
     projectNameDecode,
@@ -25,6 +29,15 @@ export default function OptimizationBuildFilePage() {
     optimiPipeNameDecode,
     pipelineUID
   );
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
 
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -67,7 +80,10 @@ export default function OptimizationBuildFilePage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Upload Build File
           </button>
         </div>
@@ -78,13 +94,27 @@ export default function OptimizationBuildFilePage() {
           <div className="space-y-4">
             {optimiBuildFile.map((optimiBuildFile) => (
               <BuildFileCard
-                key={optimiBuildFile.id}
+                key={optimiBuildFile.uid}
                 buildFile={optimiBuildFile}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
               />
             ))}
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          pipelineUID={pipelineUID}
+          pipelineName={optimiPipeNameDecode}
+          type="Optimization"
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+          title1="1. unknown"
+          title2="2. Optimization"
+          title3="3. unknown"
+        />
+      )}
     </div>
   );
 }

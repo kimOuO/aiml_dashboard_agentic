@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchTask, HandleLinkClick } from "./service";
 import { TaskCard } from "./taskCard";
+import { CreateModal } from "./taskModal";
 
 export default function PreprocessingTaskPage() {
   const { projectName, applicationName, prePipeName } = useParams();
@@ -15,13 +16,27 @@ export default function PreprocessingTaskPage() {
   const pipelineUID = searchParams.get("pipelineUID");
 
   const handleBackClick = useBackNavigation();
-  const { tasks: preprocessingTasks, isLoading } = useFetchTask(pipelineUID);
+  const {
+    tasks: preprocessingTasks,
+    isLoading,
+    triggerFetch,
+  } = useFetchTask(pipelineUID);
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
     prePipeNameDecode,
     pipelineUID
   );
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -63,7 +78,10 @@ export default function PreprocessingTaskPage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Run Preprocessing Task
           </button>
         </div>
@@ -73,11 +91,26 @@ export default function PreprocessingTaskPage() {
         ) : (
           <div className="space-y-4">
             {preprocessingTasks.map((preTask) => (
-              <TaskCard key={preTask.id} task={preTask} />
+              <TaskCard
+                key={preTask.uid}
+                task={preTask}
+                pipelineName={prePipeNameDecode}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
+              />
             ))}
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          pipelineUID={pipelineUID}
+          pipelineName={prePipeNameDecode}
+          type="Preprocessing"
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+        />
+      )}
     </div>
   );
 }

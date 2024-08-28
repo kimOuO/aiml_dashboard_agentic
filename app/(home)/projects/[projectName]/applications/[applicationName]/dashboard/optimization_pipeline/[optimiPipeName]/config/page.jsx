@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { HandleLinkClick } from "./service";
 import { useFetchConfigs } from "../../../preprocessing_pipeline/[prePipeName]/config/service";
 import { ConfigCard } from "../../../preprocessing_pipeline/[prePipeName]/config/configCard";
+import { CreateModal } from "../../../preprocessing_pipeline/[prePipeName]/config/configModal";
 
 export default function OptimizationConfigPage() {
   const { projectName, applicationName, optimiPipeName } = useParams();
@@ -16,14 +17,27 @@ export default function OptimizationConfigPage() {
   const pipelineUID = searchParams.get("pipelineUID");
 
   const handleBackClick = useBackNavigation();
-  const { configs: optimizationConfigs, isLoading } =
-    useFetchConfigs(pipelineUID);
+  const {
+    configs: optimizationConfigs,
+    isLoading,
+    triggerFetch,
+  } = useFetchConfigs(pipelineUID);
   const { handleTasksClick, handleBuildFileClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
     optimiPipeNameDecode,
     pipelineUID
   );
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -65,7 +79,10 @@ export default function OptimizationConfigPage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Create Task Config
           </button>
         </div>
@@ -75,11 +92,26 @@ export default function OptimizationConfigPage() {
         ) : (
           <div className="space-y-4">
             {optimizationConfigs.map((optimiConfig) => (
-              <ConfigCard key={optimiConfig.id} config={optimiConfig} />
+              <ConfigCard
+                key={optimiConfig.uid}
+                config={optimiConfig}
+                pipelineName={optimiPipeNameDecode}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
+              />
             ))}
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          pipelineUID={pipelineUID}
+          pipelineName={optimiPipeNameDecode}
+          type="Optimization"
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+        />
+      )}
     </div>
   );
 }
