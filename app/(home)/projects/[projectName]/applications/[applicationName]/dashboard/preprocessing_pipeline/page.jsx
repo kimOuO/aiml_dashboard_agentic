@@ -91,7 +91,7 @@ export default function PreprocessingPipelinePage() {
           <div className="space-y-4">
             {preprocessingpipelines.map((prePipe) => (
               <PipelineCard
-                key={prePipe.id}
+                key={prePipe.uid}
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
                 pipeline={prePipe}

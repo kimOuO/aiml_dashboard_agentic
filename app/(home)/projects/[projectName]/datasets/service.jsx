@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
 
-export const useFetchDatasets = (projectUID, searchQuery, currentPage) => {
+export const useFetchDatasets = (
+  projectUID,
+  activeTab,
+  searchQuery,
+  currentPage
+) => {
   const [dataset, setDatasets] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchTrigger, setFetchTrigger] = useState(false);
@@ -14,7 +19,11 @@ export const useFetchDatasets = (projectUID, searchQuery, currentPage) => {
         const data = { f_project_uid: projectUID };
         const response = await getAPI("MyC2aIHtzkZJrEGi", data);
         if (response.status === 200) {
-          setDatasets(response.data.data);
+          //根據activeTab過濾datasets
+          const filteredDatasets = response.data.data.filter(
+            (dataset) => dataset.type === activeTab
+          );
+          setDatasets(filteredDatasets);
         } else if (response && response instanceof Error) {
           console.error("Error fetching datasets:", response.data);
         }
@@ -22,7 +31,7 @@ export const useFetchDatasets = (projectUID, searchQuery, currentPage) => {
       }
     };
     fetchProjectDatasets();
-  }, [projectUID, searchQuery, currentPage, fetchTrigger]);
+  }, [projectUID, activeTab, searchQuery, currentPage, fetchTrigger]);
   return {
     dataset,
     isLoading,

@@ -62,7 +62,7 @@ export default function EvaluationPipelinePage() {
           <div className="space-y-4">
             {evaluationPipelines.map((evaPipe) => (
               <PipelineCard
-                key={evaPipe.id}
+                key={evaPipe.uid}
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
                 pipeline={evaPipe}

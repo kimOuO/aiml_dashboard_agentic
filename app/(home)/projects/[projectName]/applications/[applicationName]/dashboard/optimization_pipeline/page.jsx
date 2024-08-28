@@ -61,7 +61,7 @@ export default function OptimizationPipelinePage() {
           <div className="space-y-4">
             {optimiPipelines.map((tunPipe) => (
               <PipelineCard
-                key={tunPipe.id}
+                key={tunPipe.uid}
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
                 pipeline={tunPipe}

@@ -15,12 +15,12 @@ export const CreateModal = ({
   onCreate,
 }) => {
   const [formData, setFormData] = useState({
-    applicationUID,
-    applicationName,
     name: "",
-    type: activeTab,
     description: "",
+    type: activeTab,
+    f_application_uid: applicationUID,
     file: null,
+    extension: "zip",
   });
 
   const [errors, setErrors] = useState({});
@@ -42,7 +42,7 @@ export const CreateModal = ({
   };
 
   const handleCreateClick = () => {
-    const fieldsToValidate = ["name", "description"]; //file還沒加上去
+    const fieldsToValidate = ["name", "file"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -57,14 +57,10 @@ export const CreateModal = ({
         <h2 className="text-2xl font-bold mb-4">Upload {activeTab} Dataset</h2>
         <ModalInput
           label="Application UID"
-          value={formData.applicationUID}
+          value={formData.f_application_uid}
           readOnly
         />
-        <ModalInput
-          label="Application Name"
-          value={formData.applicationName}
-          readOnly
-        />
+        <ModalInput label="Application Name" value={applicationName} readOnly />
         <ModalInput
           label="Name"
           name="name"
@@ -107,6 +103,7 @@ export const CreateModal = ({
 
 export const EditModal = ({ dataset, onClose, onEdit, applicationName }) => {
   const [formData, setFormData] = useState({
+    uid: dataset.uid,
     name: dataset.name,
     description: dataset.description,
   });
@@ -121,7 +118,7 @@ export const EditModal = ({ dataset, onClose, onEdit, applicationName }) => {
   };
 
   const handleUpdateClick = () => {
-    HandleUpdate(dataset.uid, formData, onEdit, onClose);
+    HandleUpdate(formData, onEdit, onClose);
   };
 
   return (
@@ -129,7 +126,7 @@ export const EditModal = ({ dataset, onClose, onEdit, applicationName }) => {
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">{dataset.type} Dataset</h2>
         <ModalInput label="Application" value={applicationName} readOnly />
-        <ModalInput label="UID" value={dataset.uid} readOnly />
+        <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
           label="Name"
           name="name"
