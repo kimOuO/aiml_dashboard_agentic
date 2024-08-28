@@ -51,7 +51,7 @@ const TabsContentComponent = ({
         <div className="space-y-4">
           {filteredDatasets.map((dataset) => (
             <DatasetCard
-              key={dataset.id}
+              key={dataset.uid}
               dataset={dataset}
               onEdit={triggerFetch}
               onDelete={triggerFetch}

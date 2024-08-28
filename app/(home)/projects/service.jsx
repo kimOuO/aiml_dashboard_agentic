@@ -61,7 +61,7 @@ export const useCreateProject = () => {
       //ProjectMetadataWriter/create
       const response = await getAPI("9Q1lCs56iud4oPcS", formData);
       if (response.status === 200) {
-        return response.data.data;
+        return response.data;
       } else if (response && response instanceof Error) {
         console.error("Error creating project:", response.data);
       }
@@ -71,16 +71,13 @@ export const useCreateProject = () => {
 };
 
 //更新project
-export const useUpdateProject = (projectUID, formData) => {
+export const useUpdateProject = (formData) => {
   const updateProject = async () => {
-    if (projectUID) {
+    if (formData) {
       //ProjectMetadataWriter/update
-      const response = await getAPI("KIW6ZqwTMbMF4bWl", {
-        uid: projectUID,
-        ...formData,
-      });
+      const response = await getAPI("KIW6ZqwTMbMF4bWl", formData);
       if (response.status === 200) {
-        return response.data.data;
+        return response.data;
       } else if (response && response instanceof Error) {
         console.error("Error updating project:", response.data);
       }
@@ -94,9 +91,8 @@ export const useDeleteProject = (projectUID) => {
   const deleteProject = async () => {
     if (projectUID) {
       //ProjectMetadataWriter/delete
-      const response = await getAPI("ThQHZcLlnq6GQ3zW", {
-        uid: projectUID,
-      });
+      const data = { uid: projectUID };
+      const response = await getAPI("ThQHZcLlnq6GQ3zW", data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -107,8 +103,8 @@ export const useDeleteProject = (projectUID) => {
   return { deleteProject };
 };
 
-export const HandleUpdate = async (projectUID, formData, onEdit, onClose) => {
-  const { updateProject } = useUpdateProject(projectUID, formData);
+export const HandleUpdate = async (formData, onEdit, onClose) => {
+  const { updateProject } = useUpdateProject(formData);
   const response = await updateProject();
   if (response && !(response instanceof Error)) {
     onEdit();

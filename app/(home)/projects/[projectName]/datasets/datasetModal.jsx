@@ -15,12 +15,12 @@ export const CreateModal = ({
   onCreate,
 }) => {
   const [formData, setFormData] = useState({
-    projectUID,
-    projectName,
     name: "",
-    type: activeTab,
     description: "",
+    type: activeTab,
+    f_project_uid: projectUID,
     file: null,
+    extension: "zip",
   });
 
   const [errors, setErrors] = useState({});
@@ -42,7 +42,7 @@ export const CreateModal = ({
   };
 
   const handleCreateClick = () => {
-    const fieldsToValidate = ["name", "description"]; //file還沒加上去
+    const fieldsToValidate = ["name", "file"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -55,12 +55,12 @@ export const CreateModal = ({
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Upload {activeTab} Dataset</h2>
-        <ModalInput label="Project UID" value={formData.projectUID} readOnly />
         <ModalInput
-          label="Project Name"
-          value={formData.projectName}
+          label="Project UID"
+          value={formData.f_project_uid}
           readOnly
         />
+        <ModalInput label="Project Name" value={projectName} readOnly />
         <ModalInput
           label="Name"
           name="name"
@@ -103,6 +103,7 @@ export const CreateModal = ({
 
 export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
   const [formData, setFormData] = useState({
+    uid: dataset.uid,
     name: dataset.name,
     description: dataset.description,
   });
@@ -117,7 +118,7 @@ export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
   };
 
   const handleUpdateClick = () => {
-    HandleUpdate(dataset.uid, formData, onEdit, onClose);
+    HandleUpdate(formData, onEdit, onClose);
   };
 
   return (
@@ -138,6 +139,7 @@ export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
           value={formData.description}
           onChange={handleInputChange}
         />
+        <ModalInput label="Type" value={dataset.type} readOnly />
         <ModalInput label="File Extension" value="zip" readOnly />
         <ModalInput
           label="Created Time"

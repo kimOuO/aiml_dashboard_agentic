@@ -55,7 +55,7 @@ export default function ApplicationPage() {
             {applications.map((application) => (
               <ApplicationCard
                 projectName={projectNameDecode}
-                key={application.id}
+                key={application.uid}
                 application={application}
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}

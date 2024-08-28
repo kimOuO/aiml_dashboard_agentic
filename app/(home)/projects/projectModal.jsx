@@ -26,7 +26,7 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
   };
 
   const handleCreateClick = () => {
-    const fieldsToValidate = ["name", "description"]; //file還沒加上去
+    const fieldsToValidate = ["name"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -84,6 +84,7 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
 
 export const EditModal = ({ project, onClose, onEdit, organizationName }) => {
   const [formData, setFormData] = useState({
+    uid: project.uid,
     name: project.name,
     description: project.description,
   });
@@ -103,7 +104,7 @@ export const EditModal = ({ project, onClose, onEdit, organizationName }) => {
   };
 
   const handleUpdateClick = () => {
-    HandleUpdate(project.uid, formData, onEdit, onClose);
+    HandleUpdate(formData, onEdit, onClose);
   };
 
   return (
@@ -111,7 +112,7 @@ export const EditModal = ({ project, onClose, onEdit, organizationName }) => {
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Project</h2>
         <ModalInput label="Organization" value={organizationName} readOnly />
-        <ModalInput label="UID" value={project.uid} readOnly />
+        <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
           label="Name"
           name="name"

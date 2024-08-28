@@ -90,6 +90,7 @@ export default function Page() {
 
   const { paginatedDatasets, totalPage } = useFilteredDatasets(
     dataset,
+    activeTab,
     searchQuery,
     currentPage
   );

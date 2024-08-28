@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
-import { testAPI } from "@/app/api/entrypoint";
+import { getAPI } from "@/app/api/entrypoint";
 
-export const useFetchDatasets = (
-  projectUID,
-  activeTab,
-  searchQuery,
-  currentPage
-) => {
+export const useFetchDatasets = (projectUID, searchQuery, currentPage) => {
   const [dataset, setDatasets] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchTrigger, setFetchTrigger] = useState(false);
@@ -14,21 +9,20 @@ export const useFetchDatasets = (
     const fetchProjectDatasets = async () => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
-      if (projectUID && activeTab) {
-        const response = await testAPI("getDatasets", {
-          uid: projectUID,
-          activeTab,
-        });
-        if (response && response.data) {
-          setDatasets(response.data);
+      if (projectUID) {
+        //ProjectDatasetMetadataWriter/filter_by_project
+        const data = { f_project_uid: projectUID };
+        const response = await getAPI("MyC2aIHtzkZJrEGi", data);
+        if (response.status === 200) {
+          setDatasets(response.data.data);
         } else if (response && response instanceof Error) {
-          console.error("Error fetching datasets:", response.message);
+          console.error("Error fetching datasets:", response.data);
         }
         setIsLoading(false);
       }
     };
     fetchProjectDatasets();
-  }, [projectUID, activeTab, searchQuery, currentPage, fetchTrigger]);
+  }, [projectUID, searchQuery, currentPage, fetchTrigger]);
   return {
     dataset,
     isLoading,
@@ -38,17 +32,15 @@ export const useFetchDatasets = (
 };
 
 //更新dataset
-export const useUpdateDataset = (datasetUID, formData) => {
+export const useUpdateDataset = (formData) => {
   const updateDataset = async () => {
-    if (datasetUID) {
-      const response = await testAPI("updateDataset", {
-        uid: datasetUID,
-        ...formData,
-      });
-      if (response && response.data) {
+    if (formData) {
+      //ProjectDatasetMetadataWriter/update
+      const response = await getAPI("uqm5wN6pdrAWM89T", formData);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error updating dataset：", response.message);
+        console.error("Error updating dataset：", response.data);
       }
     }
   };
@@ -59,11 +51,13 @@ export const useUpdateDataset = (datasetUID, formData) => {
 export const useDeleteDataset = (datasetUID) => {
   const deleteDataset = async () => {
     if (datasetUID) {
-      const response = await testAPI("deleteDataset", { uid: datasetUID });
-      if (response && response.data) {
+      //ProjectDatasetMetadataWriter/delete
+      const data = { uid: datasetUID };
+      const response = await getAPI("6PiGXBbrIvQLqhrC", data);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error deleting dataset：", response.message);
+        console.error("Error deleting dataset：", response.data);
       }
     }
   };
@@ -74,19 +68,20 @@ export const useDeleteDataset = (datasetUID) => {
 export const useCreateDataset = () => {
   const createDataset = async (formData) => {
     if (formData) {
-      const response = await testAPI("createDataset", formData);
-      if (response && response.data) {
+      //ProjectDatasetMetadataWriter/create
+      const response = await getAPI("OFbaCJE62lcPVbZj", formData, true);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error creating dataset:", response.message);
+        console.error("Error creating dataset:", response.data);
       }
     }
   };
   return { createDataset };
 };
 
-export const HandleUpdate = async (datasetUID, formData, onEdit, onClose) => {
-  const { updateDataset } = useUpdateDataset(datasetUID, formData);
+export const HandleUpdate = async (formData, onEdit, onClose) => {
+  const { updateDataset } = useUpdateDataset(formData);
   const response = await updateDataset();
   if (response && !(response instanceof Error)) {
     onEdit();

@@ -8,10 +8,10 @@ import {
 
 export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
-    projectUID,
-    projectName,
     name: "",
     description: "",
+    f_project_uid: projectUID,
+    f_agent_uid: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -26,7 +26,7 @@ export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
   };
 
   const handleCreateClick = () => {
-    const fieldsToValidate = ["name", "description"]; //file還沒加上去
+    const fieldsToValidate = ["name"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -39,12 +39,12 @@ export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Create Application</h2>
-        <ModalInput label="Project UID" value={formData.projectUID} readOnly />
         <ModalInput
-          label="Project Name"
-          value={formData.projectName}
+          label="Project UID"
+          value={formData.f_project_uid}
           readOnly
         />
+        <ModalInput label="Project Name" value={projectName} readOnly />
         <ModalInput
           label="Name"
           name="name"
@@ -80,6 +80,7 @@ export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
 
 export const EditModal = ({ application, onClose, onEdit, projectName }) => {
   const [formData, setFormData] = useState({
+    uid: application.uid,
     name: application.name,
     description: application.description,
   });
@@ -94,7 +95,7 @@ export const EditModal = ({ application, onClose, onEdit, projectName }) => {
   };
 
   const handleUpdateClick = () => {
-    HandleUpdate(application.uid, formData, onEdit, onClose);
+    HandleUpdate(formData, onEdit, onClose);
   };
 
   return (
@@ -102,7 +103,7 @@ export const EditModal = ({ application, onClose, onEdit, projectName }) => {
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Application</h2>
         <ModalInput label="Project" value={projectName} readOnly />
-        <ModalInput label="UID" value={application.uid} readOnly />
+        <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
           label="Name"
           name="name"

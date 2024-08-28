@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { testAPI } from "@/app/api/entrypoint";
+import { getAPI } from "@/app/api/entrypoint";
 
 export const useFetchApplications = (projectUID) => {
   const [applications, setApplications] = useState([]);
@@ -14,11 +14,13 @@ export const useFetchApplications = (projectUID) => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
       if (projectUID) {
-        const response = await testAPI("getApplications", { uid: projectUID });
-        if (response && response.data) {
-          setApplications(response.data);
+        //ApplicationMetadataWriter/filter_by_project
+        const data = { f_project_uid: projectUID };
+        const response = await getAPI("A19MSnNoF8p36XHn", data);
+        if (response.status === 200) {
+          setApplications(response.data.data);
         } else if (response && response instanceof Error) {
-          console.error("Error fetching applications:", response.message);
+          console.error("Error fetching applications:", response.data);
         }
         setIsLoading(false);
       }
@@ -35,17 +37,16 @@ export const useFetchApplications = (projectUID) => {
 };
 
 //更新application
-export const useUpdateApplication = (applicationUID, formData) => {
+//尚未測試成功
+export const useUpdateApplication = (formData) => {
   const updateApplication = async () => {
-    if (applicationUID) {
-      const response = await testAPI("updateApplication", {
-        uid: applicationUID,
-        ...formData,
-      });
-      if (response && response.data) {
+    if (formData) {
+      //ApplicationMetadataWriter/update
+      const response = await getAPI("I5saSl6jjFMJJqKr", formData);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error updating application：", response.message);
+        console.error("Error updating application：", response.data);
       }
     }
   };
@@ -56,13 +57,13 @@ export const useUpdateApplication = (applicationUID, formData) => {
 export const useDeleteApplication = (applicationUID) => {
   const deleteApplication = async () => {
     if (applicationUID) {
-      const response = await testAPI("deleteApplication", {
-        uid: applicationUID,
-      });
-      if (response && response.data) {
+      //ApplicationMetadataWriter/delete
+      const data = { uid: applicationUID };
+      const response = await getAPI("z1gRhCXJskWRpxG1", data);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error deleting application：", response.message);
+        console.error("Error deleting application：", response.data);
       }
     }
   };
@@ -73,24 +74,20 @@ export const useDeleteApplication = (applicationUID) => {
 export const useCreateApplication = () => {
   const createApplication = async (formData) => {
     if (formData) {
-      const response = await testAPI("createApplication", formData);
-      if (response && response.data) {
+      //ApplicationMetadataWriter/create
+      const response = await getAPI("ah3Q2A5rTQrER68p", formData);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error creating application:", response.message);
+        console.error("Error creating application:", response.data);
       }
     }
   };
   return { createApplication };
 };
 
-export const HandleUpdate = async (
-  applicationUID,
-  formData,
-  onEdit,
-  onClose
-) => {
-  const { updateApplication } = useUpdateApplication(applicationUID, formData);
+export const HandleUpdate = async (formData, onEdit, onClose) => {
+  const { updateApplication } = useUpdateApplication(formData);
   const response = await updateApplication();
   if (response && !(response instanceof Error)) {
     onEdit();

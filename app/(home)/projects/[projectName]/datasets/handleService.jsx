@@ -55,10 +55,17 @@ export const useDatasetHandlers = () => {
 };
 
 //搜尋以過濾dataset功能
-export const useFilteredDatasets = (datasets, searchQuery, currentPage) => {
+export const useFilteredDatasets = (
+  datasets,
+  activeTab,
+  searchQuery,
+  currentPage
+) => {
   const filteredDatasets = useMemo(() => {
-    return datasets.filter((dataset) =>
-      dataset.name.toLowerCase().includes(searchQuery.toLowerCase())
+    return datasets.filter(
+      (dataset) =>
+        dataset.type === activeTab &&
+        dataset.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [datasets, searchQuery]);
 

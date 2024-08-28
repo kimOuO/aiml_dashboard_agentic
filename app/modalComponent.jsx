@@ -145,8 +145,16 @@ export const ValidateForm = (formData, fieldsToValidate) => {
   const errorMessage = "This field is required.";
 
   fieldsToValidate.forEach((field) => {
-    if (!formData[field] || formData[field].trim() === "") {
-      errors[field] = errorMessage;
+    const value = formData[field];
+
+    if (field === "file") {
+      if (!value || value.length === 0) {
+        errors[field] = "A file is required.";
+      }
+    } else {
+      if (!value || (typeof value === "string" && value.trim() === "")) {
+        errors[field] = errorMessage;
+      }
     }
   });
 
