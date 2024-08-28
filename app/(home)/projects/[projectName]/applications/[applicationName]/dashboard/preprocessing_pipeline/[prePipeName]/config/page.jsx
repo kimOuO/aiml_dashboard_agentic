@@ -89,7 +89,11 @@ export default function PreprocessingConfigPage() {
         ) : (
           <div className="space-y-4">
             {preprocessingConfigs.map((preConfig) => (
-              <ConfigCard key={preConfig.id} config={preConfig} />
+              <ConfigCard 
+                key={preConfig.id} 
+                config={preConfig} 
+                pipelineName={prePipeNameDecode}
+                />
             ))}
           </div>
         )}

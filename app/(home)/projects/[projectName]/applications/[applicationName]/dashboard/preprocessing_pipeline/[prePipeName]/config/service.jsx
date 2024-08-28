@@ -48,6 +48,82 @@ const useFindApplicationUID = (pipelineUID) => {
   return { applicationUID };
 };
 
+//創建config
+export const useCreateConfig = () => {
+  const createConfig = async (formData) => {
+    if (formData) {
+      //ConfigMetadataWriter/create
+      const response = await getAPI("42XzWaxjE6dKA9mZ", formData);
+      if (response.status === 200) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error creating config:", response.data);
+      }
+    }
+  };
+  return { createConfig };
+};
+
+//更新config
+export const useUpdateConfig = (formData) => {
+  const updateConfig = async () => {
+    if (formData) {
+      //ConfigMetadataWriter/update
+      const response = await getAPI("IIfzauWfQZ3RsHUZ", formData);
+      if (response.status === 200) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error updating config:", response.data);
+      }
+    }
+  };
+  return { updateConfig };
+};
+
+//刪除config
+export const useDeleteConfig = (configUID) => {
+  const deleteConfig = async () => {
+    if (configUID) {
+      //ConfigMetadataWriter/delete
+      const data = { uid: configUID };
+      const response = await getAPI("DUj6JZvlwBE3WMbX", data);
+      if (response.status === 200) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error deleting config", response.data);
+      }
+    }
+  };
+  return { deleteConfig };
+};
+
+export const HandleUpdate = async (formData, onEdit, onClose) => {
+  const { updateConfig } = useUpdateConfig(formData);
+  const response = await updateConfig();
+  if (response && !(response instanceof Error)) {
+    onEdit();
+    onClose();
+  }
+};
+
+export const HandleDelete = async (configUID, onDelete, onClose) => {
+  const { deleteConfig } = useDeleteConfig(configUID);
+  const response = await deleteConfig();
+  if (response && !(response instanceof Error)) {
+    onDelete();
+    onClose();
+  }
+};
+
+export const HandleCreate = async (formData, onCreate, onClose) => {
+  const { createConfig } = useCreateConfig();
+  const response = await createConfig(formData);
+  if (response && !(response instanceof Error)) {
+    onCreate();
+    onClose();
+  }
+};
+
 export const HandleLinkClick = (
   projectName,
   applicationName,
