@@ -10,16 +10,6 @@ module.exports = {
     API_VERSION: process.env.API_VERSION,
     AUTH_HEADER_TYPE: process.env.AUTH_HEADER_TYPE,
   },
-  images: {
-    remotePatterns: [
-      {
-        protocol: process.env.protocol,
-        hostname: process.env.HOST,
-        port: process.env.API_PORT,
-        pathname: process.env.PATH_NAME,
-      },
-    ],
-  },
   typescript: {
     ignoreBuildErrors: true,
   }

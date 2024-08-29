@@ -7,16 +7,16 @@ import { HandHeartIcon } from "lucide-react";
 // API
 const PROTOCAL = process.env.PROTOCAL;
 const HOST = process.env.HOST;
-const API_PORT = process.env.API_PORT ? `:${process.env.API_PORT}` : "";
+const API_PORT = process.env.API_PORT;
 const API_ROOT = process.env.API_ROOT;
-const API_VERSION = "v0.1";
+const API_VERSION = process.env.API_VERSION;
 const API_TYPE = "entrypoint";
 
 // Authorization
 const ACCESS_TOKEN_NAME = process.env.ACCESS_TOKEN_NAME;
 const AUTH_HEADER_TYPE = process.env.AUTH_HEADER_TYPE;
 
-const API = `${PROTOCAL}://${HOST}${API_PORT}/${API_ROOT}/${API_VERSION}/${API_TYPE}`;
+const API = `${PROTOCAL}://${HOST}:${API_PORT}/${API_ROOT}/${API_VERSION}/${API_TYPE}`;
 
 // 枚舉：定義 API 回應狀態碼
 enum ApiResponseStatus {
