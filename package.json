@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 30001",
+    "load-env": "node load-env.js",
+    "dev": "node load-env.js && next dev -p 30001",
     "build": "next build",
-    "start": "next start",
+    "start": "node load-env.js && next start",
     "lint": "next lint"
   },
   "dependencies": {
