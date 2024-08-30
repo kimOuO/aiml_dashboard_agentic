@@ -10,9 +10,9 @@ const ACCESS_TOKEN_NAME = process.env.ACCESS_TOKEN_NAME;
 export const useAuth = () => {
   const [accountName, setAccountName] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [organizationUID,setOrganizationUID] = useState("")
 
   const router = useRouter();
   const authToken = getCookieValue(ACCESS_TOKEN_NAME);
@@ -21,41 +21,38 @@ export const useAuth = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // const res = await login({
-    //   account_name: accountName,
-    //   password: password,
-    //   remember: remember,
-    // });
+    const response = await login({
+      account_name: accountName,
+      password: password,
+    });
 
-    // if (res.status === 200) {
-    //   setError(null);
-    //   setCookieValue(
-    //     ACCESS_TOKEN_NAME,
-    //     res.data.data["access"],
-    //     remember ? res.data["max_age"] : null
-    //   );
-    //   setCookieValue("remember", remember, res.data["max_age"]);
-    //   router.push("/projects");
-    // } else {
-    //   setError(res.response?.data["message"]);
-    //   setIsSubmitting(false);
-    // }
-    router.push("/projects");
+    if (response.status === 200) {
+      setError(null);
+      setCookieValue(ACCESS_TOKEN_NAME);
+      setOrganizationUID(response.data.organization_uid)
+    } else {
+      setError(response.data);
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {
-    if (authToken && getCookieValue("remember", false) === true) {
-      router.push("/projects");
+    if (organizationUID && authToken) {
+      router.push(`/projects?organizationUID=${organizationUID}`)
     }
-  }, [authToken, router]);
+  }, [organizationUID,authToken,router]);
+
+  // useEffect(() => {
+  //   if (authToken) {
+  //     router.push("/projects");
+  //   }
+  // }, [authToken, router]);
 
   return {
     accountName,
     setAccountName,
     password,
     setPassword,
-    remember,
-    setRemember,
     error,
     isSubmitting,
     submit,

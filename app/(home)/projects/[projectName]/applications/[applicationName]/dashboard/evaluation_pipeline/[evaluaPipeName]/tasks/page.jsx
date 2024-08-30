@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchTask } from "../../../preprocessing_pipeline/[prePipeName]/tasks/service";
 import { HandleLinkClick } from "./service";
 import { TaskCard } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskCard";
+import { CreateModal } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskModal";
 
 export default function EvaluationTaskPage() {
   const { projectName, applicationName, evaluaPipeName } = useParams();
@@ -16,13 +17,27 @@ export default function EvaluationTaskPage() {
   const pipelineUID = searchParams.get("pipelineUID");
 
   const handleBackClick = useBackNavigation();
-  const { tasks: evaluationTasks, isLoading } = useFetchTask(pipelineUID);
+  const {
+    tasks: evaluationTasks,
+    isLoading,
+    triggerFetch,
+  } = useFetchTask(pipelineUID);
+
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
     evaluaPipeNameDecode,
     pipelineUID
   );
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
 
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -65,7 +80,10 @@ export default function EvaluationTaskPage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Run Evaluation Task
           </button>
         </div>
@@ -75,11 +93,26 @@ export default function EvaluationTaskPage() {
         ) : (
           <div className="space-y-4">
             {evaluationTasks.map((evaluaTask) => (
-              <TaskCard key={evaluaTask.id} task={evaluaTask} />
+              <TaskCard
+                key={evaluaTask.uid}
+                task={evaluaTask}
+                pipelineName={evaluaPipeNameDecode}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
+              />
             ))}
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          pipelineUID={pipelineUID}
+          pipelineName={evaluaPipeNameDecode}
+          type="Evaluation"
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+        />
+      )}
     </div>
   );
 }

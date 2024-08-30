@@ -67,9 +67,9 @@ export default function ModelPage() {
               </div>
             </div>
           </div>
-          <button 
-          className="bg-green-800 text-white px-6 py-4 rounded-2xl text-xl "
-          onClick={handleCreateClick}
+          <button
+            className="bg-green-800 text-white px-6 py-4 rounded-2xl text-xl "
+            onClick={handleCreateClick}
           >
             Upload Model
           </button>
@@ -81,7 +81,7 @@ export default function ModelPage() {
           <div className="space-y-4">
             {models.map((model) => (
               <ModelCard
-                key={model.id}
+                key={model.uid}
                 model={model}
                 projectName={proejectNameDecode}
                 applicationName={applicationNameDecode}
@@ -92,12 +92,12 @@ export default function ModelPage() {
           </div>
         )}
       </div>
-      {isCreateModalOpen&&(
+      {isCreateModalOpen && (
         <CreateModal
-        applicationUID={applicationUID}
-        applicationName={applicationNameDecode}
-        onCreate={triggerFetch}
-        onClose={handleCloseCreateModal}
+          applicationUID={applicationUID}
+          applicationName={applicationNameDecode}
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
         />
       )}
     </div>

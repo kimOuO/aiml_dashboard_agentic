@@ -38,23 +38,21 @@ export const ModelCard = React.memo(
     };
 
     const handlePublishToggle = async () => {
-      const response = await HandlePublishToggle(model.uid, isPublish);
+      const response = await HandlePublishToggle(model, isPublish);
       if (response) {
         setIsPublish((prev) => !prev); // 更新本地狀態
         toast({
           description: (
-            <span className="text-xl">Model published successfully!</span>
+            <span className="text-xl">Status changed successfully !</span>
           ),
           variant: "success",
-          duration: 3000, // 顯示三秒
-          position: "center", // 顯示在螢幕中間
+          duration: 1500, // 顯示三秒
         });
       } else {
         toast({
           description: <span className="text-xl">Model publishing failed</span>,
           variant: "destructive",
-          duration: 3000, // 顯示三秒
-          position: "center", // 顯示在螢幕中間
+          duration: 1500, // 顯示三秒
         });
       }
     };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { testAPI } from "@/app/api/entrypoint";
+import { getAPI } from "@/app/api/entrypoint";
 
 export const useFetchDatasets = (
   applicationUID,
@@ -14,15 +14,18 @@ export const useFetchDatasets = (
     const fetchOptimiDatasets = async () => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
-      if (applicationUID && activeTab) {
-        const response = await testAPI("getOptimiDatasets", {
-          uid: applicationUID,
-          activeTab,
-        });
-        if (response && response.data) {
-          setOptimiDatasets(response.data);
+      if (applicationUID) {
+        //ApplicationDatasetMetadataWriter/filter_by_application
+        const data = { f_application_uid: applicationUID };
+        const response = await getAPI("1sphuopUuLnIqoPU", data);
+        if (response.status === 200) {
+          //根據activeTab過濾datasets
+          const filteredDatasets = response.data.data.filter(
+            (dataset) => dataset.type === activeTab
+          );
+          setOptimiDatasets(filteredDatasets);
         } else if (response && response instanceof Error) {
-          console.error("Error fetching datasets:", response.message);
+          console.error("Error fetching datasets:", response.data);
         }
         setIsLoading(false);
       }
@@ -38,17 +41,15 @@ export const useFetchDatasets = (
 };
 
 //更新OptimiDataset
-export const useUpdateDataset = (datasetUID, formData) => {
+export const useUpdateDataset = (formData) => {
   const updateOptimiDataset = async () => {
-    if (datasetUID) {
-      const response = await testAPI("updateOptimiDataset", {
-        uid: datasetUID,
-        ...formData,
-      });
-      if (response && response.data) {
+    if (formData) {
+      //ApplicationDatasetMetadataWriter/update
+      const response = await getAPI("lXqKKZYiy6XKJaVg", formData);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error updating dataset:", response.message);
+        console.error("Error updating dataset:", response.data);
       }
     }
   };
@@ -59,13 +60,13 @@ export const useUpdateDataset = (datasetUID, formData) => {
 export const useDeleteDataset = (datasetUID) => {
   const deleteOptimiDataset = async () => {
     if (datasetUID) {
-      const response = await testAPI("deleteOptimiDataset", {
-        uid: datasetUID,
-      });
-      if (response && response.data) {
+      //ApplicationDatasetMetadataWriter/delete
+      const data = { uid: datasetUID };
+      const response = await getAPI("9uKWKnG5ZTSew1HD", data);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error deleting dataset:", response.message);
+        console.error("Error deleting dataset:", response.data);
       }
     }
   };
@@ -76,19 +77,20 @@ export const useDeleteDataset = (datasetUID) => {
 export const useCreateDataset = () => {
   const createOptimiDataset = async (formData) => {
     if (formData) {
-      const response = await testAPI("createOptimiDataset", formData);
-      if (response && response.data) {
+      //ApplicationDatasetMetadataWriter/create
+      const response = await getAPI("5fk1gVLi8q0mcHf4", formData, true);
+      if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error creating dataset:", response.message);
+        console.error("Error creating dataset:", response.data);
       }
     }
   };
   return { createOptimiDataset };
 };
 
-export const HandleUpdate = async (datasetUID, formData, onEdit, onClose) => {
-  const { updateOptimiDataset } = useUpdateDataset(datasetUID, formData);
+export const HandleUpdate = async (formData, onEdit, onClose) => {
+  const { updateOptimiDataset } = useUpdateDataset(formData);
   const response = await updateOptimiDataset();
   if (response && !(response instanceof Error)) {
     onEdit();

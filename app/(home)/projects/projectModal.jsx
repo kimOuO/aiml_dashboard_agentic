@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
-import { ModalInput, BaseDeleteModal } from "@/app/modalComponent";
+import {
+  ModalInput,
+  BaseDeleteModal,
+  ValidateForm,
+} from "@/app/modalComponent";
+import { format } from "date-fns";
 
 export const CreateModal = ({ organization, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
-    organizationUID: organization.uid,
-    organizationName: organization.name,
     name: "",
     description: "",
+    f_organization_uid: organization.uid,
   });
 
   const [errors, setErrors] = useState({});
@@ -21,22 +25,12 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
     });
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    const errorMessage = "The field cannot be blank.";
-    // 定義需要檢查的field
-    const fieldsToValidate = ["name", "description"];
-    fieldsToValidate.forEach((field) => {
-      if (!formData[field]?.trim()) {
-        newErrors[field] = errorMessage;
-      }
-    });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
-  };
-
   const handleCreateClick = () => {
-    if (validateForm()) {
+    const fieldsToValidate = ["name"];
+    const validationErrors = ValidateForm(formData, fieldsToValidate);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length === 0) {
       HandleCreate(formData, onCreate, onClose);
     }
   };
@@ -47,12 +41,12 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
         <h2 className="text-2xl font-bold mb-4">Create Project</h2>
         <ModalInput
           label="Organization UID"
-          value={formData.organizationUID}
+          value={formData.f_organization_uid}
           readOnly
         />
         <ModalInput
           label="Organization Name"
-          value={formData.organizationName}
+          value={organization.name}
           readOnly
         />
         <ModalInput
@@ -88,11 +82,17 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
   );
 };
 
-export const EditModal = ({ project, onClose, onEdit }) => {
+export const EditModal = ({ project, onClose, onEdit, organizationName }) => {
   const [formData, setFormData] = useState({
+    uid: project.uid,
     name: project.name,
     description: project.description,
   });
+
+  const formattedDate = format(
+    new Date(project.created_time),
+    "yyyy-MM-dd HH:mm:ss"
+  );
 
   //暫存更新的value
   const handleInputChange = (e) => {
@@ -104,19 +104,15 @@ export const EditModal = ({ project, onClose, onEdit }) => {
   };
 
   const handleUpdateClick = () => {
-    HandleUpdate(project.uid, formData, onEdit, onClose);
+    HandleUpdate(formData, onEdit, onClose);
   };
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Project</h2>
-        <ModalInput
-          label="Organization"
-          value={project.organization}
-          readOnly
-        />
-        <ModalInput label="UID" value={project.uid} readOnly />
+        <ModalInput label="Organization" value={organizationName} readOnly />
+        <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
           label="Name"
           name="name"
@@ -129,11 +125,7 @@ export const EditModal = ({ project, onClose, onEdit }) => {
           value={formData.description}
           onChange={handleInputChange}
         />
-        <ModalInput
-          label="Created Time"
-          value={project.created_time}
-          readOnly
-        />
+        <ModalInput label="Created Time" value={formattedDate} readOnly />
         <div className="flex justify-between">
           <button
             onClick={handleUpdateClick}

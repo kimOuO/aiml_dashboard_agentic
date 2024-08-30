@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { HandleLinkClick } from "./service";
 import { useFetchConfigs } from "../../../preprocessing_pipeline/[prePipeName]/config/service";
 import { ConfigCard } from "../../../preprocessing_pipeline/[prePipeName]/config/configCard";
+import { CreateModal } from "../../../preprocessing_pipeline/[prePipeName]/config/configModal";
 
 export default function TrainingConfigPage() {
   const { projectName, applicationName, trainPipeName } = useParams();
@@ -16,7 +17,12 @@ export default function TrainingConfigPage() {
   const pipelineUID = searchParams.get("pipelineUID");
 
   const handleBackClick = useBackNavigation();
-  const { configs: trainingConfigs, isLoading } = useFetchConfigs(pipelineUID);
+  const {
+    configs: trainingConfigs,
+    isLoading,
+    triggerFetch,
+  } = useFetchConfigs(pipelineUID);
+
   const { handleTasksClick, handleModelClick, handleBuildFileClick } =
     HandleLinkClick(
       projectNameDecode,
@@ -24,6 +30,16 @@ export default function TrainingConfigPage() {
       trainPipeNameDecode,
       pipelineUID
     );
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -76,7 +92,10 @@ export default function TrainingConfigPage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Create Task Config
           </button>
         </div>
@@ -86,11 +105,26 @@ export default function TrainingConfigPage() {
         ) : (
           <div className="space-y-4">
             {trainingConfigs.map((trainConfig) => (
-              <ConfigCard key={trainConfig.id} config={trainConfig} />
+              <ConfigCard
+                key={trainConfig.uid}
+                config={trainConfig}
+                pipelineName={trainPipeNameDecode}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
+              />
             ))}
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          pipelineUID={pipelineUID}
+          pipelineName={trainPipeNameDecode}
+          type="Training"
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { ModalInput, BaseDeleteModal } from "@/app/modalComponent";
+import {
+  ModalInput,
+  BaseDeleteModal,
+  ValidateForm,
+  FileInput,
+} from "@/app/modalComponent";
 import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
 
 export const CreateModal = ({
@@ -9,19 +14,19 @@ export const CreateModal = ({
   onClose,
 }) => {
   const [formData, setFormData] = useState({
-    applicationUID: applicationUID,
-    applicationName: applicationName,
     name: "",
+    description: "",
+    type: "Default",
     model_input_format: "",
     model_output_format: "",
-    status: "unpublish",
-    version: "",
+    source: "",
+    status: "Unpublish",
+    f_application_uid: applicationUID,
     file: null,
-    description: "",
+    extension: "zip",
   });
 
   const [errors, setErrors] = useState({});
-  const [fileName, setFileName] = useState("未選擇任何檔案");
 
   //暫存更新的value
   const handleInputChange = (e) => {
@@ -32,46 +37,24 @@ export const CreateModal = ({
     });
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({
-        ...formData,
-        file: file,
-      });
-      setFileName(file.name);
-    } else {
-      setFormData({
-        ...formData,
-        file: null,
-      });
-      setFileName("未選擇任何檔案");
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    const errorMessage = "The field cannot be blank.";
-    // 定義需要檢查的field
-    const fieldsToValidate = [
-      "name",
-      "description",
-      "model_input_format",
-      "model_output_format",
-      "version",
-      //"file",
-    ];
-    fieldsToValidate.forEach((field) => {
-      if (!formData[field]?.trim()) {
-        newErrors[field] = errorMessage;
-      }
+  const handleFileChange = (file) => {
+    setFormData({
+      ...formData,
+      file: file,
     });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; //Return true if no errors
   };
 
   const handleCreateClick = () => {
-    if (validateForm()) {
+    const fieldsToValidate = [
+      "name",
+      "model_input_format",
+      "model_output_format",
+      "file",
+    ];
+    const validationErrors = ValidateForm(formData, fieldsToValidate);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length === 0) {
       HandleCreate(formData, onCreate, onClose);
     }
   };
@@ -82,14 +65,10 @@ export const CreateModal = ({
         <h2 className="text-2xl font-bold mb-4">Upload Model</h2>
         <ModalInput
           label="Application UID"
-          value={formData.applicationUID}
+          value={formData.f_application_uid}
           readOnly
         />
-        <ModalInput
-          label="Application Name"
-          value={formData.applicationName}
-          readOnly
-        />
+        <ModalInput label="Application Name" value={applicationName} readOnly />
         <ModalInput
           label="Model Name"
           name="name"
@@ -111,44 +90,12 @@ export const CreateModal = ({
           onChange={handleInputChange}
           error={errors.model_output_format}
         />
-        <ModalInput
-          label="Model Version"
-          name="version"
-          value={formData.version}
-          onChange={handleInputChange}
-          error={errors.version}
+        <FileInput
+          label="Pipeline File"
+          onChange={handleFileChange}
+          accept=".zip"
+          error={errors.file}
         />
-        <ModalInput label="Model File Extension" value="zip" readOnly />
-        {/*上傳檔案的欄位*/}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Model File
-          </label>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => document.getElementById("fileInput").click()}
-              className="absolute right-0 top-0 bottom-0 bg-blue-500 text-white px-4 py-2 rounded-r-md"
-            >
-              選擇檔案
-            </button>
-            <input
-              type="file"
-              id="fileInput"
-              accept=".py"
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-            />
-            <input
-              type="text"
-              value={fileName}
-              readOnly
-              className="border-blue-500 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
-          </div>
-          {/*{errors.file && <span className="text-red-500">{errors.file}</span>}*/}
-        </div>
-        {/*上傳檔案的欄位*/}
         <ModalInput
           label="Model Description"
           name="description"
@@ -200,9 +147,12 @@ export const PerformanceModal = ({ model, onClose }) => {
 
 export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
   const [formData, setFormData] = useState({
+    uid: model.uid,
     name: model.name,
-    version: model.version,
     description: model.description,
+    model_input_format: model.model_input_format,
+    model_output_format: model.model_output_format,
+    status: model.status,
   });
 
   //暫存更新的value
@@ -215,7 +165,7 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
   };
 
   const handleUpdateClick = () => {
-    HandleUpdate(model.uid, formData, onEdit, onClose);
+    HandleUpdate(formData, onEdit, onClose);
   };
 
   return (
@@ -223,7 +173,7 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Model</h2>
         <ModalInput label="Application" value={applicationName} readOnly />
-        <ModalInput label="UID" value={model.uid} readOnly />
+        <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
           label="Name"
           name="name"
@@ -232,19 +182,21 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
         />
         <ModalInput
           label="Input Format"
-          value={model.model_input_format}
-          readOnly
+          name="model_input_format"
+          value={formData.model_input_format}
+          onChange={handleInputChange}
         />
         <ModalInput
           label="Output Format"
-          value={model.model_output_format}
-          readOnly
+          name="model_output_format"
+          value={formData.model_output_format}
+          onChange={handleInputChange}
         />
         <ModalInput
           label="Version"
           name="version"
-          value={formData.version}
-          onChange={handleInputChange}
+          value={String(formData.version)}
+          readOnly
         />
         <ModalInput label="Access Token" value={model.access_token} readOnly />
         <ModalInput label="File Extension" value="zip" readOnly />

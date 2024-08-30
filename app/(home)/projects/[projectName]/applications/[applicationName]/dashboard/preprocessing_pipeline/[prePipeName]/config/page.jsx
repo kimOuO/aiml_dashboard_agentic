@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchConfigs, HandleLinkClick } from "./service";
 import { ConfigCard } from "./configCard";
+import { CreateModal } from "./configModal";
 
 export default function PreprocessingConfigPage() {
   const { projectName, applicationName, prePipeName } = useParams();
@@ -13,10 +14,14 @@ export default function PreprocessingConfigPage() {
   const prePipeNameDecode = decodeURIComponent(prePipeName);
   const searchParams = useSearchParams();
   const pipelineUID = searchParams.get("pipelineUID");
-
   const handleBackClick = useBackNavigation();
-  const { configs: preprocessingConfigs, isLoading } =
-    useFetchConfigs(pipelineUID);
+
+  const {
+    configs: preprocessingConfigs,
+    isLoading,
+    triggerFetch,
+  } = useFetchConfigs(pipelineUID);
+
   const {
     handleTasksClick,
     handleTrainingPipelineClick,
@@ -27,6 +32,16 @@ export default function PreprocessingConfigPage() {
     prePipeNameDecode,
     pipelineUID
   );
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -79,7 +94,10 @@ export default function PreprocessingConfigPage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Create Task Config
           </button>
         </div>
@@ -89,11 +107,26 @@ export default function PreprocessingConfigPage() {
         ) : (
           <div className="space-y-4">
             {preprocessingConfigs.map((preConfig) => (
-              <ConfigCard key={preConfig.id} config={preConfig} />
+              <ConfigCard
+                key={preConfig.uid}
+                config={preConfig}
+                pipelineName={prePipeNameDecode}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
+              />
             ))}
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          pipelineUID={pipelineUID}
+          pipelineName={prePipeNameDecode}
+          type="Preprocessing"
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+        />
+      )}
     </div>
   );
 }

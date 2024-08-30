@@ -4,12 +4,11 @@ import {
   ModalInput,
   BaseDeleteModal,
   ValidateForm,
-  FileInput,
 } from "@/app/modalComponent";
 
 export const CreateModal = ({
-  applicationUID,
-  applicationName,
+  pipelineUID,
+  pipelineName,
   type,
   onCreate,
   onClose,
@@ -17,10 +16,7 @@ export const CreateModal = ({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    type,
-    f_application_uid: applicationUID,
-    file: null,
-    extension: "py",
+    f_pipeline_uid: pipelineUID,
   });
 
   const [errors, setErrors] = useState({});
@@ -34,15 +30,8 @@ export const CreateModal = ({
     });
   };
 
-  const handleFileChange = (file) => {
-    setFormData({
-      ...formData,
-      file: file,
-    });
-  };
-
   const handleCreateClick = () => {
-    const fieldsToValidate = ["name", "file"];
+    const fieldsToValidate = ["name"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -54,33 +43,25 @@ export const CreateModal = ({
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Upload {type} Pipeline</h2>
+        <h2 className="text-2xl font-bold mb-4">Upload {type} Task</h2>
         <ModalInput
-          label="Application UID"
-          value={formData.f_application_uid}
+          label="Pipeline UID"
+          value={formData.f_pipeline_uid}
           readOnly
         />
-        <ModalInput label="Application Name" value={applicationName} readOnly />
+        <ModalInput label="Pipeline Name" value={pipelineName} readOnly />
         <ModalInput
-          label="Pipeline Name"
+          label="Name"
           name="name"
           value={formData.name}
           onChange={handleInputChange}
           error={errors.name}
         />
-        <ModalInput label="Type" name="type" value={formData.type} readOnly />
-        <FileInput
-          label="Pipeline File"
-          onChange={handleFileChange}
-          accept=".py"
-          error={errors.file}
-        />
         <ModalInput
-          label="Pipeline Description"
+          label="Description"
           name="description"
           value={formData.description}
           onChange={handleInputChange}
-          error={errors.description}
         />
         <div className="flex justify-between">
           <button
@@ -101,12 +82,13 @@ export const CreateModal = ({
   );
 };
 
-export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
+export const EditModal = ({ task, onClose, onEdit, pipelineName }) => {
   const [formData, setFormData] = useState({
-    uid: pipeline.uid,
-    name: pipeline.name,
-    description: pipeline.description,
+    uid: task.uid,
+    name: task.name,
+    description: task.description,
   });
+
   //暫存更新的value
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -123,8 +105,8 @@ export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">{pipeline.type} Pipeline</h2>
-        <ModalInput label="Application" value={applicationName} readOnly />
+        <h2 className="text-2xl font-bold mb-4">Task</h2>
+        <ModalInput label="Pipeline" value={pipelineName} readOnly />
         <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
           label="Name"
@@ -138,12 +120,7 @@ export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
           value={formData.description}
           onChange={handleInputChange}
         />
-        <ModalInput label="File Extension" value="py" readOnly />
-        <ModalInput
-          label="Created Time"
-          value={pipeline.created_time}
-          readOnly
-        />
+        <ModalInput label="Created Time" value={task.created_time} readOnly />
         <div className="flex justify-between">
           <button
             onClick={handleUpdateClick}
@@ -163,13 +140,11 @@ export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
   );
 };
 
-export const DeleteModal = ({ pipeline, onClose, onDelete }) => {
-  const entityName = `${pipeline.type} Pipeline`;
-
+export const DeleteModal = ({ task, onClose, onDelete }) => {
   return (
     <BaseDeleteModal
-      entity={pipeline}
-      entityName={entityName}
+      entity={task}
+      entityName="Task"
       onClose={onClose}
       onDelete={onDelete}
       handleDelete={HandleDelete}

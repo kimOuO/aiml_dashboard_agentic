@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchBuildFiles } from "../../../preprocessing_pipeline/[prePipeName]/build_file/service";
 import { HandleLinkClick } from "./service";
 import { BuildFileCard } from "../../../preprocessing_pipeline/[prePipeName]/build_file/buildFileCard";
+import { CreateModal } from "../../../preprocessing_pipeline/[prePipeName]/build_file/buildFileModal";
 
 export default function TrainingBuildFilePage() {
   const { projectName, applicationName, trainPipeName } = useParams();
@@ -16,14 +17,29 @@ export default function TrainingBuildFilePage() {
   const pipelineUID = searchParams.get("pipelineUID");
 
   const handleBackClick = useBackNavigation();
-  const { buildFiles: trainingBuildFile, isLoading } =
-    useFetchBuildFiles(pipelineUID);
+
+  const {
+    buildFiles: trainingBuildFile,
+    isLoading,
+    triggerFetch,
+  } = useFetchBuildFiles(pipelineUID);
+
   const { handleConfigClick, handleTasksClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
     trainPipeNameDecode,
     pipelineUID
   );
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
       <div>
@@ -65,7 +81,10 @@ export default function TrainingBuildFilePage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Upload Build File
           </button>
         </div>
@@ -76,13 +95,27 @@ export default function TrainingBuildFilePage() {
           <div className="space-y-4">
             {trainingBuildFile.map((trainBuildFile) => (
               <BuildFileCard
-                key={trainBuildFile.id}
+                key={trainBuildFile.uid}
                 buildFile={trainBuildFile}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
               />
             ))}
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          pipelineUID={pipelineUID}
+          pipelineName={trainPipeNameDecode}
+          type="Training"
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+          title1="1. Download Training Dataset"
+          title2="2. Training"
+          title3="3. Upload Model"
+        />
+      )}
     </div>
   );
 }

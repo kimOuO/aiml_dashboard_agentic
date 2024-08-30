@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchTask } from "../../../preprocessing_pipeline/[prePipeName]/tasks/service";
 import { HandleLinkClick } from "./service";
 import { TaskCard } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskCard";
+import { CreateModal } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskModal";
 
 export default function OptimizationTaskPage() {
   const { projectName, applicationName, optimiPipeName } = useParams();
@@ -16,7 +17,11 @@ export default function OptimizationTaskPage() {
   const pipelineUID = searchParams.get("pipelineUID");
 
   const handleBackClick = useBackNavigation();
-  const { tasks: optimizationTasks, isLoading } = useFetchTask(pipelineUID);
+  const {
+    tasks: optimizationTasks,
+    isLoading,
+    triggerFetch,
+  } = useFetchTask(pipelineUID);
 
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
@@ -24,6 +29,15 @@ export default function OptimizationTaskPage() {
     optimiPipeNameDecode,
     pipelineUID
   );
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
 
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -66,7 +80,10 @@ export default function OptimizationTaskPage() {
               </div>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl ">
+          <button
+            className="bg-green-800 text-white px-4 py-3 rounded-2xl text-xl "
+            onClick={handleCreateClick}
+          >
             Run Optimization Task
           </button>
         </div>
@@ -76,11 +93,26 @@ export default function OptimizationTaskPage() {
         ) : (
           <div className="space-y-4">
             {optimizationTasks.map((optimiTask) => (
-              <TaskCard key={optimiTask.id} task={optimiTask} />
+              <TaskCard
+                key={optimiTask.uid}
+                task={optimiTask}
+                pipelineName={optimiPipeNameDecode}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
+              />
             ))}
           </div>
         )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          pipelineUID={pipelineUID}
+          pipelineName={optimiPipeNameDecode}
+          type="Optimization"
+          onCreate={triggerFetch}
+          onClose={handleCloseCreateModal}
+        />
+      )}
     </div>
   );
 }

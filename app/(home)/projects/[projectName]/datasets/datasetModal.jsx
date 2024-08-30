@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
-import { ModalInput, BaseDeleteModal } from "@/app/modalComponent";
+import {
+  ModalInput,
+  BaseDeleteModal,
+  ValidateForm,
+  FileInput,
+} from "@/app/modalComponent";
 
 export const CreateModal = ({
   projectUID,
@@ -10,16 +15,15 @@ export const CreateModal = ({
   onCreate,
 }) => {
   const [formData, setFormData] = useState({
-    projectUID: projectUID,
-    projectName: projectName,
     name: "",
-    type: activeTab,
     description: "",
+    type: activeTab,
+    f_project_uid: projectUID,
     file: null,
+    extension: "zip",
   });
 
   const [errors, setErrors] = useState({});
-  const [fileName, setFileName] = useState("未選擇任何檔案");
 
   //暫存更新的value
   const handleInputChange = (e) => {
@@ -30,42 +34,19 @@ export const CreateModal = ({
     });
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({
-        ...formData,
-        file: file,
-      });
-      setFileName(file.name);
-    } else {
-      setFormData({
-        ...formData,
-        file: null,
-      });
-      setFileName("未選擇任何檔案");
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    const errorMessage = "The field cannot be blank.";
-    const fieldsToValidate = [
-      "name",
-      "description",
-      //"file",
-    ];
-    fieldsToValidate.forEach((field) => {
-      if (!formData[field]?.trim()) {
-        newErrors[field] = errorMessage;
-      }
+  const handleFileChange = (file) => {
+    setFormData({
+      ...formData,
+      file: file,
     });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; //Return true if no errors
   };
 
   const handleCreateClick = () => {
-    if (validateForm()) {
+    const fieldsToValidate = ["name", "file"];
+    const validationErrors = ValidateForm(formData, fieldsToValidate);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length === 0) {
       HandleCreate(formData, onCreate, onClose);
     }
   };
@@ -74,12 +55,12 @@ export const CreateModal = ({
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Upload {activeTab} Dataset</h2>
-        <ModalInput label="Project UID" value={formData.projectUID} readOnly />
         <ModalInput
-          label="Project Name"
-          value={formData.projectName}
+          label="Project UID"
+          value={formData.f_project_uid}
           readOnly
         />
+        <ModalInput label="Project Name" value={projectName} readOnly />
         <ModalInput
           label="Name"
           name="name"
@@ -88,37 +69,12 @@ export const CreateModal = ({
           error={errors.name}
         />
         <ModalInput label="Type" name="type" value={formData.type} readOnly />
-        <ModalInput label="Dataset File Extension" value="zip" readOnly />
-        {/*上傳檔案的欄位*/}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Dataset File
-          </label>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => document.getElementById("fileInput").click()}
-              className="absolute right-0 top-0 bottom-0 bg-blue-500 text-white px-4 py-2 rounded-r-md"
-            >
-              選擇檔案
-            </button>
-            <input
-              type="file"
-              id="fileInput"
-              accept=".zip"
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-            />
-            <input
-              type="text"
-              value={fileName}
-              readOnly
-              className="border-blue-500 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
-          </div>
-          {/*{errors.file && <span className="text-red-500">{errors.file}</span>}*/}
-        </div>
-        {/*上傳檔案的欄位*/}
+        <FileInput
+          label="Pipeline File"
+          onChange={handleFileChange}
+          accept=".zip"
+          error={errors.file}
+        />
         <ModalInput
           label="Dataset Description"
           name="description"
@@ -147,6 +103,7 @@ export const CreateModal = ({
 
 export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
   const [formData, setFormData] = useState({
+    uid: dataset.uid,
     name: dataset.name,
     description: dataset.description,
   });
@@ -161,7 +118,7 @@ export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
   };
 
   const handleUpdateClick = () => {
-    HandleUpdate(dataset.uid, formData, onEdit, onClose);
+    HandleUpdate(formData, onEdit, onClose);
   };
 
   return (
@@ -182,6 +139,7 @@ export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
           value={formData.description}
           onChange={handleInputChange}
         />
+        <ModalInput label="Type" value={dataset.type} readOnly />
         <ModalInput label="File Extension" value="zip" readOnly />
         <ModalInput
           label="Created Time"

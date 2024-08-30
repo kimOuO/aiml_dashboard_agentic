@@ -89,7 +89,7 @@ export default function TrainingPipelinePage() {
           <div className="space-y-4">
             {trainingPipelines.map((traPipe) => (
               <PipelineCard
-                key={traPipe.id}
+                key={traPipe.uid}
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
                 pipeline={traPipe}

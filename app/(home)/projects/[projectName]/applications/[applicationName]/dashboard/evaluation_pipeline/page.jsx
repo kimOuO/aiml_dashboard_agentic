@@ -13,7 +13,6 @@ export default function EvaluationPipelinePage() {
   const applicationNameDecode = decodeURIComponent(applicationName);
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
-  console.log(applicationUID);
 
   const handleBackClick = useBackNavigation();
   const type = "Evaluation";
@@ -63,7 +62,7 @@ export default function EvaluationPipelinePage() {
           <div className="space-y-4">
             {evaluationPipelines.map((evaPipe) => (
               <PipelineCard
-                key={evaPipe.id}
+                key={evaPipe.uid}
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
                 pipeline={evaPipe}

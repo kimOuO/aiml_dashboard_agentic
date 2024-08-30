@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { EditModal, DeleteModal } from "./projectModal";
 
-const ProjectCard = ({ project, onEdit, onDelete }) => {
+const ProjectCard = ({ project, onEdit, onDelete, organization }) => {
   const router = useRouter();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -65,6 +65,7 @@ const ProjectCard = ({ project, onEdit, onDelete }) => {
           project={project}
           onClose={handleCloseEditModal}
           onEdit={onEdit}
+          organizationName={organization.name}
         />
       )}
       {isDeleteModalOpen && (

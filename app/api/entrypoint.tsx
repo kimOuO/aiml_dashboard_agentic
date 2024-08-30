@@ -85,21 +85,6 @@ const signup = async (data: JSON): Promise<AxiosResponse | Error> => {
   }
 };
 
-const testAPI = async (
-  endpoint: string,
-  data: object
-): Promise<AxiosResponse | Error> => {
-  const TEST_API_BASE_URL = process.env.NEXT_PUBLIC_TEST_API;
-  const url = `${TEST_API_BASE_URL}/${endpoint}`;
-  try {
-    const response = await axios.post(url, data);
-    return handleApiResponse(response);
-  } catch (error) {
-    handleApiError(error);
-    return error;
-  }
-};
-
 const getAPI = async (
   api_key: string,
   data: any,
@@ -117,9 +102,7 @@ const getAPI = async (
   const headers = { Authorization: `${accessToken}` };
 
   const responseType = is_download ? "blob" : "json";
-
   if (is_upload) headers["Content-Type"] = "multipart/form-data";
-
   try {
     const response = await axios.post(
       `${API}/${API_ACTOR}/${API_FUNCTION}/${api_key}`,
@@ -173,5 +156,4 @@ export {
   getAPI,
   login,
   signup,
-  testAPI,
 };
