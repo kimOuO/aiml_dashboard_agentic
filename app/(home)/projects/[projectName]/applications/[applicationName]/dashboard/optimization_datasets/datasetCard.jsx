@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { DeleteModal, EditModal } from "./datasetModal";
+import { HandleDownloadFile } from "@/app/downloadFile";
 
 export default function DatasetCard({
   dataset,
@@ -26,6 +27,11 @@ export default function DatasetCard({
     setIsDeleteModalOpen(false);
   };
 
+  const handleDownloadClick = async () => {
+    const { downloadFile } = HandleDownloadFile(dataset);
+    await downloadFile();
+  };
+
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
       <div>
@@ -37,7 +43,7 @@ export default function DatasetCard({
         <button onClick={handleEditClick}>
           <img src="/project/edit.svg" alt="Edit" />
         </button>
-        <button>
+        <button onClick={handleDownloadClick}>
           <img src="/project/download.svg" alt="Download" />
         </button>
         <button onClick={handleDeleteClick}>

@@ -1,58 +1,64 @@
-// agents/page.jsx
 "use client";
-import React from "react";
-import Link from "next/link";
 
-const agents = [
-  { name: "James-LLC", date: "2024-05-10 21:17:54" },
-  { name: "test", date: "2024-05-10 21:17:54" },
-  { name: "yy", date: "2024-05-10 21:17:54" },
-];
+import React, { useState } from "react";
+import { useFetchAgents, useFetchOrganization } from "./service";
+import { useSearchParams } from "next/navigation";
+import { CreateModal } from "./agentModal";
+import AgnetCard from "./agentCard";
 
-export default function AgentsPage() {
+export default function AgentPage() {
+  const searchParams = useSearchParams();
+  const organizationUID = searchParams.get("organizationUID");
+  const { agents, isLoading, triggerFetch } =
+    useFetchAgents(organizationUID);
+  const organization = useFetchOrganization(organizationUID);
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true);
+  };
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
-      <div className="max-w-6xl w-full mt-[-100px]">
+    <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
+      <div className="mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <div className="flex flex-col">
-            <h1 className="text-3xl font-semibold mb-3">Agents</h1>
-            <a
-              href="/projects"
-              className="text-slate-700 underline hover:text-blue-900 transition duration-300 ease-in-out"
-            >
-              Agent Dashboard
-            </a>
-          </div>
-          <button className="bg-green-700 text-white px-4 py-2 rounded-xl hover:bg-green-900">
-            Create New Agent
+          <h1 className="text-2xl font-bold">Agents</h1>
+          <button
+            className="bg-green-700 text-white px-4 py-2 rounded-md font-bold"
+            onClick={handleCreateClick}
+          >
+            Create Agent
           </button>
         </div>
-        <div>
-          {agents.map((agent, index) => (
-            <Link href={`/agents/${agent.name}/link`} key={index}>
-              <div
-                key={index}
-                className="bg-white p-4 rounded shadow mb-4 flex justify-between items-center border border-slate-300 w-full"
-              >
-                <div className="flex flex-col">
-                  <h2 className="text-xl font-extrabold text-blue-950 mb-2">
-                    {agent.name}
-                  </h2>
-                  <p className="text-gray-700">{agent.date}</p>
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <button className="bg-slate-50 text-black text-sm font-bold px-2 py-1 rounded-md border border-slate-500 hover:bg-slate-300">
-                    Detail
-                  </button>
-                  <button className="bg-slate-50 text-black text-sm font-bold px-2 py-1 rounded-md border border-slate-500 hover:bg-slate-300">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <p>Loading...</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {agents.map((agent) => (
+              <AgnetCard
+                key={agent.uid}
+                agent={agent}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
+                organization={organization}
+              />
+            ))}
+          </div>
+        )}
       </div>
+      {isCreateModalOpen && (
+        <CreateModal
+          organization={organization}
+          onClose={handleCloseCreateModal}
+          onCreate={triggerFetch}
+        />
+      )}
     </div>
   );
 }

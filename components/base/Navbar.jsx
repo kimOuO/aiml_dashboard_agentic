@@ -10,8 +10,8 @@ import Image from "next/image";
 const navigation= [
   { name: "Projects", href: "/projects" },
   { name: "Agents", href: "/agents" },
-  { name: "FAQs", href: "/FAQs" },
-  { name: "Setting", href: "/setting" },
+  // { name: "FAQs", href: "/FAQs" },
+  // { name: "Setting", href: "/setting" },
 ];
 
 const Navbar = () => {
