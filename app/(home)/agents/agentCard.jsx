@@ -1,21 +1,21 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { EditModal, DeleteModal } from "./projectModal";
+import { EditModal, DeleteModal } from "./agentModal";
 
-const ProjectCard = ({ project, onEdit, onDelete, organization }) => {
+const AgentCard = ({ agent, onEdit, onDelete, organization }) => {
   const router = useRouter();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const handleDatasetsClick = () => {
-    router.push(`/projects/${project.name}/datasets?projectUID=${project.uid}`);
-  };
+  // const handleDatasetsClick = () => {
+  //   router.push(`/agents/${agent.name}/datasets?agentUID=${agent.uid}`);
+  // };
 
-  const handleApplicationsClick = () => {
-    router.push(
-      `/projects/${project.name}/applications?projectUID=${project.uid}`
-    );
-  };
+  // const handleApplicationsClick = () => {
+  //   router.push(
+  //     `/agents/${agent.name}/applications?agentUID=${agent.uid}`
+  //   );
+  // };
 
   const handleEditClick = () => {
     setIsEditModalOpen(true);
@@ -36,9 +36,9 @@ const ProjectCard = ({ project, onEdit, onDelete, organization }) => {
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
       <div>
-      <div className="bg-blue-300 rounded-lg p-0.5">{project.uid}</div>
         <h2 className="text-xl font-semibold p-1">{project.name}</h2>
         <p className="text-gray-500">{project.description}</p>
+        <p className="text-gray-500">{project.created_time}</p>
       </div>
       <div className="flex space-x-8 px-5">
         <button onClick={handleEditClick}>
@@ -79,4 +79,4 @@ const ProjectCard = ({ project, onEdit, onDelete, organization }) => {
   );
 };
 
-export default ProjectCard;
+export default AgentCard;

@@ -110,9 +110,9 @@ export default function OptimizationBuildFilePage() {
           type="Optimization"
           onCreate={triggerFetch}
           onClose={handleCloseCreateModal}
-          title1="1. unknown"
-          title2="2. Optimization"
-          title3="3. unknown"
+          title1="1. Download Image Path"
+          title2="2. Running Image Path"
+          title3="3. Upload Image Path"
         />
       )}
     </div>

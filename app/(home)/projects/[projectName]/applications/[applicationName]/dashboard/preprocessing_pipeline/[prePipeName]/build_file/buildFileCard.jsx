@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { EditModal, DeleteModal } from "./buildFileModal";
+import { HandleDownloadFile } from "@/app/downloadFile";
 
 export const BuildFileCard = ({ buildFile, onEdit, onDelete }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -19,6 +20,12 @@ export const BuildFileCard = ({ buildFile, onEdit, onDelete }) => {
   const handleCloseDeleteModal = () => {
     setIsDeleteModalOpen(false);
   };
+
+  const handleDownloadClick = async () => {
+    const { downloadFile } = HandleDownloadFile(buildFile);
+    await downloadFile();
+  };
+
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer">
       <div>
@@ -30,7 +37,7 @@ export const BuildFileCard = ({ buildFile, onEdit, onDelete }) => {
         <button onClick={handleEditClick}>
           <img src="/project/edit.svg" alt="Edit" />
         </button>
-        <button>
+        <button onClick={handleDownloadClick}>
           <img src="/project/download.svg" alt="Download" />
         </button>
         <button onClick={handleDeleteClick}>

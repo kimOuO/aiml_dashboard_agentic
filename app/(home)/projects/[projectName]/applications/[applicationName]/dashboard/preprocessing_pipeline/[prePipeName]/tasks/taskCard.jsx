@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { EditModal, DeleteModal } from "./taskModal";
+import { HandleDownloadFile } from "@/app/downloadFile";
 
 export const TaskCard = ({ task, pipelineName, onEdit, onDelete }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -13,13 +14,19 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete }) => {
     setIsEditModalOpen(false);
   };
 
-  const handleDeleteClick = () => {
+  const  handleDeleteClick = () => {
     setIsDeleteModalOpen(true);
   };
 
   const handleCloseDeleteModal = () => {
     setIsDeleteModalOpen(false);
   };
+
+  const handleDownloadClick=async()=>{
+    const {downloadFile} = HandleDownloadFile(task)
+    await downloadFile()
+  }
+
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer">
       <div>
@@ -38,7 +45,10 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete }) => {
         <button onClick={handleDeleteClick}>
           <img src="/project/delete.svg" alt="Delete" />
         </button>
-        <button className="bg-gray-200 rounded-xl px-2 py-1 border border-gray-400">
+        <button 
+          className="bg-gray-200 rounded-xl px-2 py-1 border border-gray-400"
+          onClick={handleDownloadClick}
+          >
           Log
         </button>
       </div>
@@ -67,7 +77,7 @@ const TaskStatus = ({ status }) => {
   let dotColor = "";
   let text = "";
 
-  switch (status) {
+  switch ("init") {
     case "Success":
       bgColor = "bg-blue-100";
       textColor = "text-blue-800";
@@ -85,6 +95,12 @@ const TaskStatus = ({ status }) => {
       textColor = "text-red-800";
       dotColor = "text-red-500";
       text = "Failed";
+      break;
+    case "init":
+      bgColor = "bg-yellow-100";
+      textColor = "text-yellow-800";
+      dotColor = "text-yellow-500";
+      text = "Init";
       break;
     default:
       bgColor = "bg-gray-100";

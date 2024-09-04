@@ -104,6 +104,7 @@ const getAPI = async (
   const responseType = is_download ? "blob" : "json";
   if (is_upload) headers["Content-Type"] = "multipart/form-data";
   try {
+    console.log(headers)
     const response = await axios.post(
       `${API}/${API_ACTOR}/${API_FUNCTION}/${api_key}`,
       data,

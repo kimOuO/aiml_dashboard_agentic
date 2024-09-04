@@ -1,0 +1,131 @@
+import { useEffect, useState } from "react";
+import { getAPI } from "@/app/api/entrypoint";
+
+export const useFetchAgents = (organizationUID) => {
+  const [Agents, setAgents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  //用於觸發重新抓取data
+  const [fetchTrigger, setFetchTrigger] = useState(false);
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      //開始抓取資料，畫面顯示loading
+      setIsLoading(true);
+      //AgentMetadataWriter/filter_by_organization
+      const data = { f_organization_uid: organizationUID };
+      const response = await getAPI("R1hgr6B6u4JIv5Ru", data);
+      if (response.status === 200) {
+        setAgents(response.data.data);
+      } else if (response && response instanceof Error) {
+        console.error("Error fetching Agents:", response.data);
+      }
+      setIsLoading(false);
+    };
+    fetchAgents();
+  }, [fetchTrigger]);
+
+  return {
+    Agents,
+    isLoading,
+    // 用於觸發重新抓取
+    triggerFetch: () => setFetchTrigger(!fetchTrigger),
+  };
+};
+
+//取得organization
+export const useFetchOrganization = (organizationUID) => {
+  const [organization, setOrganization] = useState(null);
+
+  useEffect(() => {
+    const fetchOrganization = async () => {
+      //OrganizationMetadataWriter/retrieve
+      const data = { uid: organizationUID };
+      const response = await getAPI("mGlkFLqgBQgNRvU3", data);
+      if (response.status === 200) {
+        setOrganization(response.data.data);
+      } else {
+        console.error("Error fetching organization:", response.data);
+      }
+    };
+
+    fetchOrganization();
+  }, []);
+
+  return organization;
+};
+
+//創建agent
+export const useCreateAgent = () => {
+  const createAgent = async (formData) => {
+    if (formData) {
+      //AgentMetadataWriter/create
+      const response = await getAPI("ogYIkT8m9iMynw4W", formData);
+      if (response.status === 200) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error creating agent:", response.data);
+      }
+    }
+  };
+  return { createAgent };
+};
+
+//更新agent
+export const useUpdateAgent = (formData) => {
+  const updateAgent = async () => {
+    if (formData) {
+      //AgentMetadataWriter/update
+      const response = await getAPI("wCoqdcMkdei1Dypv", formData);
+      if (response.status === 200) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error updating agent:", response.data);
+      }
+    }
+  };
+  return { updateAgent };
+};
+
+//刪除agent
+export const useDeleteAgent = (agentUID) => {
+  const deleteAgent = async () => {
+    if (agentUID) {
+      //AgentMetadataWriter/delete
+      const data = { uid: agentUID };
+      const response = await getAPI("Z756tBGncOXBPKWj", data);
+      if (response.status === 200) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error deleting agent:", response.data);
+      }
+    }
+  };
+  return { deleteAgent };
+};
+
+export const HandleUpdate = async (formData, onEdit, onClose) => {
+  const { updateAgent } = useupdateAgent(formData);
+  const response = await updateAgent();
+  if (response && !(response instanceof Error)) {
+    onEdit();
+    onClose();
+  }
+};
+
+export const HandleDelete = async (agentUID, onDelete, onClose) => {
+  const { deleteAgent } = usedeleteAgent(agentUID);
+  const response = await deleteAgent();
+  if (response && !(response instanceof Error)) {
+    onDelete();
+    onClose();
+  }
+};
+
+export const HandleCreate = async (formData, onCreate, onClose) => {
+  const { createAgent } = usecreateAgent();
+  const response = await createAgent(formData);
+  if (response && !(response instanceof Error)) {
+    onCreate();
+    onClose();
+  }
+};

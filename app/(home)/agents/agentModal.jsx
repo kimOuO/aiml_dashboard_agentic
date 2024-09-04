@@ -4,25 +4,14 @@ import {
   ModalInput,
   BaseDeleteModal,
   ValidateForm,
-  FileInput,
 } from "@/app/modalComponent";
+import { format } from "date-fns";
 
-export const DownloadFileModal=({})
-
-export const CreateModal = ({
-  projectUID,
-  projectName,
-  activeTab,
-  onClose,
-  onCreate,
-}) => {
+export const CreateModal = ({ organization, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    type: activeTab,
-    f_project_uid: projectUID,
-    file: null,
-    extension: "zip",
+    f_organization_uid: organization.uid,
   });
 
   const [errors, setErrors] = useState({});
@@ -36,15 +25,8 @@ export const CreateModal = ({
     });
   };
 
-  const handleFileChange = (file) => {
-    setFormData({
-      ...formData,
-      file: file,
-    });
-  };
-
   const handleCreateClick = () => {
-    const fieldsToValidate = ["name", "file"];
+    const fieldsToValidate = ["name"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -56,13 +38,17 @@ export const CreateModal = ({
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Upload {activeTab} Dataset</h2>
+        <h2 className="text-2xl font-bold mb-4">Create Agent</h2>
         <ModalInput
-          label="Project UID"
-          value={formData.f_project_uid}
+          label="Organization UID"
+          value={formData.f_organization_uid}
           readOnly
         />
-        <ModalInput label="Project Name" value={projectName} readOnly />
+        <ModalInput
+          label="Organization Name"
+          value={organization.name}
+          readOnly
+        />
         <ModalInput
           label="Name"
           name="name"
@@ -70,15 +56,8 @@ export const CreateModal = ({
           onChange={handleInputChange}
           error={errors.name}
         />
-        <ModalInput label="Type" name="type" value={formData.type} readOnly />
-        <FileInput
-          label="Pipeline File"
-          onChange={handleFileChange}
-          accept=".zip"
-          error={errors.file}
-        />
         <ModalInput
-          label="Dataset Description"
+          label="Description"
           name="description"
           value={formData.description}
           onChange={handleInputChange}
@@ -103,12 +82,17 @@ export const CreateModal = ({
   );
 };
 
-export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
+export const EditModal = ({ project, onClose, onEdit, organizationName }) => {
   const [formData, setFormData] = useState({
-    uid: dataset.uid,
-    name: dataset.name,
-    description: dataset.description,
+    uid: project.uid,
+    name: project.name,
+    description: project.description,
   });
+
+  const formattedDate = format(
+    new Date(project.created_time),
+    "yyyy-MM-dd HH:mm:ss"
+  );
 
   //暫存更新的value
   const handleInputChange = (e) => {
@@ -126,9 +110,9 @@ export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">{dataset.type} Dataset</h2>
-        <ModalInput label="Project" value={projectName} readOnly />
-        <ModalInput label="UID" value={dataset.uid} readOnly />
+        <h2 className="text-2xl font-bold mb-4">Project</h2>
+        <ModalInput label="Organization" value={organizationName} readOnly />
+        <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
           label="Name"
           name="name"
@@ -141,13 +125,7 @@ export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
           value={formData.description}
           onChange={handleInputChange}
         />
-        <ModalInput label="Type" value={dataset.type} readOnly />
-        <ModalInput label="File Extension" value="zip" readOnly />
-        <ModalInput
-          label="Created Time"
-          value={dataset.created_time}
-          readOnly
-        />
+        <ModalInput label="Created Time" value={formattedDate} readOnly />
         <div className="flex justify-between">
           <button
             onClick={handleUpdateClick}
@@ -167,12 +145,11 @@ export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
   );
 };
 
-export const DeleteModal = ({ dataset, onClose, onDelete }) => {
-  const entityName = `${dataset.type} Dataset`;
+export const DeleteModal = ({ project, onClose, onDelete }) => {
   return (
     <BaseDeleteModal
-      entity={dataset}
-      entityName={entityName}
+      entity={project}
+      entityName="Project"
       onClose={onClose}
       onDelete={onDelete}
       handleDelete={HandleDelete}
