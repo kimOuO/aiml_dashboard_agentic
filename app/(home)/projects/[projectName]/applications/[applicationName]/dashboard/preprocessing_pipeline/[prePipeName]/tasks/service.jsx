@@ -36,6 +36,22 @@ export const useFetchTask = (pipelineUID) => {
   };
 };
 
+export const useFetchTaskFile = () => {
+  const fetchTaskFile = async (pipelineUID) => {
+    if (pipelineUID) {
+      //Preparer/preprocessing
+      const data={pipeline_uid:pipelineUID}
+      const response = await getAPI("oNjkVj60RqS8DQTX", data);
+      if (response.status === 200) {
+        return response.data.data
+      } else if (response && response instanceof Error) {
+        console.error("Error fetch task file:", response.data);
+      }
+    }
+  };
+  return {fetchTaskFile};
+};
+
 //創建task
 export const useCreateTask = () => {
   const createTask = async (formData) => {

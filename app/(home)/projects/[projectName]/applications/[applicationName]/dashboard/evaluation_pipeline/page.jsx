@@ -15,7 +15,7 @@ export default function EvaluationPipelinePage() {
   const applicationUID = searchParams.get("applicationUID");
 
   const handleBackClick = useBackNavigation();
-  const type = "Evaluation";
+  const type = "evaluation";
 
   const {
     pipelines: evaluationPipelines,

@@ -6,7 +6,7 @@ import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchTask } from "../../../preprocessing_pipeline/[prePipeName]/tasks/service";
 import { HandleLinkClick } from "./service";
 import { TaskCard } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskCard";
-import { CreateModal } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskModal";
+import { CreateModal } from "./taskModal";
 
 export default function OptimizationTaskPage() {
   const { projectName, applicationName, optimiPipeName } = useParams();

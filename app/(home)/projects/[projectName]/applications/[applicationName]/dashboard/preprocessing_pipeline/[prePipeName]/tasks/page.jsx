@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchTask, HandleLinkClick } from "./service";
+import { useFetchTask, HandleLinkClick, useFetchTaskFile } from "./service";
 import { TaskCard } from "./taskCard";
 import { CreateModal } from "./taskModal";
 
@@ -21,6 +21,10 @@ export default function PreprocessingTaskPage() {
     isLoading,
     triggerFetch,
   } = useFetchTask(pipelineUID);
+
+  const {fetchTaskFile} = useFetchTaskFile();
+  const taskFile = fetchTaskFile(pipelineUID)
+
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
     applicationNameDecode,
@@ -109,6 +113,7 @@ export default function PreprocessingTaskPage() {
           type="Preprocessing"
           onCreate={triggerFetch}
           onClose={handleCloseCreateModal}
+          taskFile={taskFile}
         />
       )}
     </div>

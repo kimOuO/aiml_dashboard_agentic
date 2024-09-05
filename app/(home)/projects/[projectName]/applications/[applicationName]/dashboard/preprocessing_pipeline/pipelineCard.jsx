@@ -65,6 +65,7 @@ export const PipelineCard = ({
           applicationName={applicationName}
           onClose={handleCloseEditModal}
           onEdit={onEdit}
+          type="Preprocessing"
         />
       )}
       {isDeleteModalOpen && (
