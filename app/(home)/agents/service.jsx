@@ -1,31 +1,31 @@
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
 
-export const useFetchProjects = (organizationUID) => {
-  const [projects, setProjects] = useState([]);
+export const useFetchAgents = (organizationUID) => {
+  const [Agents, setAgents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   //用於觸發重新抓取data
   const [fetchTrigger, setFetchTrigger] = useState(false);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchAgents = async () => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
-      //ProjectMetadataWriter/filter_by_organization
+      //AgentMetadataWriter/filter_by_organization
       const data = { f_organization_uid: organizationUID };
-      const response = await getAPI("a75vPQAyPqVGFwiZ", data);
+      const response = await getAPI("R1hgr6B6u4JIv5Ru", data);
       if (response.status === 200) {
-        setProjects(response.data.data);
+        setAgents(response.data.data);
       } else if (response && response instanceof Error) {
-        console.error("Error fetching projects:", response.data);
+        console.error("Error fetching Agents:", response.data);
       }
       setIsLoading(false);
     };
-    fetchProjects();
-  }, [fetchTrigger,organizationUID]);
+    fetchAgents();
+  }, [fetchTrigger]);
 
   return {
-    projects,
+    Agents,
     isLoading,
     // 用於觸發重新抓取
     triggerFetch: () => setFetchTrigger(!fetchTrigger),
@@ -54,67 +54,67 @@ export const useFetchOrganization = (organizationUID) => {
   return organization;
 };
 
-//創建project
-export const useCreateProject = () => {
-  const createProject = async (formData) => {
+//創建agent
+export const useCreateAgent = () => {
+  const createAgent = async (formData) => {
     if (formData) {
-      //ProjectMetadataWriter/create
-      const response = await getAPI("9Q1lCs56iud4oPcS", formData);
+      //AgentMetadataWriter/create
+      const response = await getAPI("ogYIkT8m9iMynw4W", formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error creating project:", response.data);
+        console.error("Error creating agent:", response.data);
       }
     }
   };
-  return { createProject };
+  return { createAgent };
 };
 
-//更新project
-export const useUpdateProject = (formData) => {
-  const updateProject = async () => {
+//更新agent
+export const useUpdateAgent = (formData) => {
+  const updateAgent = async () => {
     if (formData) {
-      //ProjectMetadataWriter/update
-      const response = await getAPI("KIW6ZqwTMbMF4bWl", formData);
+      //AgentMetadataWriter/update
+      const response = await getAPI("wCoqdcMkdei1Dypv", formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error updating project:", response.data);
+        console.error("Error updating agent:", response.data);
       }
     }
   };
-  return { updateProject };
+  return { updateAgent };
 };
 
-//刪除project
-export const useDeleteProject = (projectUID) => {
-  const deleteProject = async () => {
-    if (projectUID) {
-      //ProjectMetadataWriter/delete
-      const data = { uid: projectUID };
-      const response = await getAPI("ThQHZcLlnq6GQ3zW", data);
+//刪除agent
+export const useDeleteAgent = (agentUID) => {
+  const deleteAgent = async () => {
+    if (agentUID) {
+      //AgentMetadataWriter/delete
+      const data = { uid: agentUID };
+      const response = await getAPI("Z756tBGncOXBPKWj", data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
-        console.error("Error deleting project:", response.data);
+        console.error("Error deleting agent:", response.data);
       }
     }
   };
-  return { deleteProject };
+  return { deleteAgent };
 };
 
 export const HandleUpdate = async (formData, onEdit, onClose) => {
-  const { updateProject } = useUpdateProject(formData);
-  const response = await updateProject();
+  const { updateAgent } = useupdateAgent(formData);
+  const response = await updateAgent();
   if (response && !(response instanceof Error)) {
     onEdit();
     onClose();
   }
 };
 
-export const HandleDelete = async (projectUID, onDelete, onClose) => {
-  const { deleteProject } = useDeleteProject(projectUID);
-  const response = await deleteProject();
+export const HandleDelete = async (agentUID, onDelete, onClose) => {
+  const { deleteAgent } = usedeleteAgent(agentUID);
+  const response = await deleteAgent();
   if (response && !(response instanceof Error)) {
     onDelete();
     onClose();
@@ -122,8 +122,8 @@ export const HandleDelete = async (projectUID, onDelete, onClose) => {
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
-  const { createProject } = useCreateProject();
-  const response = await createProject(formData);
+  const { createAgent } = usecreateAgent();
+  const response = await createAgent(formData);
   if (response && !(response instanceof Error)) {
     onCreate();
     onClose();

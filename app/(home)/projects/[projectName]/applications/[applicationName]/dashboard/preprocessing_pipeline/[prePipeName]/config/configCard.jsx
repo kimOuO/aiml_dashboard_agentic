@@ -32,9 +32,9 @@ export const ConfigCard = ({ config, pipelineName, onEdit, onDelete }) => {
         <button onClick={handleEditClick}>
           <img src="/project/edit.svg" alt="Edit" />
         </button>
-        <button>
+        {/* <button>
           <img src="/project/download.svg" alt="Download" />
-        </button>
+        </button> */}
         <button onClick={handleDeleteClick}>
           <img src="/project/delete.svg" alt="Delete" />
         </button>

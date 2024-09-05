@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { EditModal, DeleteModal } from "./pipelineModal";
+import { HandleDownloadFile } from "@/app/downloadFile";
 
 export const PipelineCard = ({
   projectName,
@@ -36,6 +37,10 @@ export const PipelineCard = ({
     setIsDeleteModalOpen(false);
   };
 
+  const handleDownloadClick = async () => {
+    const { downloadFile } = HandleDownloadFile(pipeline);
+    await downloadFile();
+  };
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer">
       <div onClick={handlePreprocessingPipelineClick}>
@@ -47,7 +52,7 @@ export const PipelineCard = ({
         <button onClick={handleEditClick}>
           <img src="/project/edit.svg" alt="Edit" />
         </button>
-        <button>
+        <button onClick={handleDownloadClick}>
           <img src="/project/download.svg" alt="Download" />
         </button>
         <button onClick={handleDeleteClick}>
@@ -60,6 +65,7 @@ export const PipelineCard = ({
           applicationName={applicationName}
           onClose={handleCloseEditModal}
           onEdit={onEdit}
+          type="Preprocessing"
         />
       )}
       {isDeleteModalOpen && (

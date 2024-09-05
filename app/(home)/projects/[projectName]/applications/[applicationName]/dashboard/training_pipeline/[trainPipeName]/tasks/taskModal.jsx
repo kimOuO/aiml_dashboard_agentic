@@ -1,10 +1,6 @@
 import React, { useState } from "react";
-import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
-import {
-  ModalInput,
-  BaseDeleteModal,
-  ValidateForm,
-} from "@/app/modalComponent";
+import { HandleCreate } from "../../../preprocessing_pipeline/[prePipeName]/tasks/service";
+import { ModalInput, ValidateForm } from "@/app/modalComponent";
 import {
   Accordion,
   AccordionContent,
@@ -17,7 +13,6 @@ export const CreateModal = ({
   pipelineName,
   onCreate,
   onClose,
-  taskFile
 }) => {
   const [formData, setFormData] = useState({
     access_key: "",
@@ -33,11 +28,11 @@ export const CreateModal = ({
       running_uid: "",
       upload_uid: "",
     },
-    dataset_name: "",
-    dataset_description: "zip",
-    dataset_type: "",
-    dataset_file_extension: "zip",
-    foreignkey_uid: "",
+    model_name: "",
+    model_description: "",
+    model_type: "",
+    model_file_extension: "zip",
+    application_uid: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -73,7 +68,8 @@ export const CreateModal = ({
       "image_uid.download_uid",
       "image_uid.running_uid",
       "image_uid.upload_uid",
-      "dataset_name",
+      "model_name",
+      "model_type",
       "task_name",
       "config_uid",
     ];
@@ -120,49 +116,39 @@ export const CreateModal = ({
             </AccordionTrigger>
             <AccordionContent>
               <ModalInput
-                label="Preprocessing Pipeline Name"
+                label="Training Pipeline Name"
                 value={pipelineName}
                 readOnly
               />
               <ModalInput
-                label="Original Dataset Name"
+                label="Training Dataset Name"
                 name="dataset_uid"
                 value={formData.dataset_uid}
                 onChange={handleInputChange}
                 error={errors.dataset_uid}
               />
-               {/* 下拉選單用於選擇 config_uid */}
-              {/* <label htmlFor="config_uid">Preprocessing Task Conig</label>
-              <select
-                name="config_uid"
+              <ModalInput
+                label="Training Task Config"
                 value={formData.config_uid}
                 onChange={handleInputChange}
-                className="w-full border-gray-300 rounded-md"
-              >
-                <option value="">Select Config</option>
-                {taskFile.config.map((config) => (
-                  <option key={config.uid} value={config.uid}>
-                    {config.name}
-                  </option>
-                ))}
-              </select>
-              {errors.config_uid && <p className="text-red-600">{errors.config_uid}</p>} */}
+                error={errors.config_uid}
+              />
               <ModalInput
-                label="Build File:#1. Download Original Dataset"
+                label="Build File:#1. Download Training Dataset"
                 name="image_uid.download_uid"
                 value={formData.image_uid.download_uid}
                 onChange={handleInputChange}
                 error={errors.image_uid?.download_uid}
               />
               <ModalInput
-                label="Build File:#2. Preprocessing"
+                label="Build File:#2. Training"
                 name="image_uid.running_uid"
                 value={formData.image_uid.running_uid}
                 onChange={handleInputChange}
                 error={errors.image_uid?.running_uid}
               />
               <ModalInput
-                label="Build File:#2. Upload Training Dataset"
+                label="Build File:#2. Upload Model"
                 name="image_uid.upload_uid"
                 value={formData.image_uid.upload_uid}
                 onChange={handleInputChange}
@@ -176,23 +162,22 @@ export const CreateModal = ({
             </AccordionTrigger>
             <AccordionContent>
               <ModalInput
-                label="Training Dataset Name"
-                name="dataset_name"
-                value={formData.dataset_name}
+                label="Model Name"
+                name="model_name"
+                value={formData.model_name}
                 onChange={handleInputChange}
-                error={errors.dataset_name}
+                error={errors.task_name}
               />
               <ModalInput
-                label="Training Dataset File Extension"
-                value={formData.dataset_description}
+                label="Model File Extension"
+                value={formData.model_file_extension}
                 readOnly
               />
               <ModalInput
-                label="Training Dataset Description"
-                name="dataset_description"
-                value={formData.dataset_description}
+                label="Model Description"
+                name="model_description"
+                value={formData.model_description}
                 onChange={handleInputChange}
-                error={errors.dataset_name}
               />
             </AccordionContent>
           </AccordionItem>
@@ -202,16 +187,15 @@ export const CreateModal = ({
             </AccordionTrigger>
             <AccordionContent>
               <ModalInput
-                label="Preprocessing Task Name"
+                label="Training Task Name"
                 value={formData.task_name}
                 onChange={handleInputChange}
                 error={errors.task_name}
               />
               <ModalInput
-                label="Preprocessing Task Description"
+                label="Training Task Description"
                 value={formData.task_description}
                 onChange={handleInputChange}
-                error={errors.task_description}
               />
             </AccordionContent>
           </AccordionItem>
@@ -232,75 +216,5 @@ export const CreateModal = ({
         </div>
       </div>
     </div>
-  );
-};
-
-export const EditModal = ({ task, onClose, onEdit, pipelineName }) => {
-  const [formData, setFormData] = useState({
-    uid: task.uid,
-    name: task.name,
-    description: task.description,
-  });
-
-  //暫存更新的value
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleUpdateClick = () => {
-    HandleUpdate(formData, onEdit, onClose);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Task</h2>
-        <ModalInput label="Pipeline" value={pipelineName} readOnly />
-        <ModalInput label="UID" value={formData.uid} readOnly />
-        <ModalInput
-          label="Name"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-        />
-        <ModalInput
-          label="Description"
-          name="description"
-          value={formData.description}
-          onChange={handleInputChange}
-        />
-        <ModalInput label="Created Time" value={task.created_time} readOnly />
-        <div className="flex justify-between">
-          <button
-            onClick={handleUpdateClick}
-            className="bg-green-700 text-white px-4 py-2 rounded-md font-bold"
-          >
-            Update
-          </button>
-          <button
-            onClick={onClose}
-            className="bg-blue-700 text-white px-4 py-2 rounded-md font-bold"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const DeleteModal = ({ task, onClose, onDelete }) => {
-  return (
-    <BaseDeleteModal
-      entity={task}
-      entityName="Task"
-      onClose={onClose}
-      onDelete={onDelete}
-      handleDelete={HandleDelete}
-    />
   );
 };

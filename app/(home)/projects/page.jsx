@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useFetchProjects, useFetchOrganization } from "./service";
-import {useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { CreateModal } from "./projectModal";
 import ProjectCard from "./projectCard";
 
