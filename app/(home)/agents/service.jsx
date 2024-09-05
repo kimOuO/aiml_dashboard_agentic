@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
-
+import APIKEYS from "@/app/api/api_key.json";
 export const useFetchAgents = (organizationUID) => {
   const [Agents, setAgents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -13,7 +13,7 @@ export const useFetchAgents = (organizationUID) => {
       setIsLoading(true);
       //AgentMetadataWriter/filter_by_organization
       const data = { f_organization_uid: organizationUID };
-      const response = await getAPI("R1hgr6B6u4JIv5Ru", data);
+      const response = await getAPI(APIKEYS.FILTER_AGENT_BY_ORGANIZATION, data);
       if (response.status === 200) {
         setAgents(response.data.data);
       } else if (response && response instanceof Error) {
@@ -75,7 +75,7 @@ export const useUpdateAgent = (formData) => {
   const updateAgent = async () => {
     if (formData) {
       //AgentMetadataWriter/update
-      const response = await getAPI("wCoqdcMkdei1Dypv", formData);
+      const response = await getAPI(APIKEYS.UPDATE_AGENT, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -92,7 +92,7 @@ export const useDeleteAgent = (agentUID) => {
     if (agentUID) {
       //AgentMetadataWriter/delete
       const data = { uid: agentUID };
-      const response = await getAPI("Z756tBGncOXBPKWj", data);
+      const response = await getAPI(APIKEYS.DELETE_AGENT, data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -104,7 +104,7 @@ export const useDeleteAgent = (agentUID) => {
 };
 
 export const HandleUpdate = async (formData, onEdit, onClose) => {
-  const { updateAgent } = useupdateAgent(formData);
+  const { updateAgent } = useUpdateAgent(formData);
   const response = await updateAgent();
   if (response && !(response instanceof Error)) {
     onEdit();
@@ -113,7 +113,7 @@ export const HandleUpdate = async (formData, onEdit, onClose) => {
 };
 
 export const HandleDelete = async (agentUID, onDelete, onClose) => {
-  const { deleteAgent } = usedeleteAgent(agentUID);
+  const { deleteAgent } = useDeleteAgent(agentUID);
   const response = await deleteAgent();
   if (response && !(response instanceof Error)) {
     onDelete();
@@ -122,7 +122,7 @@ export const HandleDelete = async (agentUID, onDelete, onClose) => {
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
-  const { createAgent } = usecreateAgent();
+  const { createAgent } = useCreateAgent();
   const response = await createAgent(formData);
   if (response && !(response instanceof Error)) {
     onCreate();
