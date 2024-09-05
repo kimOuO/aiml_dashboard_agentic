@@ -15,7 +15,6 @@ export const useFetchAgents = (organizationUID) => {
       const data = { f_organization_uid: organizationUID };
       const response = await getAPI(APIKEYS.FILTER_AGENT_BY_ORGANIZATION, data);
       if (response.status === 200) {
-
         setAgents(response.data.data);
       } else if (response && response instanceof Error) {
         console.error("Error fetching Agents:", response.data);
@@ -93,7 +92,7 @@ export const useDeleteAgent = (agentUID) => {
     if (agentUID) {
       //AgentMetadataWriter/delete
       const data = { uid: agentUID };
-      const response = await getAPI("Z756tBGncOXBPKWj", data);
+      const response = await getAPI(APIKEYS.DELETE_AGENT, data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -114,7 +113,7 @@ export const HandleUpdate = async (formData, onEdit, onClose) => {
 };
 
 export const HandleDelete = async (agentUID, onDelete, onClose) => {
-  const { deleteAgent } = usedeleteAgent(agentUID);
+  const { deleteAgent } = useDeleteAgent(agentUID);
   const response = await deleteAgent();
   if (response && !(response instanceof Error)) {
     onDelete();
@@ -123,7 +122,7 @@ export const HandleDelete = async (agentUID, onDelete, onClose) => {
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
-  const { createAgent } = usecreateAgent();
+  const { createAgent } = useCreateAgent();
   const response = await createAgent(formData);
   if (response && !(response instanceof Error)) {
     onCreate();
