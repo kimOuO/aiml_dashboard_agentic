@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
-
+import APIKEYS from "@/app/api/api_key.json";
 export const useFetchAgents = (organizationUID) => {
   const [Agents, setAgents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -13,8 +13,9 @@ export const useFetchAgents = (organizationUID) => {
       setIsLoading(true);
       //AgentMetadataWriter/filter_by_organization
       const data = { f_organization_uid: organizationUID };
-      const response = await getAPI("R1hgr6B6u4JIv5Ru", data);
+      const response = await getAPI(APIKEYS.FILTER_AGENT_BY_ORGANIZATION, data);
       if (response.status === 200) {
+
         setAgents(response.data.data);
       } else if (response && response instanceof Error) {
         console.error("Error fetching Agents:", response.data);
@@ -75,7 +76,7 @@ export const useUpdateAgent = (formData) => {
   const updateAgent = async () => {
     if (formData) {
       //AgentMetadataWriter/update
-      const response = await getAPI("wCoqdcMkdei1Dypv", formData);
+      const response = await getAPI(APIKEYS.UPDATE_AGENT, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -104,7 +105,7 @@ export const useDeleteAgent = (agentUID) => {
 };
 
 export const HandleUpdate = async (formData, onEdit, onClose) => {
-  const { updateAgent } = useupdateAgent(formData);
+  const { updateAgent } = useUpdateAgent(formData);
   const response = await updateAgent();
   if (response && !(response instanceof Error)) {
     onEdit();

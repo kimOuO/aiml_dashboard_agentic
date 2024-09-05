@@ -8,7 +8,6 @@ export default function DatasetCard({
   onDelete,
   projectName,
 }) {
-  console.log(dataset);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 

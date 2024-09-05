@@ -9,8 +9,7 @@ import AgnetCard from "./agentCard";
 export default function AgentPage() {
   const searchParams = useSearchParams();
   const organizationUID = searchParams.get("organizationUID");
-  const { agents, isLoading, triggerFetch } =
-    useFetchAgents(organizationUID);
+  const { Agents, isLoading, triggerFetch } = useFetchAgents(organizationUID);
   const organization = useFetchOrganization(organizationUID);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -40,15 +39,16 @@ export default function AgentPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {agents.map((agent) => (
-              <AgnetCard
-                key={agent.uid}
-                agent={agent}
-                onEdit={triggerFetch}
-                onDelete={triggerFetch}
-                organization={organization}
-              />
-            ))}
+            {Agents &&
+              Agents.map((agent) => (
+                <AgnetCard
+                  key={agent.uid}
+                  agent={agent}
+                  onEdit={triggerFetch}
+                  onDelete={triggerFetch}
+                  organization={organization}
+                />
+              ))}
           </div>
         )}
       </div>

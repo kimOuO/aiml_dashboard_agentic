@@ -12,7 +12,7 @@ export const useAuth = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [organizationUID,setOrganizationUID] = useState("")
+  const [organizationUID, setOrganizationUID] = useState("");
 
   const router = useRouter();
   const authToken = getCookieValue(ACCESS_TOKEN_NAME);
@@ -29,7 +29,10 @@ export const useAuth = () => {
     if (response.status === 200) {
       setError(null);
       setCookieValue(ACCESS_TOKEN_NAME);
-      setOrganizationUID(response.data.organization_uid)
+      setOrganizationUID(response.data.organization_uid);
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("accountname", accountName);
+      localStorage.setItem("organizationUID", response.data.organization_uid);
     } else {
       setError(response.data);
       setIsSubmitting(false);
@@ -38,9 +41,9 @@ export const useAuth = () => {
 
   useEffect(() => {
     if (organizationUID && authToken) {
-      router.push(`/projects?organizationUID=${organizationUID}`)
+      router.push(`/projects?organizationUID=${organizationUID}`);
     }
-  }, [organizationUID,authToken,router]);
+  }, [organizationUID, authToken, router]);
 
   // useEffect(() => {
   //   if (authToken) {

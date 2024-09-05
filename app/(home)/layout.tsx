@@ -3,7 +3,7 @@ import { Inter as FontSans } from "next/font/google";
 import Footer from "@/components/base/Footer";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
-
+import { AuthProvider } from "@/components/base/AuthProvider";
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -23,11 +23,14 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <main className="w-full h-screen flex flex-col">
-          <Header></Header>
-          <div className="flex-grow p-6">{children}</div>
-          <Footer></Footer>
-        </main>
+        <AuthProvider>
+          <main className="w-full h-screen flex flex-col">
+            <Header></Header>
+            <div className="flex-grow p-6">{children}</div>
+            <Footer></Footer>
+          </main>
+        </AuthProvider>
+
         <Toaster />
       </body>
     </html>
