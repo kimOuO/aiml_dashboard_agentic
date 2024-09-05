@@ -16,7 +16,7 @@ export default function TrainingPipelinePage() {
   const applicationUID = searchParams.get("applicationUID");
 
   const handleBackClick = useBackNavigation();
-  const type = "Training";
+  const type = "training";
 
   const {
     pipelines: trainingPipelines,

@@ -15,7 +15,7 @@ export default function OptimizationPipelinePage() {
   const applicationUID = searchParams.get("applicationUID");
 
   const handleBackClick = useBackNavigation();
-  const type = "Retrain";
+  const type = "retrain";
   const {
     pipelines: optimiPipelines,
     isLoading,

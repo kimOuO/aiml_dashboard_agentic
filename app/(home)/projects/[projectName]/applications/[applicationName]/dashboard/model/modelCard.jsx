@@ -72,6 +72,9 @@ export const ModelCard = React.memo(
           <button onClick={handleDeleteClick}>
             <img src="/project/delete.svg" alt="Delete" />
           </button>
+          <button>
+            <img src="/project/folder.svg" alt="folder"/>
+          </button>
           <div className="flex items-center space-x-1">
             <Switch checked={isPublish} onCheckedChange={handlePublishToggle} />
             <Label className="text-lg" htmlFor="publish">

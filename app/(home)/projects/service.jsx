@@ -22,7 +22,7 @@ export const useFetchProjects = (organizationUID) => {
       setIsLoading(false);
     };
     fetchProjects();
-  }, [fetchTrigger]);
+  }, [fetchTrigger,organizationUID]);
 
   return {
     projects,

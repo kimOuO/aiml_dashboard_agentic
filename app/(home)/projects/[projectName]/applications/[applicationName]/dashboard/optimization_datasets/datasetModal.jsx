@@ -54,7 +54,7 @@ export const CreateModal = ({
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Upload {activeTab} Dataset</h2>
+        <h2 className="text-2xl font-bold mb-4">Upload {activeTab} dataset</h2>
         <ModalInput
           label="Application UID"
           value={formData.f_application_uid}
@@ -124,7 +124,7 @@ export const EditModal = ({ dataset, onClose, onEdit, applicationName }) => {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">{dataset.type} Dataset</h2>
+        <h2 className="text-2xl font-bold mb-4">{dataset.type} dataset</h2>
         <ModalInput label="Application" value={applicationName} readOnly />
         <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
@@ -165,7 +165,7 @@ export const EditModal = ({ dataset, onClose, onEdit, applicationName }) => {
 };
 
 export const DeleteModal = ({ dataset, onClose, onDelete }) => {
-  const entityName = `${dataset.type} Dataset`;
+  const entityName = `${dataset.type} dataset`;
   return (
     <BaseDeleteModal
       entity={dataset}

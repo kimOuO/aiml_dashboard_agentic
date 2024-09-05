@@ -14,7 +14,7 @@ export default function PreprocessingPipelinePage() {
   const handleBackClick = useBackNavigation();
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
-  const type = "Preprocessing";
+  const type = "preprocessing";
 
   const {
     pipelines: preprocessingpipelines,

@@ -32,7 +32,8 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete }) => {
       <div>
         <h2 className="text-2xl font-semibold p-1 ">
           {task.name}
-          <span className="ml-4">
+          <span className="ml-4 space-x-4">
+            <TaskExecute execute_step={task.execute_step}/>
             <TaskStatus status={task.status} />
           </span>
         </h2>
@@ -71,18 +72,78 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete }) => {
   );
 };
 
+const TaskExecute = ({ execute_step }) => {
+  let bgColor = "";
+  let textColor = "";
+  let dotColor = "";
+  let text = "";
+
+  switch (execute_step) {
+    case "prepare_file":
+      bgColor = "bg-slate-100";
+      textColor = "text-slate-800";
+      dotColor = "text-slate-500";
+      text = "Prepare File";
+      break;
+    case "execute_pipeline":
+      bgColor = "bg-teal-100";
+      textColor = "text-teal-800";
+      dotColor = "text-teal-500";
+      text = "Execute Pipeline";
+      break;
+    case "run_task":
+      bgColor = "bg-indigo-100";
+      textColor = "text-indigo-800";
+      dotColor = "text-indigo-500";
+      text = "Run Task";
+      break;
+    default:
+      bgColor = "bg-gray-100";
+      textColor = "text-gray-800";
+      dotColor = "text-gray-500";
+      text = "Unknown";
+  }
+
+  return (
+    <div
+      className={`inline-flex items-center ${bgColor} ${textColor} text-sm font-medium px-2.5 py-0.5 rounded `}
+    >
+      <svg
+        className={`w-2.5 h-2.5 mr-1.5 ${dotColor}`}
+        fill="currentColor"
+        viewBox="0 0 8 8"
+      >
+        <circle cx="4" cy="4" r="3"></circle>
+      </svg>
+      {text}
+    </div>
+  );
+};
+
 const TaskStatus = ({ status }) => {
   let bgColor = "";
   let textColor = "";
   let dotColor = "";
   let text = "";
 
-  switch ("init") {
-    case "Success":
-      bgColor = "bg-blue-100";
-      textColor = "text-blue-800";
-      dotColor = "text-blue-500";
-      text = "Success";
+  switch (status) {
+    case "init":
+      bgColor = "bg-yellow-100";
+      textColor = "text-yellow-800";
+      dotColor = "text-yellow-500";
+      text = "Init";
+      break;
+    case "init error":
+      bgColor = "bg-orange-100";
+      textColor = "text-orange-800";
+      dotColor = "text-orange-500";
+      text = "Init Error";
+      break
+    case "pending":
+      bgColor = "bg-purple-100";
+      textColor = "text-purple-800";
+      dotColor = "text-purple-500";
+      text = "Pending";
       break;
     case "Running":
       bgColor = "bg-green-100";
@@ -90,17 +151,17 @@ const TaskStatus = ({ status }) => {
       dotColor = "text-green-500";
       text = "Running";
       break;
-    case "Failed":
+    case "success":
+      bgColor = "bg-blue-100";
+      textColor = "text-blue-800";
+      dotColor = "text-blue-500";
+      text = "Success";
+      break;
+    case "fail":
       bgColor = "bg-red-100";
       textColor = "text-red-800";
       dotColor = "text-red-500";
-      text = "Failed";
-      break;
-    case "init":
-      bgColor = "bg-yellow-100";
-      textColor = "text-yellow-800";
-      dotColor = "text-yellow-500";
-      text = "Init";
+      text = "Fail";
       break;
     default:
       bgColor = "bg-gray-100";

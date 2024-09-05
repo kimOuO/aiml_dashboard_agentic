@@ -145,15 +145,37 @@ export const ValidateForm = (formData, fieldsToValidate) => {
   const errorMessage = "This field is required.";
 
   fieldsToValidate.forEach((field) => {
-    const value = formData[field];
+    //檢查是否為嵌套字串
+    const fieldParts = field.split(".");
+    if (fieldParts.length > 1) {
+      //如果是嵌套字串，例如image_uid.download_uid
+      const [parentkey, childKey] = fieldParts;
+      const parentValue = formData[parentkey];
 
-    if (field === "file") {
-      if (!value || value.length === 0) {
-        errors[field] = "A file is required.";
+      if (
+        !parentValue ||
+        !parentValue[childKey] ||
+        (typeof parentValue[childKey] === "string" &&
+          parentValue[childKey].trim() === "")
+      ) {
+        //初始化errors[parentkey]物件並設置錯誤
+        if (!errors[parentkey]) {
+          errors[parentkey] = {};
+        }
+        errors[parentkey][childKey] = errorMessage;
       }
     } else {
-      if (!value || (typeof value === "string" && value.trim() === "")) {
-        errors[field] = errorMessage;
+      //非嵌套字串的處理
+      const value = formData[field];
+
+      if (field === "file") {
+        if (!value || value.length === 0) {
+          errors[field] = "A file is required.";
+        }
+      } else {
+        if (!value || (typeof value === "string" && value.trim() === "")) {
+          errors[field] = errorMessage;
+        }
       }
     }
   });

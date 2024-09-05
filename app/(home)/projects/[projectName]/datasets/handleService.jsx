@@ -10,7 +10,7 @@ import {
 
 //管理dataset動作
 export const useDatasetHandlers = () => {
-  const [activeTab, setActiveTab] = useState("Original");
+  const [activeTab, setActiveTab] = useState("original");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [inputValue, setInputValue] = useState("");

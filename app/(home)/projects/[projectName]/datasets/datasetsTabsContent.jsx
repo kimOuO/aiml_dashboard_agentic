@@ -37,7 +37,7 @@ const TabsContentComponent = ({
         //傳遞activeTab確認當前標籤頁
         onClick={() => handleOpenModal(activeTab)}
       >
-        {activeTab === "Original"
+        {activeTab === "original"
           ? "Upload Original Dataset"
           : "Upload Training Dataset"}
       </button>
@@ -84,7 +84,7 @@ const DatasetsTabsContent = ({
   projectUID,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalTabType, setModalTabType] = useState("Original");
+  const [modalTabType, setModalTabType] = useState("original");
   //打開modal
   const handleOpenModal = (activeTab) => {
     setModalTabType(activeTab);
@@ -99,9 +99,9 @@ const DatasetsTabsContent = ({
     <>
       <TabsList className="flex mb-4">
         <TabsTrigger
-          value="Original"
+          value="original"
           className={` text-lg flex-1 py-3 cursor-pointer text-center rounded-t-lg border-b-2 ${
-            activeTab === "Original"
+            activeTab === "original"
               ? "border-blue-400 bg-blue-400 font-bold"
               : "border-gray-400 bg-gray-200"
           }`}
@@ -109,9 +109,9 @@ const DatasetsTabsContent = ({
           Original Datasets
         </TabsTrigger>
         <TabsTrigger
-          value="Training"
+          value="training"
           className={`text-lg flex-1 py-3 cursor-pointer text-center rounded-t-lg border-b-2 ${
-            activeTab === "Training"
+            activeTab === "training"
               ? "border-blue-400 bg-blue-400 font-bold"
               : "border-gray-400 bg-gray-200 "
           }`}
