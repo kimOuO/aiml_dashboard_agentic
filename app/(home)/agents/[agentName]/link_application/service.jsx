@@ -18,7 +18,7 @@ export const useFetchAgentApplications = (agentUID) => {
         const data = { f_agent_uid: agentUID };
         const response = await getAPI("BEsC50prU0PRIKIt", data);
         if (response.status === 200) {
-          setApplications(response.data.data);
+          setApplications(response.data);
         } else if (response && response instanceof Error) {
           console.error("Error fetching applications:", response.data);
         }
@@ -94,13 +94,20 @@ export const HandleUpdate = async (formData, onEdit, onClose) => {
     onClose();
   }
 };
-export const HandlePublishToggle = async (applicationUID, isPublish) => {
+export const HandlePublishToggle = async (
+  applicationUID,
+  agentUID,
+  isPublish
+) => {
   const endpoint = isPublish
     ? "ylw5GFhipRLkCQMh" // 取消連接的 API 路由
     : "PnvwgsKI4ztEJnuj"; // 連接的 API 路由
 
   try {
-    const response = await getAPI("ah3Q2A5rTQrER68p", formData);
+    const response = await getAPI(endpoint, {
+      uid: applicationUID,
+      f_agent_uid: agentUID,
+    });
     if (response.status === 200) {
       return response.data;
     } else if (response && response instanceof Error) {

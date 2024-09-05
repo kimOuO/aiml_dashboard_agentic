@@ -6,7 +6,7 @@ import {
   FileInput,
 } from "@/app/modalComponent";
 import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
-
+import { getAPI } from "@/app/api/entrypoint";
 export const CreateModal = ({
   applicationUID,
   applicationName,
@@ -51,6 +51,7 @@ export const CreateModal = ({
       "model_output_format",
       "file",
     ];
+    console.log(formData);
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -213,5 +214,104 @@ export const DeleteModal = ({ model, onClose, onDelete }) => {
       onDelete={onDelete}
       handleDelete={HandleDelete}
     />
+  );
+};
+
+export const UploadModal = ({ modelUID, onClose }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    type: "template",
+    file: null,
+    extension: "zip",
+    f_model_uid: modelUID,
+  });
+
+  const [errors, setErrors] = useState({});
+
+  // 暫存更新的value
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleFileChange = (file) => {
+    setFormData({
+      ...formData,
+      file: file,
+    });
+  };
+
+  const handleCreateClick = async () => {
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("type", formData.type);
+      formDataToSend.append("file", formData.file); // 确保文件被正确添加
+      formDataToSend.append("extension", formData.extension);
+      formDataToSend.append("f_model_uid", formData.f_model_uid);
+
+      const response = await getAPI("Zd1B3anLLSb2f59h", formDataToSend);
+
+      if (response.ok) {
+        onClose();
+      } else {
+        throw new Error("Failed to upload file.");
+      }
+    } catch (error) {
+      console.error("File upload failed:", error);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
+        <h2 className="text-2xl font-bold mb-4">Upload Model</h2>
+        <ModalInput
+          label="Inference Template Name"
+          name="name"
+          value={formData.name}
+          onChange={handleInputChange}
+          error={errors.name}
+        />
+        <FileInput
+          label="Pipeline File"
+          onChange={handleFileChange} // 获取文件
+          accept=".zip"
+          error={errors.file}
+        />
+        <ModalInput
+          label="Inference Template Description"
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
+          error={errors.description}
+        />
+        <ModalInput
+          label="Model Publish"
+          name="extension"
+          value="zip"
+          readOnly
+        />
+        <div className="flex justify-between">
+          <button
+            onClick={handleCreateClick}
+            className="bg-green-700 text-white px-4 py-2 rounded-md font-bold"
+          >
+            Upload
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-blue-700 text-white px-4 py-2 rounded-md font-bold"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };

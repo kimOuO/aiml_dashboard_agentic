@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { EditModal, DeleteModal } from "./modelModal";
+import { EditModal, DeleteModal, UploadModal } from "./modelModal";
+
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { HandlePublishToggle } from "./service";
@@ -10,6 +11,7 @@ export const ModelCard = React.memo(
   ({ model, onEdit, onDelete, applicationName }) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false); // 控制 UploadModal 顯示的狀態
     const [isPublish, setIsPublish] = useState(model.status === "publish");
 
     const { toast } = useToast();
@@ -39,13 +41,13 @@ export const ModelCard = React.memo(
             <span className="text-xl">Status changed successfully !</span>
           ),
           variant: "success",
-          duration: 1500, // 顯示三秒
+          duration: 1500,
         });
       } else {
         toast({
           description: <span className="text-xl">Model publishing failed</span>,
           variant: "destructive",
-          duration: 1500, // 顯示三秒
+          duration: 1500,
         });
       }
     };
@@ -54,6 +56,16 @@ export const ModelCard = React.memo(
       const { downloadFile } = HandleDownloadFile(model);
       await downloadFile();
     };
+
+    const handleFolderClick = () => {
+      setIsUploadModalOpen(true); // 顯示 UploadModal
+    };
+
+    const handleCloseUploadModal = () => {
+      setIsUploadModalOpen(false); // 關閉 UploadModal
+    };
+
+    const handleUpload = async (file) => {};
 
     return (
       <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer">
@@ -72,8 +84,8 @@ export const ModelCard = React.memo(
           <button onClick={handleDeleteClick}>
             <img src="/project/delete.svg" alt="Delete" />
           </button>
-          <button>
-            <img src="/project/folder.svg" alt="folder"/>
+          <button onClick={handleFolderClick}>
+            <img src="/project/folder.svg" alt="Folder" />
           </button>
           <div className="flex items-center space-x-1">
             <Switch checked={isPublish} onCheckedChange={handlePublishToggle} />
@@ -100,6 +112,9 @@ export const ModelCard = React.memo(
             onClose={handleCloseDeleteModal}
             onDelete={onDelete}
           />
+        )}
+        {isUploadModalOpen && (
+          <UploadModal modelUID={model.uid} onClose={handleCloseUploadModal} />
         )}
       </div>
     );

@@ -45,15 +45,16 @@ export default function ApplicationPage() {
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {applications.map((application) => (
-              <ApplicationCard
-                projectName={agentNameDecode}
-                key={application.uid}
-                application={application}
-                onEdit={triggerFetch}
-                onDelete={triggerFetch}
-              />
-            ))}
+            {applications &&
+              applications.map((application) => (
+                <ApplicationCard
+                  projectName={agentNameDecode}
+                  key={application.uid}
+                  application={application}
+                  onEdit={triggerFetch}
+                  onDelete={triggerFetch}
+                />
+              ))}
           </div>
         )}
       </div>
