@@ -22,10 +22,12 @@ const AgentCard = ({ agent, onEdit, onDelete, organization }) => {
   const handleCloseDeleteModal = () => {
     setIsDeleteModalOpen(false);
   };
-
+  const handleCardClick = () => {
+    router.push(`/agents/${agent.name}/link_application?agentUID=${agent.uid}`);
+  };
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
-      <div>
+      <div onClick={handleCardClick} className="cursor-pointer">
         <h2 className="text-xl font-semibold p-1">{agent.name}</h2>
         <p className="text-gray-500">{agent.description}</p>
         <p className="text-gray-500">{agent.created_time}</p>

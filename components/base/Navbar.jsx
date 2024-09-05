@@ -21,9 +21,8 @@ const Navbar = () => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       // Check if window is defined to ensure it's client-side
-      if (organizationUID_origin) {
-        setOrganizationUID(localStorage.getItem("organizationUID")); // Replace with actual key
-      }
+
+      setOrganizationUID(localStorage.getItem("organizationUID")); // Replace with actual key
     }
   }, [searchParams]);
   return (
