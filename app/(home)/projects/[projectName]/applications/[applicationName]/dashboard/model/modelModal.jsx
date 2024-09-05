@@ -5,8 +5,13 @@ import {
   ValidateForm,
   FileInput,
 } from "@/app/modalComponent";
-import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
-import { getAPI } from "@/app/api/entrypoint";
+import {
+  HandleDelete,
+  HandleUpdate,
+  HandleCreate,
+  HandleUpload,
+} from "./service";
+
 export const CreateModal = ({
   applicationUID,
   applicationName,
@@ -51,7 +56,6 @@ export const CreateModal = ({
       "model_output_format",
       "file",
     ];
-    console.log(formData);
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -185,6 +189,12 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
           value={formData.description}
           onChange={handleInputChange}
         />
+        <ModalInput
+          label="Status"
+          name="status"
+          value={model.status}
+          readOnly
+        />
         <ModalInput label="Created Time" value={model.created_time} readOnly />
         <div className="flex justify-between">
           <button
@@ -217,7 +227,7 @@ export const DeleteModal = ({ model, onClose, onDelete }) => {
   );
 };
 
-export const UploadModal = ({ modelUID, onClose }) => {
+export const UploadModal = ({ modelUID, onClose, onUpload }) => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -245,32 +255,20 @@ export const UploadModal = ({ modelUID, onClose }) => {
     });
   };
 
-  const handleCreateClick = async () => {
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("name", formData.name);
-      formDataToSend.append("description", formData.description);
-      formDataToSend.append("type", formData.type);
-      formDataToSend.append("file", formData.file); // 确保文件被正确添加
-      formDataToSend.append("extension", formData.extension);
-      formDataToSend.append("f_model_uid", formData.f_model_uid);
+  const handleCreateClick = () => {
+    const fieldsToValidate = ["name", "file"];
+    const validationErrors = ValidateForm(formData, fieldsToValidate);
+    setErrors(validationErrors);
 
-      const response = await getAPI("Zd1B3anLLSb2f59h", formDataToSend);
-
-      if (response.ok) {
-        onClose();
-      } else {
-        throw new Error("Failed to upload file.");
-      }
-    } catch (error) {
-      console.error("File upload failed:", error);
+    if (Object.keys(validationErrors).length === 0) {
+      HandleUpload(formData, onUpload, onClose);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Upload Model</h2>
+        <h2 className="text-2xl font-bold mb-4">Upload Inference</h2>
         <ModalInput
           label="Inference Template Name"
           name="name"
@@ -279,8 +277,8 @@ export const UploadModal = ({ modelUID, onClose }) => {
           error={errors.name}
         />
         <FileInput
-          label="Pipeline File"
-          onChange={handleFileChange} // 获取文件
+          label="Inference File"
+          onChange={handleFileChange}
           accept=".zip"
           error={errors.file}
         />
@@ -292,7 +290,7 @@ export const UploadModal = ({ modelUID, onClose }) => {
           error={errors.description}
         />
         <ModalInput
-          label="Model Publish"
+          label="Inference Extension"
           name="extension"
           value="zip"
           readOnly

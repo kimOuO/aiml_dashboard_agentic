@@ -182,3 +182,37 @@ export const ValidateForm = (formData, fieldsToValidate) => {
 
   return errors;
 };
+
+//下拉式選單
+export const SelectDropdown = ({
+  label,
+  name,
+  value,
+  options,
+  onChange,
+  error,
+}) => (
+  <div className="mb-4">
+    <label className="block text-gray-700 text-sm font-bold mb-2">
+      {label}
+    </label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      className={`w-full py-2 px-3 text-gray-700 leading-tight shadow appearance-none border rounded focus:outline-none focus:shadow-outline border-blue-500`}
+    >
+      <option value="" disabled>
+        Select ➜
+      </option>
+      {options.map((option) => (
+        <option key={option.uid} value={option.uid}>
+          {option.name}
+        </option>
+      ))}
+    </select>
+    {error && <p className="text-red-600 mt-1">{error}</p>}
+  </div>
+);
+
+export default SelectDropdown;

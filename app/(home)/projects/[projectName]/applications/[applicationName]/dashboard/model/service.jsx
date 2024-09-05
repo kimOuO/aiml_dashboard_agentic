@@ -67,7 +67,7 @@ export const useUpdateModel = (formData) => {
   return { updateModel };
 };
 
-//刪除model
+//刪除modal
 export const useDeleteModel = (modelUID) => {
   const deleteModel = async () => {
     if (modelUID) {
@@ -82,6 +82,30 @@ export const useDeleteModel = (modelUID) => {
     }
   };
   return { deleteModel };
+};
+
+//上傳inference modal
+export const useUploadInferenceModal = () => {
+  const uploadInference = async (formData) => {
+    if (formData) {
+      const response = await getAPI("Zd1B3anLLSb2f59h", formData, true);
+      if (response.status === 200) {
+        return response.data;
+      } else if (response && response instanceof Error) {
+        console.error("Error upload inference file:", response.data);
+      }
+    }
+  };
+  return { uploadInference };
+};
+
+export const HandleUpload = async (formData, onUpload, onClose) => {
+  const { uploadInference } = useUploadInferenceModal();
+  const response = await uploadInference(formData);
+  if (response && !(response instanceof Error)) {
+    onUpload();
+    onClose();
+  }
 };
 
 export const HandleUpdate = async (formData, onEdit, onClose) => {

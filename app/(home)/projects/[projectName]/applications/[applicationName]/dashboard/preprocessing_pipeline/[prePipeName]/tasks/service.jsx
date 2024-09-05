@@ -36,20 +36,26 @@ export const useFetchTask = (pipelineUID) => {
   };
 };
 
-export const useFetchTaskFile = () => {
-  const fetchTaskFile = async (pipelineUID) => {
-    if (pipelineUID) {
-      //Preparer/preprocessing
-      const data={pipeline_uid:pipelineUID}
-      const response = await getAPI("oNjkVj60RqS8DQTX", data);
-      if (response.status === 200) {
-        return response.data.data
-      } else if (response && response instanceof Error) {
-        console.error("Error fetch task file:", response.data);
+export const useFetchTaskFile = (pipelineUID) => {
+  const [taskFile, setTaskFile] = useState(null);
+
+  useEffect(() => {
+    const fetchTaskFile = async () => {
+      if (pipelineUID) {
+        // Preparer/preprocessing
+        const data = { pipeline_uid: pipelineUID };
+        const response = await getAPI("oNjkVj60RqS8DQTX", data);
+        if (response.status === 200) {
+          setTaskFile(response.data.data);
+        } else {
+          setError("Failed to fetch task file");
+        }
       }
-    }
-  };
-  return {fetchTaskFile};
+    };
+    fetchTaskFile();
+  }, [pipelineUID]);
+
+  return { taskFile };
 };
 
 //創建task
