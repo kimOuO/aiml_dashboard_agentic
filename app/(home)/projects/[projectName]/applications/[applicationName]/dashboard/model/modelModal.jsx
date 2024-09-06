@@ -25,7 +25,7 @@ export const CreateModal = ({
     model_input_format: "",
     model_output_format: "",
     source: "",
-    status: "Unpublish",
+    status: "can't publish",
     f_application_uid: applicationUID,
     file: null,
     extension: "zip",

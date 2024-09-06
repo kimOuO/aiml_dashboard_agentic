@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { HandleCreate } from "../../../preprocessing_pipeline/[prePipeName]/tasks/service";
+import { HandleCreate } from "./service";
 import { ModalInput, ValidateForm, SelectDropdown } from "@/app/modalComponent";
 import {
   Accordion,
@@ -13,6 +13,7 @@ export const CreateModal = ({
   pipelineName,
   onCreate,
   onClose,
+  taskFile
 }) => {
   const [formData, setFormData] = useState({
     access_key: "",

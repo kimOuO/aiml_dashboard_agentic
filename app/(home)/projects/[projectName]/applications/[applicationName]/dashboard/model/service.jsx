@@ -88,6 +88,7 @@ export const useDeleteModel = (modelUID) => {
 export const useUploadInferenceModal = () => {
   const uploadInference = async (formData) => {
     if (formData) {
+      //InferenceMetadataWriter/create
       const response = await getAPI("Zd1B3anLLSb2f59h", formData, true);
       if (response.status === 200) {
         return response.data;
