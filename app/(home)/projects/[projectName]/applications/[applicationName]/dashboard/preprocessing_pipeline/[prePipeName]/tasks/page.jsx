@@ -100,6 +100,7 @@ export default function PreprocessingTaskPage() {
                 pipelineName={prePipeNameDecode}
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}
+                type="preprocessing"
               />
             ))}
           </div>

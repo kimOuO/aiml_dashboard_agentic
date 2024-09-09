@@ -92,7 +92,7 @@ export const useDeleteAgent = (agentUID) => {
     if (agentUID) {
       //AgentTopicManager/delete
       const data = { agent_uid: agentUID };
-      const response = await getAPI("pWS6eH3ZKgYytsre", data);
+      const response = await getAPI("wneZ8lVKrcf70ttU", data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {

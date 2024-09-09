@@ -151,17 +151,25 @@ export const HandleDelete = async (taskUID, onDelete, onClose) => {
   const { deleteTask } = useDeleteTask(taskUID);
   const { deleteTaskWorker } = useDeleteTaskWorker(taskUID);
 
-  const response = await deleteTask();
-  if (response && !(response instanceof Error)) {
-    //如果metadata刪除成功，呼叫deleteTaskWorker動作
-    const deleteTaskWorkerResponse = await deleteTaskWorker();i
-    if (
-      deleteTaskWorkerResponse &&
-      !(deleteTaskWorkerResponse instanceof Error)
-    ) {
-      onDelete();
-      onClose();
-    }
+  // const response = await deleteTask();
+  // if (response && !(response instanceof Error)) {
+  //   //如果metadata刪除成功，呼叫deleteTaskWorker動作
+  //   const deleteTaskWorkerResponse = await deleteTaskWorker();
+  //   if (
+  //     deleteTaskWorkerResponse &&
+  //     !(deleteTaskWorkerResponse instanceof Error)
+  //   ) {
+  //     onDelete();
+  //     onClose();
+  //   }
+  // }
+  const deleteTaskWorkerResponse = await deleteTaskWorker();
+  if (
+    deleteTaskWorkerResponse &&
+    !(deleteTaskWorkerResponse instanceof Error)
+  ) {
+    onDelete();
+    onClose();
   }
 };
 
@@ -175,16 +183,23 @@ export const HandleCreate = async (formData, onCreate, onClose) => {
     description: formData.task_description,
     f_pipeline_uid: formData.pipeline_uid,
   };
-  const response = await createTask(createTaskData);
-  if (response && !(response instanceof Error)) {
-    // 如果任務創建成功，接著呼叫 runTask 來啟動任務
-    const runTaskResponse = await runTask(formData);
+  // const response = await createTask(createTaskData);
+  // if (response && !(response instanceof Error)) {
+  //   // 如果任務創建成功，接著呼叫 runTask 來啟動任務
+  //   const runTaskResponse = await runTask(formData);
 
-    if (runTaskResponse && !(runTaskResponse instanceof Error)) {
-      // 執行成功後觸發 onCreate 和 onClose
-      onCreate();
-      onClose();
-    }
+  //   if (runTaskResponse && !(runTaskResponse instanceof Error)) {
+  //     // 執行成功後觸發 onCreate 和 onClose
+  //     onCreate();
+  //     onClose();
+  //   }
+  // }
+  const runTaskResponse = await runTask(formData);
+
+  if (runTaskResponse && !(runTaskResponse instanceof Error)) {
+    // 執行成功後觸發 onCreate 和 onClose
+    onCreate();
+    onClose();
   }
 };
 

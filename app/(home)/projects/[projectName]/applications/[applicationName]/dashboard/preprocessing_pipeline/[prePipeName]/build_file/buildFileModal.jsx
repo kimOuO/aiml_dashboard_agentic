@@ -24,15 +24,15 @@ export const CreateModal = ({
 }) => {
   const [formData, setFormData] = useState({
     name1: "",
-    sequence1: "Download",
+    sequence1: "download",
     description1: "",
     file1: null,
     name2: "",
-    sequence2: "Running",
+    sequence2: "running",
     description2: "",
     file2: null,
     name3: "",
-    sequence3: "Upload",
+    sequence3: "upload",
     description3: "",
     file3: null,
     f_pipeline_uid: pipelineUID,

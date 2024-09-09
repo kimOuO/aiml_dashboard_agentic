@@ -47,14 +47,14 @@ export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
         <ModalInput label="Project Name" value={projectName} readOnly />
         <ModalInput
           label="Name"
-          name="name"
+          name="application_name"
           value={formData.application_name}
           onChange={handleInputChange}
           error={errors.application_name}
         />
         <ModalInput
           label="Description"
-          name="description"
+          name="application_description"
           value={formData.application_description}
           onChange={handleInputChange}
           error={errors.application_description}
@@ -106,13 +106,13 @@ export const EditModal = ({ application, onClose, onEdit, projectName }) => {
         <ModalInput label="UID" value={formData.application_uid} readOnly />
         <ModalInput
           label="Name"
-          name="name"
+          name="application_name"
           value={formData.application_name}
           onChange={handleInputChange}
         />
         <ModalInput
           label="Description"
-          name="description"
+          name="application_description"
           value={formData.application_description}
           onChange={handleInputChange}
         />

@@ -26,9 +26,7 @@ export const CreateModal = ({
     task_name: "",
     task_description: "",
     pipeline_uid: pipelineUID,
-    //original_dataset給他對應的dataset
     dataset_uid: "",
-    //type可以選project application
     type: "",
     config_uid: "",
     image_uid: {
@@ -40,6 +38,7 @@ export const CreateModal = ({
     dataset_description: "zip",
     dataset_type: "",
     dataset_file_extension: "zip",
+    foreignkey_uid: "", // 新增 foreignkey_uid
   });
 
   const [errors, setErrors] = useState({});
@@ -48,8 +47,15 @@ export const CreateModal = ({
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    if (name.includes("image_uid")) {
-      //更新嵌套字串
+    if (name === "type") {
+      // 當 type 改變時，清空 dataset_uid 和 foreignkey_uid
+      setFormData({
+        ...formData,
+        type: value,
+        dataset_uid: "", // 清空 dataset_uid
+        foreignkey_uid: "", // 清空 foreignkey_uid
+      });
+    } else if (name.includes("image_uid")) {
       const key = name.split(".")[1];
       setFormData({
         ...formData,
@@ -58,8 +64,22 @@ export const CreateModal = ({
           [key]: value,
         },
       });
+    } else if (name === "dataset_uid") {
+      const selectedDataset = getOriginalDatasetOptions().find(
+        (dataset) => dataset.uid === value
+      );
+
+      const foreignkey =
+        formData.type === "project"
+          ? selectedDataset?.f_project_uid
+          : selectedDataset?.f_application_uid;
+
+      setFormData({
+        ...formData,
+        [name]: value,
+        foreignkey_uid: foreignkey || "", // 設定 foreignkey_uid
+      });
     } else {
-      //更新非嵌套字串
       setFormData({
         ...formData,
         [name]: value,
@@ -99,7 +119,6 @@ export const CreateModal = ({
       HandleCreate(formData, onCreate, onClose);
     }
   };
-
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
@@ -223,12 +242,14 @@ export const CreateModal = ({
             <AccordionContent>
               <ModalInput
                 label="Preprocessing Task Name"
+                name="task_name"
                 value={formData.task_name}
                 onChange={handleInputChange}
                 error={errors.task_name}
               />
               <ModalInput
                 label="Preprocessing Task Description"
+                name="task_description"
                 value={formData.task_description}
                 onChange={handleInputChange}
                 error={errors.task_description}

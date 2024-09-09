@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchTask } from "../../../preprocessing_pipeline/[prePipeName]/tasks/service";
 import { HandleLinkClick, useFetchTaskFile } from "./service";
-import { TaskCard } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskCard";
+import { TaskCard } from "../../../training_pipeline/[trainPipeName]/tasks/taskCard";
 import { CreateModal } from "./taskModal";
 
 export default function TrainingTaskPage() {
