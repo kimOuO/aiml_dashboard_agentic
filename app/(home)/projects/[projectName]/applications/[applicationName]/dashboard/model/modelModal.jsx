@@ -130,12 +130,11 @@ export const CreateModal = ({
 
 export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
   const [formData, setFormData] = useState({
-    uid: model.uid,
-    name: model.name,
-    description: model.description,
+    model_uid: model.uid,
+    model_name: model.name,
+    model_description: model.description,
     model_input_format: model.model_input_format,
-    model_output_format: model.model_output_format,
-    status: model.status,
+    model_output_format: model.model_output_format
   });
 
   //暫存更新的value
@@ -188,12 +187,6 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
           name="description"
           value={formData.description}
           onChange={handleInputChange}
-        />
-        <ModalInput
-          label="Status"
-          name="status"
-          value={model.status}
-          readOnly
         />
         <ModalInput label="Created Time" value={model.created_time} readOnly />
         <div className="flex justify-between">

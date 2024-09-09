@@ -15,8 +15,6 @@ export const useFetchTaskFile = (pipelineUID) => {
         const response = await getAPI("ur2rcOusIa91PFX5", data);
         if (response.status === 200) {
           setTaskFile(response.data.data);
-        } else {
-          setError("Failed to fetch task file");
         }
       }
     };

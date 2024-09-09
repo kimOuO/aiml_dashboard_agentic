@@ -9,8 +9,8 @@ import { format } from "date-fns";
 
 export const CreateModal = ({ organization, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
+    agent_name: "",
+    agent_description: "",
     f_organization_uid: organization.uid,
   });
 
@@ -26,7 +26,7 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
   };
 
   const handleCreateClick = () => {
-    const fieldsToValidate = ["name"];
+    const fieldsToValidate = ["agent_name"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -52,16 +52,15 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
         <ModalInput
           label="Name"
           name="name"
-          value={formData.name}
+          value={formData.agent_name}
           onChange={handleInputChange}
           error={errors.name}
         />
         <ModalInput
           label="Description"
           name="description"
-          value={formData.description}
+          value={formData.agent_description}
           onChange={handleInputChange}
-          error={errors.description}
         />
         <div className="flex justify-between">
           <button

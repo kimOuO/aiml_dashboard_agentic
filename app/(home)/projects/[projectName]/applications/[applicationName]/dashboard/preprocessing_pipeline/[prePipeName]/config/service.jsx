@@ -148,12 +148,6 @@ export const HandleLinkClick = (
     );
   };
 
-  const handleTrainingPipelineClick = () => {
-    router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/training_pipeline?applicationUID=${applicationUID}`
-    );
-  };
-
   const handleBuildFileClick = () => {
     router.push(
       `/projects/${projectName}/applications/${applicationName}/dashboard/preprocessing_pipeline/${prePipeName}/build_file?pipelineUID=${pipelineUID}`
@@ -162,7 +156,6 @@ export const HandleLinkClick = (
 
   return {
     handleTasksClick,
-    handleTrainingPipelineClick,
     handleBuildFileClick,
   };
 };

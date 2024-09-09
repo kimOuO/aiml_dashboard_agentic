@@ -24,7 +24,6 @@ export default function PreprocessingConfigPage() {
 
   const {
     handleTasksClick,
-    handleTrainingPipelineClick,
     handleBuildFileClick,
   } = HandleLinkClick(
     projectNameDecode,
@@ -64,17 +63,6 @@ export default function PreprocessingConfigPage() {
                 onClick={handleTasksClick}
               >
                 <span>Tasks</span>
-                <img
-                  src="/project/external-link.svg"
-                  alt="External Link"
-                  className="w-4 h-4"
-                />
-              </div>
-              <div
-                className="bg-blue-100 text-blue-800 px-1 py-0.5 rounded-md cursor-pointer flex items-center space-x-2 "
-                onClick={handleTrainingPipelineClick}
-              >
-                <span>Training Pipeline</span>
                 <img
                   src="/project/external-link.svg"
                   alt="External Link"

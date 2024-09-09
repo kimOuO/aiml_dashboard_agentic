@@ -55,8 +55,9 @@ export const useCreateModel = () => {
 export const useUpdateModel = (formData) => {
   const updateModel = async () => {
     if (formData) {
-      //ModelMetadataWriter/update
-      const response = await getAPI("3bfcpDzw20XiCGn1", formData);
+      //ModelMessenger/update
+      console.log(formData)
+      const response = await getAPI("siJLKf5He1wksCH2", formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -139,9 +140,9 @@ export const HandleCreate = async (formData, onCreate, onClose) => {
 export const HandlePublishToggle = async (model, originalStatus) => {
   const newStatus = originalStatus ? "unpublish" : "publish";
   const data = {
-    uid: model.uid,
-    name: model.name,
-    description: model.description,
+    model_uid: model.uid,
+    model_name: model.name,
+    model_description: model.description,
     model_input_format: model.model_input_format,
     model_output_format: model.model_output_format,
     status: newStatus,
