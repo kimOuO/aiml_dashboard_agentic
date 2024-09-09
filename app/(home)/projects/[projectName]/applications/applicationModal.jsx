@@ -8,8 +8,8 @@ import {
 
 export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
+    application_name: "",
+    application_description: "",
     f_project_uid: projectUID,
     f_agent_uid: [],
   });
@@ -26,7 +26,7 @@ export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
   };
 
   const handleCreateClick = () => {
-    const fieldsToValidate = ["name"];
+    const fieldsToValidate = ["application_name"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
@@ -48,16 +48,16 @@ export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
         <ModalInput
           label="Name"
           name="name"
-          value={formData.name}
+          value={formData.application_name}
           onChange={handleInputChange}
-          error={errors.name}
+          error={errors.application_name}
         />
         <ModalInput
           label="Description"
           name="description"
-          value={formData.description}
+          value={formData.application_description}
           onChange={handleInputChange}
-          error={errors.description}
+          error={errors.application_description}
         />
         <div className="flex justify-between">
           <button
@@ -80,9 +80,9 @@ export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
 
 export const EditModal = ({ application, onClose, onEdit, projectName }) => {
   const [formData, setFormData] = useState({
-    uid: application.uid,
-    name: application.name,
-    description: application.description,
+    application_uid: application.uid,
+    application_name: application.name,
+    application_description: application.description,
   });
 
   //暫存更新的value
@@ -103,17 +103,17 @@ export const EditModal = ({ application, onClose, onEdit, projectName }) => {
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Application</h2>
         <ModalInput label="Project" value={projectName} readOnly />
-        <ModalInput label="UID" value={formData.uid} readOnly />
+        <ModalInput label="UID" value={formData.application_uid} readOnly />
         <ModalInput
           label="Name"
           name="name"
-          value={formData.name}
+          value={formData.application_name}
           onChange={handleInputChange}
         />
         <ModalInput
           label="Description"
           name="description"
-          value={formData.description}
+          value={formData.application_description}
           onChange={handleInputChange}
         />
         <ModalInput

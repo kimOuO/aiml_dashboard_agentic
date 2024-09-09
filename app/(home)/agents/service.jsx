@@ -58,8 +58,8 @@ export const useFetchOrganization = (organizationUID) => {
 export const useCreateAgent = () => {
   const createAgent = async (formData) => {
     if (formData) {
-      //AgentMetadataWriter/create
-      const response = await getAPI("ogYIkT8m9iMynw4W", formData);
+      //AgentTopicManager/create
+      const response = await getAPI("SwuMUkAwSESxBkUw", formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -90,9 +90,9 @@ export const useUpdateAgent = (formData) => {
 export const useDeleteAgent = (agentUID) => {
   const deleteAgent = async () => {
     if (agentUID) {
-      //AgentMetadataWriter/delete
-      const data = { uid: agentUID };
-      const response = await getAPI(APIKEYS.DELETE_AGENT, data);
+      //AgentTopicManager/delete
+      const data = { agent_uid: agentUID };
+      const response = await getAPI("pWS6eH3ZKgYytsre", data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {

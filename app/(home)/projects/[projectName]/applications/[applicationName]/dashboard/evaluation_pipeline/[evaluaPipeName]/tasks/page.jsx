@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchTask } from "../../../preprocessing_pipeline/[prePipeName]/tasks/service";
-import { HandleLinkClick } from "./service";
+import { HandleLinkClick, useFetchTaskFile } from "./service";
 import { TaskCard } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskCard";
 import { CreateModal } from "./taskModal";
 
@@ -22,6 +22,8 @@ export default function EvaluationTaskPage() {
     isLoading,
     triggerFetch,
   } = useFetchTask(pipelineUID);
+
+  const taskFile = useFetchTaskFile(pipelineUID);
 
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
@@ -111,6 +113,7 @@ export default function EvaluationTaskPage() {
           type="Evaluation"
           onCreate={triggerFetch}
           onClose={handleCloseCreateModal}
+          taskFile={taskFile}
         />
       )}
     </div>

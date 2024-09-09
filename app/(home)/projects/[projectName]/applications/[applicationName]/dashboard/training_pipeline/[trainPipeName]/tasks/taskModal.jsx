@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { HandleCreate } from "../../../preprocessing_pipeline/[prePipeName]/tasks/service";
-import { ModalInput, ValidateForm } from "@/app/modalComponent";
+import { HandleCreate } from "./service";
+import { ModalInput, ValidateForm, SelectDropdown } from "@/app/modalComponent";
 import {
   Accordion,
   AccordionContent,
@@ -13,6 +13,7 @@ export const CreateModal = ({
   pipelineName,
   onCreate,
   onClose,
+  taskFile,
 }) => {
   const [formData, setFormData] = useState({
     access_key: "",
@@ -21,7 +22,7 @@ export const CreateModal = ({
     task_description: "",
     pipeline_uid: pipelineUID,
     dataset_uid: "",
-    type: "Project",
+    type: "",
     config_uid: "",
     image_uid: {
       download_uid: "",
@@ -35,6 +36,7 @@ export const CreateModal = ({
     application_uid: "",
   });
 
+  console.log(formData);
   const [errors, setErrors] = useState({});
 
   //暫存更新的value
@@ -60,6 +62,16 @@ export const CreateModal = ({
     }
   };
 
+  //動態顯示不同的original dataset根據type
+  const getOriginalDatasetOptions = () => {
+    if (formData.type === "application") {
+      return taskFile.taskFile.training_dataset?.application || [];
+    } else if (formData.type === "project") {
+      return taskFile.taskFile?.training_dataset?.project || [];
+    }
+    return [];
+  };
+
   const handleCreateClick = () => {
     const fieldsToValidate = [
       "access_key",
@@ -72,6 +84,7 @@ export const CreateModal = ({
       "model_type",
       "task_name",
       "config_uid",
+      "type",
     ];
 
     const validationErrors = ValidateForm(formData, fieldsToValidate);
@@ -120,37 +133,54 @@ export const CreateModal = ({
                 value={pipelineName}
                 readOnly
               />
-              <ModalInput
+              <SelectDropdown
+                label="Training Task Type"
+                name="type"
+                value={formData.type}
+                options={[
+                  { uid: "application", name: "application" },
+                  { uid: "project", name: "project" },
+                ]}
+                onChange={handleInputChange}
+                error={errors.type}
+              />
+              <SelectDropdown
                 label="Training Dataset Name"
                 name="dataset_uid"
                 value={formData.dataset_uid}
+                options={getOriginalDatasetOptions()} // 根據type顯示動態數據
                 onChange={handleInputChange}
                 error={errors.dataset_uid}
               />
-              <ModalInput
+              <SelectDropdown
                 label="Training Task Config"
+                name="config_uid"
                 value={formData.config_uid}
+                options={taskFile.taskFile.config}
                 onChange={handleInputChange}
                 error={errors.config_uid}
               />
-              <ModalInput
+              <SelectDropdown
                 label="Build File:#1. Download Training Dataset"
                 name="image_uid.download_uid"
                 value={formData.image_uid.download_uid}
+                options={taskFile.taskFile.image.download}
                 onChange={handleInputChange}
                 error={errors.image_uid?.download_uid}
               />
-              <ModalInput
+              <SelectDropdown
                 label="Build File:#2. Training"
                 name="image_uid.running_uid"
                 value={formData.image_uid.running_uid}
+                options={taskFile.taskFile.image.running}
                 onChange={handleInputChange}
                 error={errors.image_uid?.running_uid}
               />
-              <ModalInput
-                label="Build File:#2. Upload Model"
+              <SelectDropdown
+                label="Build File:#3. Upload Training Dataset"
                 name="image_uid.upload_uid"
                 value={formData.image_uid.upload_uid}
+                options={taskFile.taskFile.image.upload}
                 onChange={handleInputChange}
                 error={errors.image_uid?.upload_uid}
               />

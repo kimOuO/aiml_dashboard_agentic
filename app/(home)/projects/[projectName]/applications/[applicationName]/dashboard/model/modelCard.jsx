@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { EditModal, DeleteModal } from "./modelModal";
+import { EditModal, DeleteModal, UploadModal } from "./modelModal";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { HandlePublishToggle } from "./service";
@@ -7,13 +7,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { HandleDownloadFile } from "@/app/downloadFile";
 
 export const ModelCard = React.memo(
-  ({ model, onEdit, onDelete, applicationName }) => {
+  ({ model, onEdit, onDelete, onUpload, applicationName }) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isPublish, setIsPublish] = useState(model.status === "publish");
 
     const { toast } = useToast();
 
+    //Edit modal開啟關閉
     const handleEditClick = () => {
       setIsEditModalOpen(true);
     };
@@ -22,12 +24,28 @@ export const ModelCard = React.memo(
       setIsEditModalOpen(false);
     };
 
+    //delete modal開啟關閉
     const handleDeleteClick = () => {
       setIsDeleteModalOpen(true);
     };
 
     const handleCloseDeleteModal = () => {
       setIsDeleteModalOpen(false);
+    };
+
+    //download file
+    const handleDownloadClick = async () => {
+      const { downloadFile } = HandleDownloadFile(model);
+      await downloadFile();
+    };
+
+    //upload folder modal開啟關閉
+    const handleUploadFolderClick = () => {
+      setIsUploadModalOpen(true);
+    };
+
+    const handleCloseUploadFolderModal = () => {
+      setIsUploadModalOpen(false);
     };
 
     const handlePublishToggle = async () => {
@@ -39,20 +57,15 @@ export const ModelCard = React.memo(
             <span className="text-xl">Status changed successfully !</span>
           ),
           variant: "success",
-          duration: 1500, // 顯示三秒
+          duration: 1500,
         });
       } else {
         toast({
           description: <span className="text-xl">Model publishing failed</span>,
           variant: "destructive",
-          duration: 1500, // 顯示三秒
+          duration: 1500,
         });
       }
-    };
-
-    const handleDownloadClick = async () => {
-      const { downloadFile } = HandleDownloadFile(model);
-      await downloadFile();
     };
 
     return (
@@ -72,15 +85,26 @@ export const ModelCard = React.memo(
           <button onClick={handleDeleteClick}>
             <img src="/project/delete.svg" alt="Delete" />
           </button>
-          <button>
-            <img src="/project/folder.svg" alt="folder"/>
+          <button onClick={handleUploadFolderClick}>
+            <img src="/project/folder.svg" alt="Folder" />
           </button>
-          <div className="flex items-center space-x-1">
-            <Switch checked={isPublish} onCheckedChange={handlePublishToggle} />
-            <Label className="text-lg" htmlFor="publish">
-              Publish
-            </Label>
-          </div>
+          {model.status === "can't publish" ? (
+            <div className="flex items-center space-x-1">
+              <Label className="text-red-500 text-lg" htmlFor="publish">
+                Can't Publish
+              </Label>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-1">
+              <Switch
+                checked={isPublish}
+                onCheckedChange={handlePublishToggle}
+              />
+              <Label className="text-lg" htmlFor="publish">
+                Publish
+              </Label>
+            </div>
+          )}
           <div className="flex flex-col items-center space-y-1 bg-gray-200 p-2 rounded">
             <div>Performance</div>
             <div className="font-bold text-xl">{model.accuracy}</div>
@@ -99,6 +123,13 @@ export const ModelCard = React.memo(
             model={model}
             onClose={handleCloseDeleteModal}
             onDelete={onDelete}
+          />
+        )}
+        {isUploadModalOpen && (
+          <UploadModal
+            modelUID={model.uid}
+            onClose={handleCloseUploadFolderModal}
+            onUpload={onUpload}
           />
         )}
       </div>

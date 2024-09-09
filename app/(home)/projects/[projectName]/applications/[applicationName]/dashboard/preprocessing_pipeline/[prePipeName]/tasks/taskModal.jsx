@@ -4,6 +4,7 @@ import {
   ModalInput,
   BaseDeleteModal,
   ValidateForm,
+  SelectDropdown,
 } from "@/app/modalComponent";
 import {
   Accordion,
@@ -17,7 +18,7 @@ export const CreateModal = ({
   pipelineName,
   onCreate,
   onClose,
-  taskFile
+  taskFile,
 }) => {
   const [formData, setFormData] = useState({
     access_key: "",
@@ -25,8 +26,10 @@ export const CreateModal = ({
     task_name: "",
     task_description: "",
     pipeline_uid: pipelineUID,
+    //original_dataset給他對應的dataset
     dataset_uid: "",
-    type: "Project",
+    //type可以選project application
+    type: "",
     config_uid: "",
     image_uid: {
       download_uid: "",
@@ -37,7 +40,6 @@ export const CreateModal = ({
     dataset_description: "zip",
     dataset_type: "",
     dataset_file_extension: "zip",
-    foreignkey_uid: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -65,6 +67,16 @@ export const CreateModal = ({
     }
   };
 
+  //動態顯示不同的original dataset根據type
+  const getOriginalDatasetOptions = () => {
+    if (formData.type === "application") {
+      return taskFile.taskFile.original_dataset?.application || [];
+    } else if (formData.type === "project") {
+      return taskFile.taskFile?.original_dataset?.project || [];
+    }
+    return [];
+  };
+
   const handleCreateClick = () => {
     const fieldsToValidate = [
       "access_key",
@@ -76,6 +88,7 @@ export const CreateModal = ({
       "dataset_name",
       "task_name",
       "config_uid",
+      "type",
     ];
 
     const validationErrors = ValidateForm(formData, fieldsToValidate);
@@ -124,47 +137,54 @@ export const CreateModal = ({
                 value={pipelineName}
                 readOnly
               />
-              <ModalInput
+              <SelectDropdown
+                label="Preprocessing Task Type"
+                name="type"
+                value={formData.type}
+                options={[
+                  { uid: "application", name: "application" },
+                  { uid: "project", name: "project" },
+                ]}
+                onChange={handleInputChange}
+                error={errors.type}
+              />
+              <SelectDropdown
                 label="Original Dataset Name"
                 name="dataset_uid"
                 value={formData.dataset_uid}
+                options={getOriginalDatasetOptions()} // 根據type顯示動態數據
                 onChange={handleInputChange}
                 error={errors.dataset_uid}
               />
-               {/* 下拉選單用於選擇 config_uid */}
-              {/* <label htmlFor="config_uid">Preprocessing Task Conig</label>
-              <select
+              <SelectDropdown
+                label="Preprocessing Task Config"
                 name="config_uid"
                 value={formData.config_uid}
+                options={taskFile.taskFile.config}
                 onChange={handleInputChange}
-                className="w-full border-gray-300 rounded-md"
-              >
-                <option value="">Select Config</option>
-                {taskFile.config.map((config) => (
-                  <option key={config.uid} value={config.uid}>
-                    {config.name}
-                  </option>
-                ))}
-              </select>
-              {errors.config_uid && <p className="text-red-600">{errors.config_uid}</p>} */}
-              <ModalInput
+                error={errors.config_uid}
+              />
+              <SelectDropdown
                 label="Build File:#1. Download Original Dataset"
                 name="image_uid.download_uid"
                 value={formData.image_uid.download_uid}
+                options={taskFile.taskFile.image.download}
                 onChange={handleInputChange}
                 error={errors.image_uid?.download_uid}
               />
-              <ModalInput
+              <SelectDropdown
                 label="Build File:#2. Preprocessing"
                 name="image_uid.running_uid"
                 value={formData.image_uid.running_uid}
+                options={taskFile.taskFile.image.running}
                 onChange={handleInputChange}
                 error={errors.image_uid?.running_uid}
               />
-              <ModalInput
-                label="Build File:#2. Upload Training Dataset"
+              <SelectDropdown
+                label="Build File:#3. Upload Training Dataset"
                 name="image_uid.upload_uid"
                 value={formData.image_uid.upload_uid}
+                options={taskFile.taskFile.image.upload}
                 onChange={handleInputChange}
                 error={errors.image_uid?.upload_uid}
               />

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
 export default function LinkApplicationCard({
+  agentUID,
   projectName,
   application,
   onEdit,
@@ -29,6 +30,7 @@ export default function LinkApplicationCard({
   const handleConfirmToggle = async () => {
     setIsLinkApplicationModalOpen(false); // 關閉 Modal
     const response = await HandlePublishToggle(application.uid, isPublish);
+    console.log(response);
     if (response) {
       setIsPublish(!isPublish); // 更新本地狀態
     } else {

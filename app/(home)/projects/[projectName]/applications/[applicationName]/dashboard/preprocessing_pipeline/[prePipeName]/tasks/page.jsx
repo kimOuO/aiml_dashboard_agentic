@@ -22,8 +22,7 @@ export default function PreprocessingTaskPage() {
     triggerFetch,
   } = useFetchTask(pipelineUID);
 
-  const {fetchTaskFile} = useFetchTaskFile();
-  const taskFile = fetchTaskFile(pipelineUID)
+  const taskFile = useFetchTaskFile(pipelineUID);
 
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,

@@ -87,6 +87,7 @@ export default function ModelPage() {
                 applicationName={applicationNameDecode}
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}
+                onUpload={triggerFetch}
               />
             ))}
           </div>

@@ -37,12 +37,11 @@ export const useFetchApplications = (projectUID) => {
 };
 
 //更新application
-//尚未測試成功
 export const useUpdateApplication = (formData) => {
   const updateApplication = async () => {
     if (formData) {
-      //ApplicationMetadataWriter/update
-      const response = await getAPI("I5saSl6jjFMJJqKr", formData);
+      //ApplicationMessenger/update
+      const response = await getAPI("OjlrjuAeA5HOkGqT", formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -57,9 +56,9 @@ export const useUpdateApplication = (formData) => {
 export const useDeleteApplication = (applicationUID) => {
   const deleteApplication = async () => {
     if (applicationUID) {
-      //ApplicationMetadataWriter/delete
-      const data = { uid: applicationUID };
-      const response = await getAPI("z1gRhCXJskWRpxG1", data);
+      //ApplicationTopicManager/delete
+      const data = { application_uid: applicationUID };
+      const response = await getAPI("pWS6eH3ZKgYytsre", data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -74,8 +73,8 @@ export const useDeleteApplication = (applicationUID) => {
 export const useCreateApplication = () => {
   const createApplication = async (formData) => {
     if (formData) {
-      //ApplicationMetadataWriter/create
-      const response = await getAPI("ah3Q2A5rTQrER68p", formData);
+      //ApplicationTopicManager/create
+      const response = await getAPI("iGXyNAx4Kp3DrosK", formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {

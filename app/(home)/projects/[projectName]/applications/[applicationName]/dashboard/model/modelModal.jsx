@@ -5,7 +5,12 @@ import {
   ValidateForm,
   FileInput,
 } from "@/app/modalComponent";
-import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
+import {
+  HandleDelete,
+  HandleUpdate,
+  HandleCreate,
+  HandleUpload,
+} from "./service";
 
 export const CreateModal = ({
   applicationUID,
@@ -20,7 +25,7 @@ export const CreateModal = ({
     model_input_format: "",
     model_output_format: "",
     source: "",
-    status: "Unpublish",
+    status: "can't publish",
     f_application_uid: applicationUID,
     file: null,
     extension: "zip",
@@ -125,12 +130,11 @@ export const CreateModal = ({
 
 export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
   const [formData, setFormData] = useState({
-    uid: model.uid,
-    name: model.name,
-    description: model.description,
+    model_uid: model.uid,
+    model_name: model.name,
+    model_description: model.description,
     model_input_format: model.model_input_format,
-    model_output_format: model.model_output_format,
-    status: model.status,
+    model_output_format: model.model_output_format
   });
 
   //暫存更新的value
@@ -213,5 +217,92 @@ export const DeleteModal = ({ model, onClose, onDelete }) => {
       onDelete={onDelete}
       handleDelete={HandleDelete}
     />
+  );
+};
+
+export const UploadModal = ({ modelUID, onClose, onUpload }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    type: "template",
+    file: null,
+    extension: "zip",
+    f_model_uid: modelUID,
+  });
+
+  const [errors, setErrors] = useState({});
+
+  // 暫存更新的value
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleFileChange = (file) => {
+    setFormData({
+      ...formData,
+      file: file,
+    });
+  };
+
+  const handleCreateClick = () => {
+    const fieldsToValidate = ["name", "file"];
+    const validationErrors = ValidateForm(formData, fieldsToValidate);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length === 0) {
+      HandleUpload(formData, onUpload, onClose);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
+        <h2 className="text-2xl font-bold mb-4">Upload Inference</h2>
+        <ModalInput
+          label="Inference Template Name"
+          name="name"
+          value={formData.name}
+          onChange={handleInputChange}
+          error={errors.name}
+        />
+        <FileInput
+          label="Inference File"
+          onChange={handleFileChange}
+          accept=".zip"
+          error={errors.file}
+        />
+        <ModalInput
+          label="Inference Template Description"
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
+          error={errors.description}
+        />
+        <ModalInput
+          label="Inference Extension"
+          name="extension"
+          value="zip"
+          readOnly
+        />
+        <div className="flex justify-between">
+          <button
+            onClick={handleCreateClick}
+            className="bg-green-700 text-white px-4 py-2 rounded-md font-bold"
+          >
+            Upload
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-blue-700 text-white px-4 py-2 rounded-md font-bold"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
