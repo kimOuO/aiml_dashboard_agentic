@@ -32,12 +32,19 @@ export const CreateModal = ({
   };
 
   const handleCreateClick = () => {
-    const fieldsToValidate = ["name", "data"];
-    const validationErrors = ValidateForm(formData, fieldsToValidate);
+    // 檢查並確保 data 是一個物件而不是空字串
+    const updatedFormData = {
+      ...formData,
+      data: formData.data && formData.data.trim() !== "" ? formData.data : {}, // 改為物件而不是 JSON 字串
+    };
+
+    const fieldsToValidate = ["name"];
+    const validationErrors = ValidateForm(updatedFormData, fieldsToValidate);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      HandleCreate(formData, onCreate, onClose);
+      // 使用更新過的 formData 傳遞給 HandleCreate
+      HandleCreate(updatedFormData, onCreate, onClose);
     }
   };
 
