@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LinkApplicationModal } from "./linkapplicationModal"; // 新的 Modal 組件
 import { HandlePublishToggle } from "./service"; // API 處理邏輯
@@ -15,7 +15,16 @@ export default function LinkApplicationCard({
   const router = useRouter();
   const [isLinkApplicationModalOpen, setIsLinkApplicationModalOpen] =
     useState(false);
-  const [isPublish, setIsPublish] = useState(false); // 假設初始化為未連接狀態
+  const [isPublish, setIsPublish] = useState(false); // 默認為未連接狀態
+
+  // 根據 application.link_status 初始化 isPublish
+  useEffect(() => {
+    if (application.link_status === "True") {
+      setIsPublish(true); // 表示已連接
+    } else {
+      setIsPublish(false); // 表示未連接
+    }
+  }, [application.link_status]);
 
   const handleApplicationClick = () => {
     router.push(
@@ -29,11 +38,10 @@ export default function LinkApplicationCard({
 
   const handleConfirmToggle = async () => {
     setIsLinkApplicationModalOpen(false); // 關閉 Modal
-    const response = await HandlePublishToggle(application.uid, isPublish);
+    const response = await HandlePublishToggle(application.uid,agentUID, isPublish);
     console.log(response);
     if (response) {
       setIsPublish(!isPublish); // 更新本地狀態
-    } else {
     }
   };
 

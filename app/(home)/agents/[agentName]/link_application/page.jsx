@@ -48,7 +48,7 @@ export default function ApplicationPage() {
             {applications &&
               applications.map((application) => (
                 <ApplicationCard
-                  projectName={agentNameDecode}
+                  agentUID={agentUID}
                   key={application.uid}
                   application={application}
                   onEdit={triggerFetch}
