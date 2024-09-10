@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { EditModal, DeleteModal } from "./taskModal";
-import { HandleDownloadFile, HandlePrintLog } from "@/app/downloadFile";
+import { HandlePrintLog } from "@/app/downloadFile";
 
 export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -22,11 +22,10 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type }) => {
     setIsDeleteModalOpen(false);
   };
 
+  //
   const handleDownloadClick = async () => {
-    // const {downloadFile} = HandleDownloadFile(task)
-    // await downloadFile()
     console.log(type);
-    const { PrintLog } = HandlePrintLog(task, type);
+    const { PrintLog } = HandlePrintLog({ task, type });
     await PrintLog();
   };
 
@@ -148,7 +147,7 @@ const TaskStatus = ({ status }) => {
       dotColor = "text-purple-500";
       text = "Pending";
       break;
-    case "Running":
+    case "running":
       bgColor = "bg-green-100";
       textColor = "text-green-800";
       dotColor = "text-green-500";

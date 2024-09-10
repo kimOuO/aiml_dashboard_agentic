@@ -28,15 +28,6 @@ export const ModalInput = ({
   </div>
 );
 
-ModalInput.propTypes = {
-  label: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
-  name: PropTypes.string,
-  onChange: PropTypes.func,
-  readOnly: PropTypes.bool,
-  error: PropTypes.string,
-};
-
 //通用的DeleteModal Component
 export const BaseDeleteModal = ({
   entity,
@@ -72,17 +63,6 @@ export const BaseDeleteModal = ({
       </div>
     </div>
   );
-};
-
-BaseDeleteModal.propTypes = {
-  entity: PropTypes.shape({
-    uid: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-  }).isRequired,
-  entityName: PropTypes.string.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired,
 };
 
 //通用的FileInput Component
@@ -130,13 +110,6 @@ export const FileInput = ({ label, onChange, accept, error }) => {
       {error && <span className="text-red-500 mt-1">{error}</span>}
     </div>
   );
-};
-
-FileInput.propTypes = {
-  label: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  accept: PropTypes.string,
-  error: PropTypes.string,
 };
 
 //表單驗證
@@ -215,4 +188,3 @@ export const SelectDropdown = ({
   </div>
 );
 
-export default SelectDropdown;

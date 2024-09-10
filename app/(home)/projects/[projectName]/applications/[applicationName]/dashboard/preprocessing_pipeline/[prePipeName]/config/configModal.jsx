@@ -32,17 +32,25 @@ export const CreateModal = ({
   };
 
   const handleCreateClick = () => {
-    // 檢查並確保 data 是一個物件而不是空字串
-    const updatedFormData = {
-      ...formData,
-      data: formData.data && formData.data.trim() !== "" ? formData.data : {}, // 改為物件而不是 JSON 字串
-    };
-
     const fieldsToValidate = ["name"];
-    const validationErrors = ValidateForm(updatedFormData, fieldsToValidate);
+    const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
+      // 在這裡嘗試將 data 轉換為物件
+      let updatedFormData = { ...formData };
+
+      try {
+        updatedFormData.data = JSON.parse(formData.data); // 將 data 字串轉成物件
+      } catch (error) {
+        // 如果解析失敗，可以選擇提示用戶或直接返回，避免繼續執行
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          data: "data field must be in legal json format",
+        }));
+        return;
+      }
+
       // 使用更新過的 formData 傳遞給 HandleCreate
       HandleCreate(updatedFormData, onCreate, onClose);
     }
@@ -102,10 +110,13 @@ export const EditModal = ({ config, onClose, onEdit, pipelineName }) => {
     uid: config.uid,
     name: config.name,
     description: config.description,
-    data: config.data,
+    // 將 data 物件轉換為字串來顯示
+    data: JSON.stringify(config.data, null, 2), // 轉換成格式化的 JSON 字串
   });
 
-  //暫存更新的value
+  const [errors, setErrors] = useState({});
+
+  // 暫存更新的 value
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -115,7 +126,29 @@ export const EditModal = ({ config, onClose, onEdit, pipelineName }) => {
   };
 
   const handleUpdateClick = () => {
-    HandleUpdate(formData, onEdit, onClose);
+    const fieldsToValidate = ["name"]; // 這裡你可以加入需要驗證的其他欄位
+    const validationErrors = ValidateForm(formData, fieldsToValidate); // 執行自定義的驗證函數
+    setErrors(validationErrors);
+
+    // 確認沒有驗證錯誤
+    if (Object.keys(validationErrors).length === 0) {
+      let updatedFormData = { ...formData };
+
+      // 嘗試將 data 欄位轉換為物件
+      try {
+        updatedFormData.data = JSON.parse(formData.data); // 將 data 字串轉成物件
+      } catch (error) {
+        // 如果解析失敗，設置錯誤訊息並停止提交
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          data: "data field must be in legal json format",
+        }));
+        return;
+      }
+
+      // 使用更新過的 formData 傳遞給 HandleUpdate
+      HandleUpdate(updatedFormData, onEdit, onClose);
+    }
   };
 
   return (
@@ -129,6 +162,7 @@ export const EditModal = ({ config, onClose, onEdit, pipelineName }) => {
           name="name"
           value={formData.name}
           onChange={handleInputChange}
+          error={errors.name}
         />
         <ModalInput
           label="Description"
@@ -141,6 +175,7 @@ export const EditModal = ({ config, onClose, onEdit, pipelineName }) => {
           name="data"
           value={formData.data}
           onChange={handleInputChange}
+          error={errors.data}
         />
         <ModalInput label="Created Time" value={config.created_time} readOnly />
         <div className="flex justify-between">

@@ -38,7 +38,6 @@ export const CreateModal = ({
     model_description: "",
     model_type: "default",
     model_file_extension: "zip",
-    application_uid: "",
     model_input_format: "",
     model_output_format: "",
   });

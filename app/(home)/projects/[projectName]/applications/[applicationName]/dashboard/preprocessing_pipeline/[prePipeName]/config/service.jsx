@@ -106,6 +106,7 @@ export const useDeleteConfig = (configUID) => {
 };
 
 export const HandleUpdate = async (formData, onEdit, onClose) => {
+  console.log(formData)
   const { updateConfig } = useUpdateConfig(formData);
   const response = await updateConfig();
   if (response && !(response instanceof Error)) {
@@ -124,6 +125,7 @@ export const HandleDelete = async (configUID, onDelete, onClose) => {
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
+  console.log(formData);
   const { createConfig } = useCreateConfig();
   const response = await createConfig(formData);
   if (response && !(response instanceof Error)) {

@@ -21,13 +21,13 @@ export const CreateModal = ({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    type: "Default",
+    type: "default",
     model_input_format: "",
     model_output_format: "",
-    source: "",
     status: "can't publish",
     f_application_uid: applicationUID,
     file: null,
+    
     extension: "zip",
   });
 
@@ -129,12 +129,14 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
+  console.log(model)
   const [formData, setFormData] = useState({
     model_uid: model.uid,
     model_name: model.name,
     model_description: model.description,
     model_input_format: model.model_input_format,
-    model_output_format: model.model_output_format
+    model_output_format: model.model_output_format,
+    model_status:model.status
   });
 
   //暫存更新的value
@@ -155,11 +157,11 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Model</h2>
         <ModalInput label="Application" value={applicationName} readOnly />
-        <ModalInput label="UID" value={formData.uid} readOnly />
+        <ModalInput label="UID" value={model.uid} readOnly />
         <ModalInput
           label="Name"
-          name="name"
-          value={formData.name}
+          name="model_name"
+          value={formData.model_name}
           onChange={handleInputChange}
         />
         <ModalInput
@@ -184,8 +186,8 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
         <ModalInput label="File Extension" value="zip" readOnly />
         <ModalInput
           label="Description"
-          name="description"
-          value={formData.description}
+          name="model_description"
+          value={formData.model_description}
           onChange={handleInputChange}
         />
         <ModalInput label="Created Time" value={model.created_time} readOnly />

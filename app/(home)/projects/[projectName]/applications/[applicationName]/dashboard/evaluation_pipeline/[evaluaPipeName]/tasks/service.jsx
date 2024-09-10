@@ -24,22 +24,6 @@ export const useFetchTaskFile = (pipelineUID) => {
   return { taskFile };
 };
 
-//創建task
-export const useCreateTask = () => {
-  const createTask = async (createTaskData) => {
-    if (createTaskData) {
-      //TaskMetadataWriter/create
-      const response = await getAPI("Za0lf5Tf5pI3fhMx", createTaskData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating task:", response.data);
-      }
-    }
-  };
-  return { createTask };
-};
-
 //啟動evaluation task
 export const useRunEvaluationTask = () => {
   const runTask = async (formData) => {
@@ -57,25 +41,14 @@ export const useRunEvaluationTask = () => {
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
-  const { createTask } = useCreateTask();
-  const { runTask } = useRunEvaluationTask();
+  const { runTask } = useRunRetrainTask();
 
-  //傳遞到createTask api所需的資料
-  const createTaskData = {
-    name: formData.task_name,
-    description: formData.task_description,
-    f_pipeline_uid: formData.pipeline_uid,
-  };
-  const response = await createTask(createTaskData);
-  if (response && !(response instanceof Error)) {
-    // 如果任務創建成功，接著呼叫 runTask 來啟動任務
-    const runTaskResponse = await runTask(formData);
+  const runTaskResponse = await runTask(formData);
 
-    if (runTaskResponse && !(runTaskResponse instanceof Error)) {
-      // 執行成功後觸發 onCreate 和 onClose
-      onCreate();
-      onClose();
-    }
+  if (runTaskResponse && !(runTaskResponse instanceof Error)) {
+    // 執行成功後觸發 onCreate 和 onClose
+    onCreate();
+    onClose();
   }
 };
 

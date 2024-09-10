@@ -16,6 +16,7 @@ export const HandleDownloadFile = (file) => {
       try {
         // 呼叫 API 獲取文件數據
         const data = { file_path: file_path };
+        //GeneralFileManager/download
         const response = await getAPI("TTiue1sygXrsm0YS", data, false, true);
 
         if (response.status === 200) {
@@ -49,13 +50,15 @@ export const HandleDownloadFile = (file) => {
   return { downloadFile };
 };
 
-export const HandlePrintLog = ({ file, type }) => {
+export const HandlePrintLog = ({ task, type }) => {
+  console.log(task,type)
   const PrintLog = async () => {
-    if (file) {
+    if (task) {
       try {
         // 呼叫 API 獲取文件數據
-        const data = { task_uid: file.uid, type: type };
-        const response = await getAPI("TTiue1sygXrsm0YS", data, false, true);
+        const data = { task_uid: task.uid, type: type };
+        //TaskStatusManager/get_log 
+        const response = await getAPI("bJ7xLmgp4WSWK498", data, false, true);
 
         if (response.status === 200) {
           console.log(response.data.data);

@@ -32,11 +32,10 @@ export const CreateModal = ({
     },
     model_name: "",
     model_description: "",
-    model_type: "",
+    model_type: "agent",
     model_input_format: "",
     model_output_format: "",
     model_file_extension: "zip",
-    application_uid: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -79,16 +78,15 @@ export const CreateModal = ({
       "access_key",
       "secret_key",
       "dataset_uid",
+      "model_uid",
+      "config_uid",
       "image_uid.download_uid",
       "image_uid.running_uid",
       "image_uid.upload_uid",
       "model_name",
-      "model_type",
-      "task_name",
       "model_input_format",
       "model_output_format",
-      "config_uid",
-      "type",
+      "task_name"  
     ];
 
     const validationErrors = ValidateForm(formData, fieldsToValidate);
@@ -208,7 +206,7 @@ export const CreateModal = ({
                 name="model_name"
                 value={formData.model_name}
                 onChange={handleInputChange}
-                error={errors.task_name}
+                error={errors.model_name}
               />
               <ModalInput
                 label="Model Input Format"
@@ -244,12 +242,14 @@ export const CreateModal = ({
             <AccordionContent>
               <ModalInput
                 label="Retrain Task Name"
+                name="task_name"
                 value={formData.task_name}
                 onChange={handleInputChange}
                 error={errors.task_name}
               />
               <ModalInput
                 label="Retrain Task Description"
+                name="task_description"
                 value={formData.task_description}
                 onChange={handleInputChange}
               />
