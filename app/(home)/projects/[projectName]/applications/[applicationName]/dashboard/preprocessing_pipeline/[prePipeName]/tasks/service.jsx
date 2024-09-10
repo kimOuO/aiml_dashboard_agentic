@@ -121,23 +121,6 @@ export const useDeleteTask = (taskUID) => {
   return { deleteTask };
 };
 
-//刪除task的工作
-export const useDeleteTaskWorker = (taskUID) => {
-  const deleteTaskWorker = async () => {
-    if (taskUID) {
-      //TaskWorker/delete
-      const data = { task_uid: taskUID };
-      const response = await getAPI("CNNfUmDpcWXp7vdM", data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting task", response.data);
-      }
-    }
-  };
-  return { deleteTaskWorker };
-};
-
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateTask } = useUpdateTask(formData);
   const response = await updateTask();
@@ -148,13 +131,10 @@ export const HandleUpdate = async (formData, onEdit, onClose) => {
 };
 
 export const HandleDelete = async (taskUID, onDelete, onClose) => {
-  const { deleteTaskWorker } = useDeleteTaskWorker(taskUID);
+  const { deleteTask } = useDeleteTask(taskUID);
 
-  const deleteTaskWorkerResponse = await deleteTaskWorker();
-  if (
-    deleteTaskWorkerResponse &&
-    !(deleteTaskWorkerResponse instanceof Error)
-  ) {
+  const response = await deleteTask();
+  if (response && !(response instanceof Error)) {
     onDelete();
     onClose();
   }
