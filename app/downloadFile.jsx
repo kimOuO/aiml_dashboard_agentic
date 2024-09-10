@@ -48,17 +48,41 @@ export const HandleDownloadFile = (file) => {
   return { downloadFile };
 };
 
-export const HandlePrintLog = ({ task }) => {
+export const HandlePrintLog = ({ task, type }) => {
   const PrintLog = async () => {
     if (task) {
       try {
         // 呼叫 API 獲取文件數據
-        const data = { task_uid: task.uid };
-        //TaskStatusManager/get_log
+        const data = { task_uid: task.uid, type: type };
+        // TaskStatusManager/get_log
         const response = await getAPI("bJ7xLmgp4WSWK498", data, false, true);
 
         if (response.status === 200) {
-          console.log(response.data.data);
+          const blobData = await response.data.text();
+          const jsonData = JSON.parse(blobData);
+          console.log(jsonData)
+
+          // 構建可讀的日誌內容
+          let logContent="";
+
+          Object.keys(jsonData.data).forEach((key) => {
+            logContent += `${key} Log:\n${jsonData.data[key]}\n\n`;
+          });
+          const blob = new Blob([logContent], { type: "text/plain" });
+          const url = window.URL.createObjectURL(blob);
+
+          // 創建一個隱藏的下載連結
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", "log.txt"); // 設置下載文件名稱
+          document.body.appendChild(link);
+
+          // 自動點擊下載
+          link.click();
+
+          // 釋放 URL 物件並移除連結
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(link);
         } else if (response && response instanceof Error) {
           console.error("Error fetching:", response.data);
         }
@@ -70,3 +94,6 @@ export const HandlePrintLog = ({ task }) => {
 
   return { PrintLog };
 };
+
+
+

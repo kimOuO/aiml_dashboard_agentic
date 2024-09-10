@@ -101,8 +101,8 @@ export const useDeleteTaskWorker = ({ taskUID, type }) => {
   const deleteTaskWorker = async () => {
     if (taskUID) {
       //TaskWorker/delete
-      const data = { task_uid: taskUID, type: type };
-      const response = await getAPI("CNNfUmDpcWXp7vdM", data);
+      const data = { uid: taskUID };
+      const response = await getAPI("AoTqlTmu8l47CbMU", data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -130,7 +130,7 @@ export const useUpdateTask = (formData) => {
 };
 
 export const HandleDelete = async (taskUID, onDelete, onClose, type) => {
-  const { deleteTaskWorker } = useDeleteTaskWorker(taskUID, type);
+  const { deleteTaskWorker } = useDeleteTaskWorker({ taskUID, type });
   const deleteTaskWorkerResponse = await deleteTaskWorker();
   if (
     deleteTaskWorkerResponse &&

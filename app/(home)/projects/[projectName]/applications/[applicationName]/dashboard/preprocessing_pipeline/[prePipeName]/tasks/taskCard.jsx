@@ -22,9 +22,9 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type }) => {
     setIsDeleteModalOpen(false);
   };
 
-  //
+  
   const handleDownloadClick = async () => {
-    const { PrintLog } = HandlePrintLog({ task });
+    const { PrintLog } = HandlePrintLog({ task,type });
     await PrintLog();
   };
 

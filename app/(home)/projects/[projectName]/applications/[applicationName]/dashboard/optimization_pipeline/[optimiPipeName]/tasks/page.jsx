@@ -101,6 +101,7 @@ export default function OptimizationTaskPage() {
                 pipelineName={optimiPipeNameDecode}
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}
+                type="retrain"
               />
             ))}
           </div>

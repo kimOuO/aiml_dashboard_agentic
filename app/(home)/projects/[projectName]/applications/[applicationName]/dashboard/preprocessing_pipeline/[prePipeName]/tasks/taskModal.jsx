@@ -35,10 +35,9 @@ export const CreateModal = ({
       upload_uid: "",
     },
     dataset_name: "",
-    dataset_description: "zip",
+    dataset_description: "",
     dataset_type: "",
     dataset_file_extension: "zip",
-    foreignkey_uid: "", // 新增 foreignkey_uid
   });
 
   const [errors, setErrors] = useState({});
@@ -70,7 +69,7 @@ export const CreateModal = ({
       );
 
       const foreignkey =
-        formData.type === "project"
+        formData.type === "Original Dataset"
           ? selectedDataset?.f_project_uid
           : selectedDataset?.f_application_uid;
 
@@ -89,9 +88,9 @@ export const CreateModal = ({
 
   //動態顯示不同的original dataset根據type
   const getOriginalDatasetOptions = () => {
-    if (formData.type === "application") {
+    if (formData.type === "Optimization Dataset") {
       return taskFile.taskFile.original_dataset?.application || [];
-    } else if (formData.type === "project") {
+    } else if (formData.type === "Original Dataset") {
       return taskFile.taskFile?.original_dataset?.project || [];
     }
     return [];
@@ -116,7 +115,23 @@ export const CreateModal = ({
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      HandleCreate(formData, onCreate, onClose);
+      let updatedType = formData.type;
+
+      // 根據 type 動態修改值
+      if (formData.type === "Optimization Dataset") {
+        updatedType = "application";
+      } else if (formData.type === "Original Dataset") {
+        updatedType = "project";
+      }
+
+      // 更新 formData 並呼叫 HandleCreate
+      setFormData({
+        ...formData,
+        type: updatedType,
+      });
+
+      // 確保 type 更新後再進行創建操作
+      HandleCreate({ ...formData, type: updatedType }, onCreate, onClose);
     }
   };
   return (
@@ -161,8 +176,8 @@ export const CreateModal = ({
                 name="type"
                 value={formData.type}
                 options={[
-                  { uid: "application", name: "application" },
-                  { uid: "project", name: "project" },
+                  { uid: "Original Dataset", name: "Original Dataset" },
+                  { uid: "Optimization Dataset", name: "Optimization Dataset" },
                 ]}
                 onChange={handleInputChange}
                 error={errors.type}
@@ -223,7 +238,7 @@ export const CreateModal = ({
               />
               <ModalInput
                 label="Training Dataset File Extension"
-                value={formData.dataset_description}
+                value={formData.dataset_file_extension}
                 readOnly
               />
               <ModalInput
@@ -231,7 +246,6 @@ export const CreateModal = ({
                 name="dataset_description"
                 value={formData.dataset_description}
                 onChange={handleInputChange}
-                error={errors.dataset_name}
               />
             </AccordionContent>
           </AccordionItem>

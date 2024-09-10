@@ -101,6 +101,7 @@ export default function EvaluationTaskPage() {
                 pipelineName={evaluaPipeNameDecode}
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}
+                type="evaluation"
               />
             ))}
           </div>

@@ -27,7 +27,7 @@ export const CreateModal = ({
     task_description: "",
     pipeline_uid: pipelineUID,
     dataset_uid: "",
-    type: "",
+    type: "project",
     config_uid: "",
     image_uid: {
       download_uid: "",
@@ -65,16 +65,6 @@ export const CreateModal = ({
         [name]: value,
       });
     }
-  };
-
-  //動態顯示不同的original dataset根據type
-  const getOriginalDatasetOptions = () => {
-    if (formData.type === "application") {
-      return taskFile.taskFile.training_dataset?.application || [];
-    } else if (formData.type === "project") {
-      return taskFile.taskFile?.training_dataset?.project || [];
-    }
-    return [];
   };
 
   const handleCreateClick = () => {
@@ -139,22 +129,16 @@ export const CreateModal = ({
                 value={pipelineName}
                 readOnly
               />
-              <SelectDropdown
+              <ModalInput
                 label="Training Task Type"
-                name="type"
                 value={formData.type}
-                options={[
-                  { uid: "application", name: "application" },
-                  { uid: "project", name: "project" },
-                ]}
-                onChange={handleInputChange}
-                error={errors.type}
+                readOnly
               />
               <SelectDropdown
                 label="Training Dataset Name"
                 name="dataset_uid"
                 value={formData.dataset_uid}
-                options={getOriginalDatasetOptions()} // 根據type顯示動態數據
+                options={taskFile.taskFile?.training_dataset?.project}
                 onChange={handleInputChange}
                 error={errors.dataset_uid}
               />

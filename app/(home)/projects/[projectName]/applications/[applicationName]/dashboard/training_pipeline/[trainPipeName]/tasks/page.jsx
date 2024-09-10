@@ -101,6 +101,7 @@ export default function TrainingTaskPage() {
                 pipelineName={trainPipeNameDecode}
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}
+                type="training"
               />
             ))}
           </div>
