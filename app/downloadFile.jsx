@@ -9,8 +9,6 @@ export const HandleDownloadFile = (file) => {
     file_path += "." + file.f_file_uid.extension;
   }
 
-  console.log("file path:", file_path);
-
   const downloadFile = async () => {
     if (file_path) {
       try {
@@ -51,7 +49,6 @@ export const HandleDownloadFile = (file) => {
 };
 
 export const HandlePrintLog = ({ task, type }) => {
-  console.log(task,type)
   const PrintLog = async () => {
     if (task) {
       try {

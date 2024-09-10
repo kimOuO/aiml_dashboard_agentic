@@ -56,7 +56,6 @@ export const useUpdateModel = (formData) => {
   const updateModel = async () => {
     if (formData) {
       //ModelMessenger/update
-      console.log(formData)
       const response = await getAPI("siJLKf5He1wksCH2", formData);
       if (response.status === 200) {
         return response.data;

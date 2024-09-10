@@ -39,7 +39,6 @@ export default function LinkApplicationCard({
   const handleConfirmToggle = async () => {
     setIsLinkApplicationModalOpen(false); // 關閉 Modal
     const response = await HandlePublishToggle(application.uid,agentUID, isPublish);
-    console.log(response);
     if (response) {
       setIsPublish(!isPublish); // 更新本地狀態
     }

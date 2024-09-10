@@ -129,7 +129,6 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
-  console.log(model)
   const [formData, setFormData] = useState({
     model_uid: model.uid,
     model_name: model.name,

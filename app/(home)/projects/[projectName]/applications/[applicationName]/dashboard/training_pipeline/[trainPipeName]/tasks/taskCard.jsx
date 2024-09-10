@@ -23,9 +23,6 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type }) => {
   };
 
   const handleDownloadClick = async () => {
-    // const {downloadFile} = HandleDownloadFile(task)
-    // await downloadFile()
-    console.log(type);
     const { PrintLog } = HandlePrintLog(task, type);
     await PrintLog();
   };
