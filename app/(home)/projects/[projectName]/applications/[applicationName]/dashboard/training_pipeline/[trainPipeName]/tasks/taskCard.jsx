@@ -145,7 +145,7 @@ const TaskStatus = ({ status }) => {
       dotColor = "text-purple-500";
       text = "Pending";
       break;
-    case "Running":
+    case "running":
       bgColor = "bg-green-100";
       textColor = "text-green-800";
       dotColor = "text-green-500";
