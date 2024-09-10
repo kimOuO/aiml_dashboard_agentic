@@ -48,13 +48,13 @@ export const HandleDownloadFile = (file) => {
   return { downloadFile };
 };
 
-export const HandlePrintLog = ({ task, type }) => {
+export const HandlePrintLog = ({ task }) => {
   const PrintLog = async () => {
     if (task) {
       try {
         // 呼叫 API 獲取文件數據
-        const data = { task_uid: task.uid, type: type };
-        //TaskStatusManager/get_log 
+        const data = { task_uid: task.uid };
+        //TaskStatusManager/get_log
         const response = await getAPI("bJ7xLmgp4WSWK498", data, false, true);
 
         if (response.status === 200) {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { EditModal, DeleteModal } from "./taskModal";
-import { HandleDownloadFile, HandlePrintLog } from "@/app/downloadFile";
+import { HandlePrintLog } from "@/app/downloadFile";
 
 export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -23,7 +23,7 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type }) => {
   };
 
   const handleDownloadClick = async () => {
-    const { PrintLog } = HandlePrintLog(task, type);
+    const { PrintLog } = HandlePrintLog({task});
     await PrintLog();
   };
 
