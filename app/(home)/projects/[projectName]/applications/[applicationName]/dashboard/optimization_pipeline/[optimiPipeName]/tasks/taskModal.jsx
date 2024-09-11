@@ -23,7 +23,7 @@ export const CreateModal = ({
     pipeline_uid: pipelineUID,
     model_uid: "",
     dataset_uid: "",
-    type: "",
+    type: "application",
     config_uid: "",
     image_uid: {
       download_uid: "",
@@ -65,12 +65,7 @@ export const CreateModal = ({
 
   //動態顯示不同的original dataset根據type
   const getOriginalDatasetOptions = () => {
-    if (formData.type === "application") {
-      return taskFile.taskFile.training_dataset?.application || [];
-    } else if (formData.type === "project") {
-      return taskFile.taskFile?.training_dataset?.project || [];
-    }
-    return [];
+    return taskFile.taskFile.training_dataset?.application || [];
   };
 
   const handleCreateClick = () => {
@@ -135,16 +130,10 @@ export const CreateModal = ({
                 value={pipelineName}
                 readOnly
               />
-              <SelectDropdown
+              <ModalInput
                 label="Retrain Task Type"
-                name="type"
                 value={formData.type}
-                options={[
-                  { uid: "application", name: "application" },
-                  { uid: "project", name: "project" },
-                ]}
-                onChange={handleInputChange}
-                error={errors.type}
+                readOnly
               />
               <SelectDropdown
                 label="Retrain Dataset Name"
