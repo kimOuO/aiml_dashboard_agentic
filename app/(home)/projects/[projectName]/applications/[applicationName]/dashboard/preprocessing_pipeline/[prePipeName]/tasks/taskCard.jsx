@@ -80,6 +80,13 @@ const TaskExecute = ({ execute_step }) => {
   let text = "";
 
   switch (execute_step) {
+    case "generate_file":
+      bgColor = "bg-amber-100";
+      textColor = "text-amber-800";
+      dotColor = "text-amber.3
+      -500";
+      text = "Generate File";
+      break;
     case "prepare_file":
       bgColor = "bg-slate-100";
       textColor = "text-slate-800";
