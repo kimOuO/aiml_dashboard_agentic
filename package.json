@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "load-env": "node load-env.js",
-    "dev": "node load-env.js && next dev -p 40000",
+    "dev": "node load-env.js && next dev -p 40001",
     "build": "next build",
     "start": "node load-env.js && next start",
     "lint": "next lint"
@@ -27,7 +27,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.396.0",
-    "next": "14.0.4",
+    "next": "^14.0.4",
     "react": "^18",
     "react-cookie": "^7.1.4",
     "react-dom": "^18",

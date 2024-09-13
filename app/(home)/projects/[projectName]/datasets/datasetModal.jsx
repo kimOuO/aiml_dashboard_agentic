@@ -72,7 +72,7 @@ export const CreateModal = ({
         />
         <ModalInput label="Type" name="type" value={formData.type} readOnly />
         <FileInput
-          label="Pipeline File"
+          label="Dataset File"
           onChange={handleFileChange}
           accept=".zip"
           error={errors.file}

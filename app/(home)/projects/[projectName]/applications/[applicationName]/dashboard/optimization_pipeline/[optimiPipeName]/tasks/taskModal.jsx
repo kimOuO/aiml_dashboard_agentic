@@ -63,11 +63,6 @@ export const CreateModal = ({
     }
   };
 
-  //動態顯示不同的original dataset根據type
-  const getOriginalDatasetOptions = () => {
-    return taskFile.taskFile.training_dataset?.application || [];
-  };
-
   const handleCreateClick = () => {
     const fieldsToValidate = [
       "access_key",
@@ -139,7 +134,7 @@ export const CreateModal = ({
                 label="Retrain Dataset Name"
                 name="dataset_uid"
                 value={formData.dataset_uid}
-                options={getOriginalDatasetOptions()} // 根據type顯示動態數據
+                options={taskFile.taskFile.training_dataset?.application}
                 onChange={handleInputChange}
                 error={errors.dataset_uid}
               />
@@ -198,6 +193,17 @@ export const CreateModal = ({
                 error={errors.model_name}
               />
               <ModalInput
+                label="Model File Extension"
+                value={formData.model_file_extension}
+                readOnly
+              />
+              <ModalInput
+                label="Model Description"
+                name="model_description"
+                value={formData.model_description}
+                onChange={handleInputChange}
+              />
+              <ModalInput
                 label="Model Input Format"
                 name="model_input_format"
                 value={formData.model_input_format}
@@ -210,17 +216,6 @@ export const CreateModal = ({
                 value={formData.model_output_format}
                 onChange={handleInputChange}
                 error={errors.model_output_format}
-              />
-              <ModalInput
-                label="Model File Extension"
-                value={formData.model_file_extension}
-                readOnly
-              />
-              <ModalInput
-                label="Model Description"
-                name="model_description"
-                value={formData.model_description}
-                onChange={handleInputChange}
               />
             </AccordionContent>
           </AccordionItem>

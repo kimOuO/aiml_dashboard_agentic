@@ -96,7 +96,7 @@ export const CreateModal = ({
           error={errors.model_output_format}
         />
         <FileInput
-          label="Pipeline File"
+          label="Model File"
           onChange={handleFileChange}
           accept=".zip"
           error={errors.file}
@@ -178,7 +178,7 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
         <ModalInput
           label="Version"
           name="version"
-          value={String(formData.version)}
+          value={model.version}
           readOnly
         />
         <ModalInput label="Access Token" value={model.access_token} readOnly />
