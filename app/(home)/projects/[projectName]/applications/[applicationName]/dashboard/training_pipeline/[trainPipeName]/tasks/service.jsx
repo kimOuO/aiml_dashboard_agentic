@@ -4,22 +4,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
 
-//啟動preprocessing task
-export const useRunEvaluationTask = () => {
-  const runTask = async (formData) => {
-    if (formData) {
-      //TaskWorker/preprocessing
-      const response = await getAPI("q8uzMBcM5YJH6dPf", formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error running task:", response.data);
-      }
-    }
-  };
-  return { runTask };
-};
-
 export const useFetchTaskFile = (pipelineUID) => {
   const [taskFile, setTaskFile] = useState(null);
 
@@ -58,14 +42,6 @@ export const useRunTrainingTask = () => {
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { runTask } = useRunTrainingTask();
-
-  //傳遞到createTask api所需的資料
-  const createTaskData = {
-    name: formData.task_name,
-    description: formData.task_description,
-    f_pipeline_uid: formData.pipeline_uid,
-  };
-
   const runTaskResponse = await runTask(formData);
 
   if (runTaskResponse && !(runTaskResponse instanceof Error)) {

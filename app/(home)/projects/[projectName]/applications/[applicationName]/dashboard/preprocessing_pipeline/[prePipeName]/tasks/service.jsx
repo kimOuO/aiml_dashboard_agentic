@@ -56,22 +56,6 @@ export const useFetchTaskFile = (pipelineUID) => {
   return { taskFile };
 };
 
-//創建task
-export const useCreateTask = () => {
-  const createTask = async (createTaskData) => {
-    if (createTaskData) {
-      //TaskMetadataWriter/create
-      const response = await getAPI("Za0lf5Tf5pI3fhMx", createTaskData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating task:", response.data);
-      }
-    }
-  };
-  return { createTask };
-};
-
 //啟動preprocessing task
 export const useRunPreprocessingTask = () => {
   const runTask = async (formData) => {

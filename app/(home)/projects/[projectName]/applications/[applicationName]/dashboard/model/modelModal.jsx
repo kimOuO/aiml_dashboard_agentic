@@ -24,10 +24,9 @@ export const CreateModal = ({
     type: "default",
     model_input_format: "",
     model_output_format: "",
-    status: "can't publish",
+    status: "unavailable",
     f_application_uid: applicationUID,
     file: null,
-    
     extension: "zip",
   });
 
