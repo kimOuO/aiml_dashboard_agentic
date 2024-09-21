@@ -67,11 +67,7 @@ export const useCreateProject = () => {
     if (formData) {
       //ProjectMetadataWriter/create
       const response = await getAPI(APIKEYS.CREATE_PROJECT_METADATA, formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating project:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { createProject };
@@ -83,11 +79,7 @@ export const useUpdateProject = (formData) => {
     if (formData) {
       //ProjectMetadataWriter/update
       const response = await getAPI(APIKEYS.UPDATE_PROJECT_METADATA, formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating project:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { updateProject };
@@ -100,11 +92,7 @@ export const useDeleteProject = (projectUID) => {
       //ProjectMetadataWriter/delete
       const data = { uid: projectUID };
       const response = await getAPI(APIKEYS.DELETE_PROJECT_METADATA, data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting project:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { deleteProject };
@@ -113,26 +101,29 @@ export const useDeleteProject = (projectUID) => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateProject } = useUpdateProject(formData);
   const response = await updateProject();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (projectUID, onDelete, onClose) => {
   const { deleteProject } = useDeleteProject(projectUID);
   const response = await deleteProject();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createProject } = useCreateProject();
   const response = await createProject(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };

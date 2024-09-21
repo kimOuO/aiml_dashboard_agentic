@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "load-env": "node load-env.js",
-    "dev": "node load-env.js && next dev -p 40001",
+    "dev": "node load-env.js && next dev -p 30000",
     "build": "next build",
     "start": "node load-env.js && next start",
     "lint": "next lint"

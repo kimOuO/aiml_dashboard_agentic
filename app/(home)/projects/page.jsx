@@ -8,8 +8,9 @@ import ProjectCard from "./projectCard";
 
 export default function ProjectPage() {
   const searchParams = useSearchParams();
-  const organizationUID = searchParams.get('organizationUID')
-  const { projects, isLoading, triggerFetch } = useFetchProjects(organizationUID);
+  const organizationUID = searchParams.get("organizationUID");
+  const { projects, isLoading, triggerFetch } =
+    useFetchProjects(organizationUID);
   const organization = useFetchOrganization(organizationUID);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
+import { useToast } from "@/components/ui/use-toast";
 
 //通用的ModalInput Component
 export const ModalInput = ({
@@ -36,8 +36,11 @@ export const BaseDeleteModal = ({
   onDelete,
   handleDelete,
 }) => {
-  const handleDeleteClick = () => {
-    handleDelete(entity.uid, onDelete, onClose);
+  const {showToast} = useToastNotification();
+  const handleDeleteClick = async() => {
+    const response = await handleDelete(entity.uid, onDelete, onClose);
+    // 根據 response 顯示對應的 toast
+    showToast(response && response.status === 200);
   };
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
@@ -188,3 +191,29 @@ export const SelectDropdown = ({
   </div>
 );
 
+// 通用的 ToastNotification hook
+export const useToastNotification = () => {
+  const { toast } = useToast();
+  
+  const showToast = (isSuccess) => {
+    if (isSuccess) {
+      toast({
+        description: (
+          <span className="text-xl">Operation successful!</span>
+        ),
+        variant: "success",
+        duration: 1500,
+      });
+    } else {
+      toast({
+        description: (
+          <span className="text-xl">Operation failed!</span>
+        ),
+        variant: "destructive",
+        duration: 1500,
+      });
+    }
+  };
+
+  return { showToast };
+};
