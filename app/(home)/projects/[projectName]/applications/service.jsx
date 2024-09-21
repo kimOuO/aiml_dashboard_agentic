@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchApplications = (projectUID) => {
   const [applications, setApplications] = useState([]);
@@ -16,7 +17,10 @@ export const useFetchApplications = (projectUID) => {
       if (projectUID) {
         //ApplicationMetadataWriter/filter_by_project
         const data = { f_project_uid: projectUID };
-        const response = await getAPI("A19MSnNoF8p36XHn", data);
+        const response = await getAPI(
+          APIKEYS.FILTER_APPLICATION_BY_PROJECT,
+          data
+        );
         if (response.status === 200) {
           setApplications(response.data.data);
         } else if (response && response instanceof Error) {
@@ -41,7 +45,10 @@ export const useUpdateApplication = (formData) => {
   const updateApplication = async () => {
     if (formData) {
       //ApplicationMessenger/update
-      const response = await getAPI("OjlrjuAeA5HOkGqT", formData);
+      const response = await getAPI(
+        APIKEYS.UPDATE_APPLICATION_MESSENGER,
+        formData
+      );
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -58,7 +65,7 @@ export const useDeleteApplication = (applicationUID) => {
     if (applicationUID) {
       //ApplicationTopicManager/delete
       const data = { application_uid: applicationUID };
-      const response = await getAPI("pWS6eH3ZKgYytsre", data);
+      const response = await getAPI(APIKEYS.DELETE_APPLICATION_TOPIC, data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -74,7 +81,7 @@ export const useCreateApplication = () => {
   const createApplication = async (formData) => {
     if (formData) {
       //ApplicationTopicManager/create
-      const response = await getAPI("iGXyNAx4Kp3DrosK", formData);
+      const response = await getAPI(APIKEYS.CREATE_APPLICATION_TOPIC, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {

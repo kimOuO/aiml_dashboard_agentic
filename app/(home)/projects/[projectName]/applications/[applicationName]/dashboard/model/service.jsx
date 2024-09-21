@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchModels = (applicationUID) => {
   const [models, setModels] = useState([]);
@@ -16,7 +17,10 @@ export const useFetchModels = (applicationUID) => {
       if (applicationUID) {
         //ModelMetadataWriter/filter_by_application
         const data = { f_application_uid: applicationUID };
-        const response = await getAPI("EU2X3oWVHQiEoYBi", data);
+        const response = await getAPI(
+          APIKEYS.FILTER_MODEL_BY_APPLICATION,
+          data
+        );
         if (response.status === 200) {
           setModels(response.data.data);
         } else if (response && response instanceof Error) {
@@ -40,7 +44,11 @@ export const useCreateModel = () => {
   const createModel = async (formData) => {
     if (formData) {
       //ModelMetadataWriter/create
-      const response = await getAPI("OBF4f9guOmzitGvC", formData, true);
+      const response = await getAPI(
+        APIKEYS.CREATE_MODEL_METADATA,
+        formData,
+        true
+      );
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -56,7 +64,7 @@ export const useUpdateModel = (formData) => {
   const updateModel = async () => {
     if (formData) {
       //ModelMessenger/update
-      const response = await getAPI("siJLKf5He1wksCH2", formData);
+      const response = await getAPI(APIKEYS.UPDATE_MODEL_MESSENGER, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -73,7 +81,7 @@ export const useDeleteModel = (modelUID) => {
     if (modelUID) {
       //ModelMetadataWriter/delete
       const data = { uid: modelUID };
-      const response = await getAPI("8qFsmTELrN0lag20", data);
+      const response = await getAPI(APIKEYS.DELETE_MODEL_METADATA, data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -89,7 +97,11 @@ export const useUploadInferenceModal = () => {
   const uploadInference = async (formData) => {
     if (formData) {
       //InferenceMetadataWriter/create
-      const response = await getAPI("Zd1B3anLLSb2f59h", formData, true);
+      const response = await getAPI(
+        APIKEYS.CREATE_INFERENCE_METADATA,
+        formData,
+        true
+      );
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {

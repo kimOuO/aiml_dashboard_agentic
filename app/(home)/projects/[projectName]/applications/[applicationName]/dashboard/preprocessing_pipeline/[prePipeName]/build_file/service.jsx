@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchBuildFiles = (pipelineUID) => {
   const [buildFiles, setBuildFiles] = useState([]);
@@ -17,7 +18,7 @@ export const useFetchBuildFiles = (pipelineUID) => {
       if (pipelineUID) {
         //ImageMetadataWriter/filter_by_pipeline
         const data = { f_pipeline_uid: pipelineUID };
-        const response = await getAPI("eu4oNOb8E0KVaOdo", data);
+        const response = await getAPI(APIKEYS.FILTER_IMAGE_BY_PIPELINE, data);
         if (response.status === 200) {
           setBuildFiles(response.data.data);
         } else if (response && response instanceof Error) {
@@ -40,7 +41,11 @@ export const useFetchBuildFiles = (pipelineUID) => {
 export const useCreateBuildFile = () => {
   const createBuildFile = async (formData) => {
     if (formData) {
-      const response = await getAPI("lwO7afcqdKtKEAhb", formData, true);
+      const response = await getAPI(
+        APIKEYS.CREATE_IMAGE_METADATA,
+        formData,
+        true
+      );
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -56,7 +61,7 @@ export const useUpdateBuildFile = (formData) => {
   const updateBuildFile = async () => {
     if (formData) {
       //ImageMetadataWriter/update
-      const response = await getAPI("fQVBVFsISiNWCCzx", formData);
+      const response = await getAPI(APIKEYS.UPDATE_IMAGE_METADATA, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -73,7 +78,7 @@ export const useDeleteBuildFile = (buildFileUID) => {
     if (buildFileUID) {
       //ImageMetadataWriter/delete
       const data = { uid: buildFileUID };
-      const response = await getAPI("Ho7YDcRfgifigJvn", data);
+      const response = await getAPI(APIKEYS.DELETE_IMAGE_METADATA, data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchTask = (pipelineUID) => {
   const [tasks, setTasks] = useState([]);
@@ -17,7 +18,7 @@ export const useFetchTask = (pipelineUID) => {
       if (pipelineUID) {
         //TaskMetadataWriter/filter_by_pipeline
         const data = { f_pipeline_uid: pipelineUID };
-        const response = await getAPI("s8i1TNiTXwwv02mv", data);
+        const response = await getAPI(APIKEYS.FILTER_TASK_BY_PIPELINE, data);
         if (response.status === 200) {
           setTasks(response.data.data);
         } else if (response && response instanceof Error) {
@@ -44,7 +45,10 @@ export const useFetchTaskFile = (pipelineUID) => {
       if (pipelineUID) {
         // Preparer/preprocessing
         const data = { pipeline_uid: pipelineUID };
-        const response = await getAPI("oNjkVj60RqS8DQTX", data);
+        const response = await getAPI(
+          APIKEYS.PREPARER_PREPROCESSING_TASK,
+          data
+        );
         if (response.status === 200) {
           setTaskFile(response.data.data);
         }
@@ -61,7 +65,7 @@ export const useRunPreprocessingTask = () => {
   const runTask = async (formData) => {
     if (formData) {
       //TaskWorker/preprocessing
-      const response = await getAPI("jPqyAFWh7hBKRRNK", formData);
+      const response = await getAPI(APIKEYS.RUN_PREPROCESSING_TASK, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -77,7 +81,7 @@ export const useUpdateTask = (formData) => {
   const updateTask = async () => {
     if (formData) {
       //TaskMetadataWriter/update
-      const response = await getAPI("05wVeQQBhvFRTq54", formData);
+      const response = await getAPI(APIKEYS.UPDATE_TASK_METADATA, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -94,7 +98,7 @@ export const useDeleteTask = (taskUID) => {
     if (taskUID) {
       //TaskMetadataWriter/delete
       const data = { uid: taskUID };
-      const response = await getAPI("AoTqlTmu8l47CbMU", data);
+      const response = await getAPI(APIKEYS.DELETE_TASK_METADATA, data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchConfigs = (pipelineUID) => {
   const [configs, setConfigs] = useState([]);
@@ -17,7 +18,7 @@ export const useFetchConfigs = (pipelineUID) => {
       if (pipelineUID) {
         //ConfigMetadataWriter/filter_by_pipeline
         const data = { f_pipeline_uid: pipelineUID };
-        const response = await getAPI("NVVJBLsdkIjTLB2P", data);
+        const response = await getAPI(APIKEYS.FILTER_CONFIG_BY_PIPELINE, data);
         if (response.status === 200) {
           setConfigs(response.data.data);
         } else if (response && response instanceof Error) {
@@ -43,7 +44,7 @@ const useFindApplicationUID = (pipelineUID) => {
       if (pipelineUID) {
         //PipelineMetadataWriter/retrieve
         const data = { uid: pipelineUID };
-        const response = await getAPI("owbCDAJ9rJW2AEO5", data);
+        const response = await getAPI(APIKEYS.RETRIEVE_PIPELINE_METADATA, data);
         if (response.status === 200) {
           setApplicationUID(response.data.f_application_uid);
         } else if (response && response instanceof Error) {
@@ -61,7 +62,7 @@ export const useCreateConfig = () => {
   const createConfig = async (formData) => {
     if (formData) {
       //ConfigMetadataWriter/create
-      const response = await getAPI("42XzWaxjE6dKA9mZ", formData);
+      const response = await getAPI(APIKEYS.CREATE_CONFIG_METADATA, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -77,7 +78,7 @@ export const useUpdateConfig = (formData) => {
   const updateConfig = async () => {
     if (formData) {
       //ConfigMetadataWriter/update
-      const response = await getAPI("IIfzauWfQZ3RsHUZ", formData);
+      const response = await getAPI(APIKEYS.UPDATE_CONFIG_METADATA, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -94,7 +95,7 @@ export const useDeleteConfig = (configUID) => {
     if (configUID) {
       //ConfigMetadataWriter/delete
       const data = { uid: configUID };
-      const response = await getAPI("DUj6JZvlwBE3WMbX", data);
+      const response = await getAPI(APIKEYS.DELETE_CONFIG_METADATA, data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {

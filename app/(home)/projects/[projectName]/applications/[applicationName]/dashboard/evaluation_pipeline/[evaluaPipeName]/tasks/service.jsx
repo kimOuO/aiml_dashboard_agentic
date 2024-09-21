@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchTaskFile = (pipelineUID) => {
   const [taskFile, setTaskFile] = useState(null);
@@ -12,7 +13,7 @@ export const useFetchTaskFile = (pipelineUID) => {
       if (pipelineUID) {
         // Preparer/evaluation
         const data = { pipeline_uid: pipelineUID };
-        const response = await getAPI("8O1f02CSk0Su3czR", data);
+        const response = await getAPI(APIKEYS.PREPARER_EVALUATION_TASK, data);
         if (response.status === 200) {
           setTaskFile(response.data.data);
         }
@@ -29,7 +30,7 @@ export const useRunEvaluationTask = () => {
   const runTask = async (formData) => {
     if (formData) {
       //TaskWorker/evaluation
-      const response = await getAPI("u8Wo0fVM6pFEthFH", formData);
+      const response = await getAPI(APIKEYS.RUN_EVALUATION_TASK, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchTaskFile = (pipelineUID) => {
   const [taskFile, setTaskFile] = useState(null);
@@ -12,7 +13,7 @@ export const useFetchTaskFile = (pipelineUID) => {
       if (pipelineUID) {
         // Preparer/retrain
         const data = { pipeline_uid: pipelineUID };
-        const response = await getAPI("ur2rcOusIa91PFX5", data);
+        const response = await getAPI(APIKEYS.PREPARER_RETRAIN_TASK, data);
         if (response.status === 200) {
           setTaskFile(response.data.data);
         }
@@ -29,7 +30,7 @@ export const useRunRetrainTask = () => {
   const runTask = async (formData) => {
     if (formData) {
       //TaskWorker/retrain
-      const response = await getAPI("Oi6u8dkur8GTKPxS", formData);
+      const response = await getAPI(APIKEYS.RUN_RETRAIN_TASK, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {

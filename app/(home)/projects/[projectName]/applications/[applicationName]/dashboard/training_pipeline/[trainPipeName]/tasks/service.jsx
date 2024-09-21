@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchTaskFile = (pipelineUID) => {
   const [taskFile, setTaskFile] = useState(null);
@@ -12,7 +13,7 @@ export const useFetchTaskFile = (pipelineUID) => {
       if (pipelineUID) {
         // Preparer/training
         const data = { pipeline_uid: pipelineUID };
-        const response = await getAPI("Q3aPI7vZrzp3d4SI", data);
+        const response = await getAPI(APIKEYS.PREPARER_TRAINING_TASK, data);
         if (response.status === 200) {
           setTaskFile(response.data.data);
         }
@@ -29,7 +30,7 @@ export const useRunTrainingTask = () => {
   const runTask = async (formData) => {
     if (formData) {
       //TaskWorker/training
-      const response = await getAPI("q8uzMBcM5YJH6dPf", formData);
+      const response = await getAPI(APIKEYS.RUN_TRAINING_TASK, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -73,12 +74,14 @@ export const HandleLinkClick = (
 
   return { handleBuildFileClick, handleConfigClick };
 };
-export const useDeleteTaskWorker = ({ taskUID, type }) => {
-  const deleteTaskWorker = async () => {
+
+//刪除task
+export const useDeleteTask = (taskUID) => {
+  const deleteTask = async () => {
     if (taskUID) {
-      //TaskWorker/delete
+      //TaskMetadataWriter/delete
       const data = { uid: taskUID };
-      const response = await getAPI("AoTqlTmu8l47CbMU", data);
+      const response = await getAPI(APIKEYS.DELETE_TASK_METADATA, data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -86,7 +89,7 @@ export const useDeleteTaskWorker = ({ taskUID, type }) => {
       }
     }
   };
-  return { deleteTaskWorker };
+  return { deleteTask };
 };
 
 //更新task
@@ -94,7 +97,7 @@ export const useUpdateTask = (formData) => {
   const updateTask = async () => {
     if (formData) {
       //TaskMetadataWriter/update
-      const response = await getAPI("05wVeQQBhvFRTq54", formData);
+      const response = await getAPI(APIKEYS.UPDATE_TASK_METADATA, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -105,13 +108,11 @@ export const useUpdateTask = (formData) => {
   return { updateTask };
 };
 
-export const HandleDelete = async (taskUID, onDelete, onClose, type) => {
-  const { deleteTaskWorker } = useDeleteTaskWorker({ taskUID, type });
-  const deleteTaskWorkerResponse = await deleteTaskWorker();
-  if (
-    deleteTaskWorkerResponse &&
-    !(deleteTaskWorkerResponse instanceof Error)
-  ) {
+export const HandleDelete = async (taskUID, onDelete, onClose) => {
+  const { deleteTask } = useDeleteTask(taskUID);
+
+  const response = await deleteTask();
+  if (response && !(response instanceof Error)) {
     onDelete();
     onClose();
   }

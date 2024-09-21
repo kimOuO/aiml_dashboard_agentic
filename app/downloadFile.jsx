@@ -1,4 +1,5 @@
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 // 下載檔案
 export const HandleDownloadFile = (file) => {
@@ -15,7 +16,7 @@ export const HandleDownloadFile = (file) => {
         // 呼叫 API 獲取文件數據
         const data = { file_path: file_path };
         //GeneralFileManager/download
-        const response = await getAPI("TTiue1sygXrsm0YS", data, false, true);
+        const response = await getAPI(APIKEYS.DOWNLOAD_FILE, data, false, true);
 
         if (response.status === 200) {
           // 檢查響應的數據類型
@@ -55,15 +56,15 @@ export const HandlePrintLog = ({ task, type }) => {
         // 呼叫 API 獲取文件數據
         const data = { task_uid: task.uid, type: type };
         // TaskStatusManager/get_log
-        const response = await getAPI("bJ7xLmgp4WSWK498", data, false, true);
+        const response = await getAPI(APIKEYS.GET_TASK_LOG, data, false, true);
 
         if (response.status === 200) {
           const blobData = await response.data.text();
           const jsonData = JSON.parse(blobData);
-          console.log(jsonData)
+          console.log(jsonData);
 
           // 構建可讀的日誌內容
-          let logContent="";
+          let logContent = "";
 
           Object.keys(jsonData.data).forEach((key) => {
             logContent += `${key} Log:\n${jsonData.data[key]}\n\n`;
@@ -94,6 +95,3 @@ export const HandlePrintLog = ({ task, type }) => {
 
   return { PrintLog };
 };
-
-
-

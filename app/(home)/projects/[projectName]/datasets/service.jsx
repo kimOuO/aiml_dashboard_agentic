@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchDatasets = (
   projectUID,
@@ -17,7 +18,10 @@ export const useFetchDatasets = (
       if (projectUID) {
         //ProjectDatasetMetadataWriter/filter_by_project
         const data = { f_project_uid: projectUID };
-        const response = await getAPI("MyC2aIHtzkZJrEGi", data);
+        const response = await getAPI(
+          APIKEYS.FILTER_ROJECT_DATASET_BY_PROJECT,
+          data
+        );
         if (response.status === 200) {
           //根據activeTab過濾datasets
           const filteredDatasets = response.data.data.filter(
@@ -45,7 +49,10 @@ export const useUpdateDataset = (formData) => {
   const updateDataset = async () => {
     if (formData) {
       //ProjectDatasetMetadataWriter/update
-      const response = await getAPI("uqm5wN6pdrAWM89T", formData);
+      const response = await getAPI(
+        APIKEYS.UPDATE_ROJECT_DATASET_METADATA,
+        formData
+      );
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -62,7 +69,10 @@ export const useDeleteDataset = (datasetUID) => {
     if (datasetUID) {
       //ProjectDatasetMetadataWriter/delete
       const data = { uid: datasetUID };
-      const response = await getAPI("6PiGXBbrIvQLqhrC", data);
+      const response = await getAPI(
+        APIKEYS.DELETE_ROJECT_DATASET_METADATA,
+        data
+      );
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -78,7 +88,11 @@ export const useCreateDataset = () => {
   const createDataset = async (formData) => {
     if (formData) {
       //ProjectDatasetMetadataWriter/create
-      const response = await getAPI("OFbaCJE62lcPVbZj", formData, true);
+      const response = await getAPI(
+        APIKEYS.CREATE_PROJECT_DATASET_METADATA,
+        formData,
+        true
+      );
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
