@@ -36,7 +36,6 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
     if (Object.keys(validationErrors).length === 0) {
       const response = await HandleCreate(formData, onCreate, onClose);
       // 根據 response 顯示對應的 toast
-      console.log(response)
       showToast(response && response.status === 200);
     }
   };

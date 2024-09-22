@@ -6,8 +6,7 @@ import {
   ValidateForm,
   FileInput,
 } from "@/app/modalComponent";
-
-export const DownloadFileModal=({})
+import { useToastNotification } from "@/app/modalComponent";
 
 export const CreateModal = ({
   projectUID,
@@ -16,6 +15,8 @@ export const CreateModal = ({
   onClose,
   onCreate,
 }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -43,13 +44,15 @@ export const CreateModal = ({
     });
   };
 
-  const handleCreateClick = () => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = ["name", "file"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      HandleCreate(formData, onCreate, onClose);
+      const response = await HandleCreate(formData, onCreate, onClose);
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
     }
   };
 
@@ -104,6 +107,8 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     uid: dataset.uid,
     name: dataset.name,
@@ -119,8 +124,10 @@ export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
     });
   };
 
-  const handleUpdateClick = () => {
-    HandleUpdate(formData, onEdit, onClose);
+  const handleUpdateClick = async () => {
+    const response = await HandleUpdate(formData, onEdit, onClose);
+    // 根據 response 顯示對應的 toast
+    showToast(response && response.status === 200);
   };
 
   return (

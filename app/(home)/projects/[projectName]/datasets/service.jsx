@@ -53,11 +53,7 @@ export const useUpdateDataset = (formData) => {
         APIKEYS.UPDATE_ROJECT_DATASET_METADATA,
         formData
       );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating dataset：", response.data);
-      }
+      if (response) return response;
     }
   };
   return { updateDataset };
@@ -73,11 +69,7 @@ export const useDeleteDataset = (datasetUID) => {
         APIKEYS.DELETE_ROJECT_DATASET_METADATA,
         data
       );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting dataset：", response.data);
-      }
+      if (response) return response;
     }
   };
   return { deleteDataset };
@@ -93,11 +85,7 @@ export const useCreateDataset = () => {
         formData,
         true
       );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating dataset:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { createDataset };
@@ -106,26 +94,29 @@ export const useCreateDataset = () => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateDataset } = useUpdateDataset(formData);
   const response = await updateDataset();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (datasetUID, onDelete, onClose) => {
   const { deleteDataset } = useDeleteDataset(datasetUID);
   const response = await deleteDataset();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createDataset } = useCreateDataset();
   const response = await createDataset(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };
