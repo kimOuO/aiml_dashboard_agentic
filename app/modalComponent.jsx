@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
 //通用的ModalInput Component
@@ -36,12 +36,31 @@ export const BaseDeleteModal = ({
   onDelete,
   handleDelete,
 }) => {
-  const {showToast} = useToastNotification();
-  const handleDeleteClick = async() => {
+  const { showToast } = useToastNotification();
+
+  const handleDeleteClick = async () => {
     const response = await handleDelete(entity.uid, onDelete, onClose);
     // 根據 response 顯示對應的 toast
     showToast(response && response.status === 200);
   };
+
+  // 監聽鍵盤事件
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Enter') {
+        handleDeleteClick(); // 當按下 Enter 鍵時觸發刪除
+      }
+    };
+
+    // 綁定鍵盤事件
+    window.addEventListener('keydown', handleKeyDown);
+
+    // 在組件卸載時移除事件監聽
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+  
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
@@ -194,21 +213,17 @@ export const SelectDropdown = ({
 // 通用的 ToastNotification hook
 export const useToastNotification = () => {
   const { toast } = useToast();
-  
+
   const showToast = (isSuccess) => {
     if (isSuccess) {
       toast({
-        description: (
-          <span className="text-xl">Operation successful!</span>
-        ),
+        description: <span className="text-xl">Operation successful!</span>,
         variant: "success",
         duration: 1500,
       });
     } else {
       toast({
-        description: (
-          <span className="text-xl">Operation failed!</span>
-        ),
+        description: <span className="text-xl">Operation failed!</span>,
         variant: "destructive",
         duration: 1500,
       });
