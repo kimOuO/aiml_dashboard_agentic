@@ -46,11 +46,7 @@ export const useCreateBuildFile = () => {
         formData,
         true
       );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating build file:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { createBuildFile };
@@ -62,11 +58,7 @@ export const useUpdateBuildFile = (formData) => {
     if (formData) {
       //ImageMetadataWriter/update
       const response = await getAPI(APIKEYS.UPDATE_IMAGE_METADATA, formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating pipeline：", response.data);
-      }
+      if (response) return response;
     }
   };
   return { updateBuildFile };
@@ -79,11 +71,7 @@ export const useDeleteBuildFile = (buildFileUID) => {
       //ImageMetadataWriter/delete
       const data = { uid: buildFileUID };
       const response = await getAPI(APIKEYS.DELETE_IMAGE_METADATA, data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting build file", response.data);
-      }
+      if (response) return response;
     }
   };
   return { deleteBuildFile };
@@ -92,28 +80,31 @@ export const useDeleteBuildFile = (buildFileUID) => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateBuildFile } = useUpdateBuildFile(formData);
   const response = await updateBuildFile();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (buildFileUID, onDelete, onClose) => {
   const { deleteBuildFile } = useDeleteBuildFile(buildFileUID);
   const response = await deleteBuildFile();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createBuildFile } = useCreateBuildFile();
   const response = await createBuildFile(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };
 
 export const HandleLinkClick = (

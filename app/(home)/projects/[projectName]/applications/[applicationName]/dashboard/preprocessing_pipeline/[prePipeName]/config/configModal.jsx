@@ -5,6 +5,7 @@ import {
   BaseDeleteModal,
   ValidateForm,
 } from "@/app/modalComponent";
+import { useToastNotification } from "@/app/modalComponent";
 
 export const CreateModal = ({
   pipelineUID,
@@ -13,6 +14,8 @@ export const CreateModal = ({
   onCreate,
   onClose,
 }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -31,7 +34,7 @@ export const CreateModal = ({
     });
   };
 
-  const handleCreateClick = () => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = ["name"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
@@ -52,7 +55,9 @@ export const CreateModal = ({
       }
 
       // 使用更新過的 formData 傳遞給 HandleCreate
-      HandleCreate(updatedFormData, onCreate, onClose);
+      const response = await HandleCreate(updatedFormData, onCreate, onClose);
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
     }
   };
 
@@ -106,6 +111,8 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ config, onClose, onEdit, pipelineName }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     uid: config.uid,
     name: config.name,
@@ -125,7 +132,7 @@ export const EditModal = ({ config, onClose, onEdit, pipelineName }) => {
     });
   };
 
-  const handleUpdateClick = () => {
+  const handleUpdateClick = async () => {
     const fieldsToValidate = ["name"]; // 這裡你可以加入需要驗證的其他欄位
     const validationErrors = ValidateForm(formData, fieldsToValidate); // 執行自定義的驗證函數
     setErrors(validationErrors);
@@ -147,7 +154,9 @@ export const EditModal = ({ config, onClose, onEdit, pipelineName }) => {
       }
 
       // 使用更新過的 formData 傳遞給 HandleUpdate
-      HandleUpdate(updatedFormData, onEdit, onClose);
+      const response = await HandleUpdate(updatedFormData, onEdit, onClose);
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
     }
   };
 

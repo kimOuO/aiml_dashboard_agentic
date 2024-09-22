@@ -63,11 +63,7 @@ export const useCreateConfig = () => {
     if (formData) {
       //ConfigMetadataWriter/create
       const response = await getAPI(APIKEYS.CREATE_CONFIG_METADATA, formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating config:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { createConfig };
@@ -79,11 +75,7 @@ export const useUpdateConfig = (formData) => {
     if (formData) {
       //ConfigMetadataWriter/update
       const response = await getAPI(APIKEYS.UPDATE_CONFIG_METADATA, formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating config:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { updateConfig };
@@ -96,11 +88,7 @@ export const useDeleteConfig = (configUID) => {
       //ConfigMetadataWriter/delete
       const data = { uid: configUID };
       const response = await getAPI(APIKEYS.DELETE_CONFIG_METADATA, data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting config", response.data);
-      }
+      if (response) return response;
     }
   };
   return { deleteConfig };
@@ -109,28 +97,31 @@ export const useDeleteConfig = (configUID) => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateConfig } = useUpdateConfig(formData);
   const response = await updateConfig();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (configUID, onDelete, onClose) => {
   const { deleteConfig } = useDeleteConfig(configUID);
   const response = await deleteConfig();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createConfig } = useCreateConfig();
   const response = await createConfig(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };
 
 export const HandleLinkClick = (

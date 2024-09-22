@@ -66,11 +66,7 @@ export const useRunPreprocessingTask = () => {
     if (formData) {
       //TaskWorker/preprocessing
       const response = await getAPI(APIKEYS.RUN_PREPROCESSING_TASK, formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error running task:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { runTask };
@@ -82,11 +78,7 @@ export const useUpdateTask = (formData) => {
     if (formData) {
       //TaskMetadataWriter/update
       const response = await getAPI(APIKEYS.UPDATE_TASK_METADATA, formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating task:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { updateTask };
@@ -99,11 +91,7 @@ export const useDeleteTask = (taskUID) => {
       //TaskMetadataWriter/delete
       const data = { uid: taskUID };
       const response = await getAPI(APIKEYS.DELETE_TASK_METADATA, data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting task", response.data);
-      }
+      if (response) return response;
     }
   };
   return { deleteTask };
@@ -112,32 +100,32 @@ export const useDeleteTask = (taskUID) => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateTask } = useUpdateTask(formData);
   const response = await updateTask();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (taskUID, onDelete, onClose) => {
   const { deleteTask } = useDeleteTask(taskUID);
-
   const response = await deleteTask();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { runTask } = useRunPreprocessingTask();
-
-  const runTaskResponse = await runTask(formData);
-
-  if (runTaskResponse && !(runTaskResponse instanceof Error)) {
+  const response = await runTask(formData);
+  if (response.status === 200) {
     // 執行成功後觸發 onCreate 和 onClose
     onCreate();
     onClose();
   }
+  return response;
 };
 
 export const HandleLinkClick = (

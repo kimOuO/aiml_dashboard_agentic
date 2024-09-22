@@ -12,6 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useToastNotification } from "@/app/modalComponent";
 
 export const CreateModal = ({
   pipelineUID,
@@ -20,6 +21,8 @@ export const CreateModal = ({
   onClose,
   taskFile,
 }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     access_key: "",
     secret_key: "",
@@ -67,7 +70,7 @@ export const CreateModal = ({
     }
   };
 
-  const handleCreateClick = () => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = [
       "access_key",
       "secret_key",
@@ -88,7 +91,9 @@ export const CreateModal = ({
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      HandleCreate(formData, onCreate, onClose);
+      const response = await HandleCreate(formData, onCreate, onClose);
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
     }
   };
 
@@ -257,6 +262,8 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ task, onClose, onEdit, pipelineName }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     uid: task.uid,
     name: task.name,
@@ -272,8 +279,10 @@ export const EditModal = ({ task, onClose, onEdit, pipelineName }) => {
     });
   };
 
-  const handleUpdateClick = () => {
-    HandleUpdate(formData, onEdit, onClose);
+  const handleUpdateClick = async () => {
+    const response = await HandleUpdate(formData, onEdit, onClose);
+    // 根據 response 顯示對應的 toast
+    showToast(response && response.status === 200);
   };
 
   return (
