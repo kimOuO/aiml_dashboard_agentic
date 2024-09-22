@@ -53,11 +53,7 @@ export const useUpdateDataset = (formData) => {
         APIKEYS.UPDATE_APPLICATION_DATASET_METADATA,
         formData
       );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating dataset:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { updateOptimiDataset };
@@ -73,11 +69,7 @@ export const useDeleteDataset = (datasetUID) => {
         APIKEYS.DELETE_APPLICATION_DATASET_METADATA,
         data
       );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting dataset:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { deleteOptimiDataset };
@@ -93,11 +85,8 @@ export const useCreateDataset = () => {
         formData,
         true
       );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating dataset:", response.data);
-      }
+      console.log(response)
+      if (response) return response;
     }
   };
   return { createOptimiDataset };
@@ -106,26 +95,30 @@ export const useCreateDataset = () => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateOptimiDataset } = useUpdateDataset(formData);
   const response = await updateOptimiDataset();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (datasetUID, onDelete, onClose) => {
   const { deleteOptimiDataset } = useDeleteDataset(datasetUID);
   const response = await deleteOptimiDataset();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createOptimiDataset } = useCreateDataset();
   const response = await createOptimiDataset(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  console.log(response)
+  return response;
 };

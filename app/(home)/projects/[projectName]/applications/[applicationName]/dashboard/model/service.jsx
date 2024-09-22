@@ -49,11 +49,7 @@ export const useCreateModel = () => {
         formData,
         true
       );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating model:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { createModel };
@@ -65,11 +61,7 @@ export const useUpdateModel = (formData) => {
     if (formData) {
       //ModelMessenger/update
       const response = await getAPI(APIKEYS.UPDATE_MODEL_MESSENGER, formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating model:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { updateModel };
@@ -82,11 +74,7 @@ export const useDeleteModel = (modelUID) => {
       //ModelMetadataWriter/delete
       const data = { uid: modelUID };
       const response = await getAPI(APIKEYS.DELETE_MODEL_METADATA, data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting model:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { deleteModel };
@@ -102,11 +90,7 @@ export const useUploadInferenceModal = () => {
         formData,
         true
       );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error upload inference file:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { uploadInference };
@@ -115,37 +99,41 @@ export const useUploadInferenceModal = () => {
 export const HandleUpload = async (formData, onUpload, onClose) => {
   const { uploadInference } = useUploadInferenceModal();
   const response = await uploadInference(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onUpload();
     onClose();
   }
+  return response;
 };
 
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateModel } = useUpdateModel(formData);
   const response = await updateModel();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (modelUID, onDelete, onClose) => {
   const { deleteModel } = useDeleteModel(modelUID);
   const response = await deleteModel();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createModel } = useCreateModel();
   const response = await createModel(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };
 
 export const HandlePublishToggle = async (model, originalStatus) => {
