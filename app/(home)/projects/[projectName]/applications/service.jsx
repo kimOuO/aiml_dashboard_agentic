@@ -49,11 +49,7 @@ export const useUpdateApplication = (formData) => {
         APIKEYS.UPDATE_APPLICATION_MESSENGER,
         formData
       );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating application：", response.data);
-      }
+      if (response) return response;
     }
   };
   return { updateApplication };
@@ -66,11 +62,7 @@ export const useDeleteApplication = (applicationUID) => {
       //ApplicationTopicManager/delete
       const data = { application_uid: applicationUID };
       const response = await getAPI(APIKEYS.DELETE_APPLICATION_TOPIC, data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting application：", response.data);
-      }
+      if (response) return response;
     }
   };
   return { deleteApplication };
@@ -82,11 +74,7 @@ export const useCreateApplication = () => {
     if (formData) {
       //ApplicationTopicManager/create
       const response = await getAPI(APIKEYS.CREATE_APPLICATION_TOPIC, formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating application:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { createApplication };
@@ -95,26 +83,29 @@ export const useCreateApplication = () => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateApplication } = useUpdateApplication(formData);
   const response = await updateApplication();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (applicationUID, onDelete, onClose) => {
   const { deleteApplication } = useDeleteApplication(applicationUID);
   const response = await deleteApplication();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createApplication } = useCreateApplication();
   const response = await createApplication(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };
