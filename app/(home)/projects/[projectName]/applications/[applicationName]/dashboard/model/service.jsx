@@ -67,7 +67,7 @@ export const useUpdateModel = (formData) => {
   return { updateModel };
 };
 
-//刪除modal
+//刪除model
 export const useDeleteModel = (modelUID) => {
   const deleteModel = async () => {
     if (modelUID) {
@@ -80,8 +80,8 @@ export const useDeleteModel = (modelUID) => {
   return { deleteModel };
 };
 
-//上傳inference modal
-export const useUploadInferenceModal = () => {
+//上傳inference model
+export const useUploadInferenceModel = () => {
   const uploadInference = async (formData) => {
     if (formData) {
       //InferenceMetadataWriter/create
@@ -96,8 +96,32 @@ export const useUploadInferenceModal = () => {
   return { uploadInference };
 };
 
+//發布model
+export const usePublishModel = (formData) => {
+  const publishModel = async () => {
+    if (formData) {
+      //ModelPermissionManager/create
+      const response = await getAPI(APIKEYS.CREATE_MODEL_PERMISSION, formData);
+      if (response) return response;
+    }
+  };
+  return { publishModel };
+};
+
+//取消發布model
+export const useUnpublishModel = (formData) => {
+  const unpublishModel = async () => {
+    if (formData) {
+      //ModlPermissionManager/delete
+      const response = await getAPI(APIKEYS.DELETE_MODEL_PERMISSION, formData);
+      if (response) return response;
+    }
+  };
+  return { unpublishModel };
+};
+
 export const HandleUpload = async (formData, onUpload, onClose) => {
-  const { uploadInference } = useUploadInferenceModal();
+  const { uploadInference } = useUploadInferenceModel();
   const response = await uploadInference(formData);
   if (response.status === 200) {
     onUpload();
@@ -136,20 +160,20 @@ export const HandleCreate = async (formData, onCreate, onClose) => {
   return response;
 };
 
-export const HandlePublishToggle = async (model, originalStatus) => {
-  const newStatus = originalStatus ? "unpublish" : "publish";
-  const data = {
-    model_uid: model.uid,
-    model_name: model.name,
-    model_description: model.description,
-    model_input_format: model.model_input_format,
-    model_output_format: model.model_output_format,
-    status: newStatus,
+export const HandlePublishToggle = async (model) => {
+  const formData = {
+    uid: model.uid,
+    status: model.status,
+    f_application_uid: model.f_application_uid,
   };
-  const { updateModel } = useUpdateModel(data);
-  const response = await updateModel();
-  if (response && !(response instanceof Error)) {
-    return response;
+  if (model.status === "unpublish") {
+    const { publishModel } = usePublishModel(formData);
+    const response = await publishModel();
+    if (response.status === 200) return response;
+  } else if (model.status === "publish") {
+    const { unpublishModel } = useUnpublishModel(formData);
+    const response = await unpublishModel();
+    if (response.status === 200) return response;
   }
 };
 

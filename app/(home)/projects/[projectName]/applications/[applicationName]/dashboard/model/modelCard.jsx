@@ -14,7 +14,6 @@ export const ModelCard = React.memo(
     const [isPublish, setIsPublish] = useState(model.status === "publish");
 
     const { toast } = useToast();
-
     //Edit modal開啟關閉
     const handleEditClick = () => {
       setIsEditModalOpen(true);
@@ -49,7 +48,7 @@ export const ModelCard = React.memo(
     };
 
     const handlePublishToggle = async () => {
-      const response = await HandlePublishToggle(model, isPublish);
+      const response = await HandlePublishToggle(model);
       if (response) {
         setIsPublish((prev) => !prev); // 更新本地狀態
         toast({
