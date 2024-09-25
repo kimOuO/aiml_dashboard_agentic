@@ -48,7 +48,7 @@ export const ModelCard = React.memo(
     };
 
     const handlePublishToggle = async () => {
-      const response = await HandlePublishToggle(model);
+      const response = await HandlePublishToggle(model,onEdit);
       if (response) {
         setIsPublish((prev) => !prev); // 更新本地狀態
         toast({

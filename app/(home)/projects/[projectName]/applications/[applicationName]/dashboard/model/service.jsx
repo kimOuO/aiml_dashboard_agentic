@@ -160,19 +160,22 @@ export const HandleCreate = async (formData, onCreate, onClose) => {
   return response;
 };
 
-export const HandlePublishToggle = async (model) => {
+export const HandlePublishToggle = async (model,onEdit) => {
+  const changeStatus = model.status === "publish" ? "unpublish" : "publish";
   const formData = {
     uid: model.uid,
-    status: model.status,
+    status: changeStatus,
     f_application_uid: model.f_application_uid,
   };
   if (model.status === "unpublish") {
     const { publishModel } = usePublishModel(formData);
     const response = await publishModel();
+    onEdit()
     if (response.status === 200) return response;
   } else if (model.status === "publish") {
     const { unpublishModel } = useUnpublishModel(formData);
     const response = await unpublishModel();
+    onEdit();
     if (response.status === 200) return response;
   }
 };
