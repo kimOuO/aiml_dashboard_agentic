@@ -110,7 +110,7 @@ export default function OptimizationBuildFilePage() {
           type="Optimization"
           onCreate={triggerFetch}
           onClose={handleCloseCreateModal}
-          title1="1. Download Training Dataset"
+          title1="1. Download Optimization Dataset"
           title2="2. Retrain"
           title3="3. Upload Model"
         />

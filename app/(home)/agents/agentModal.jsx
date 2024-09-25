@@ -51,14 +51,14 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
         />
         <ModalInput
           label="Name"
-          name="name"
+          name="agent_name"
           value={formData.agent_name}
           onChange={handleInputChange}
           error={errors.name}
         />
         <ModalInput
           label="Description"
-          name="description"
+          name="agent_description"
           value={formData.agent_description}
           onChange={handleInputChange}
         />

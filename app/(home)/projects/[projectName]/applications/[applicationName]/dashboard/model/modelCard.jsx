@@ -14,7 +14,6 @@ export const ModelCard = React.memo(
     const [isPublish, setIsPublish] = useState(model.status === "publish");
 
     const { toast } = useToast();
-
     //Edit modal開啟關閉
     const handleEditClick = () => {
       setIsEditModalOpen(true);
@@ -49,7 +48,7 @@ export const ModelCard = React.memo(
     };
 
     const handlePublishToggle = async () => {
-      const response = await HandlePublishToggle(model, isPublish);
+      const response = await HandlePublishToggle(model,onEdit);
       if (response) {
         setIsPublish((prev) => !prev); // 更新本地狀態
         toast({
@@ -88,10 +87,10 @@ export const ModelCard = React.memo(
           <button onClick={handleUploadFolderClick}>
             <img src="/project/folder.svg" alt="Folder" />
           </button>
-          {model.status === "can't publish" ? (
+          {model.status === "unavailable" ? (
             <div className="flex items-center space-x-1">
               <Label className="text-red-500 text-lg" htmlFor="publish">
-                Can't Publish
+                Unavailable
               </Label>
             </div>
           ) : (

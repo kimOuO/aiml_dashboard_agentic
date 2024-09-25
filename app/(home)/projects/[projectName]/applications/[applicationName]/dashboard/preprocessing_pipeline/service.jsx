@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchPipeline = (applicationUID, type) => {
   const [pipelines, setPipelines] = useState([]);
@@ -17,7 +18,10 @@ export const useFetchPipeline = (applicationUID, type) => {
       if (applicationUID && type) {
         //PipelineMetadataWriter/filter_by_application
         const data = { f_application_uid: applicationUID };
-        const response = await getAPI("VytZbpzyI9fFWkM6", data);
+        const response = await getAPI(
+          APIKEYS.FILTER_PIPELINE_BY_APPLICATION,
+          data
+        );
         if (response.status === 200) {
           //根據type過濾pipelines
           const filteredPipelines = response.data.data.filter(
@@ -46,12 +50,12 @@ export const useCreatePipeline = () => {
   const createPipeline = async (formData) => {
     if (formData) {
       //PipelineMetadataWriter/create
-      const response = await getAPI("FgdSO4ryg2UA2APl", formData, true);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating pipeline:", response.data);
-      }
+      const response = await getAPI(
+        APIKEYS.CREATE_PIPELINE_METADATA,
+        formData,
+        true
+      );
+      if (response) return response;
     }
   };
   return { createPipeline };
@@ -62,12 +66,8 @@ export const useUpdatePipeline = (formData) => {
   const updatePipeline = async () => {
     if (formData) {
       //PipelineMetadataWriter/update
-      const response = await getAPI("28a9H19Khaw4KIbV", formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating pipeline：", response.data);
-      }
+      const response = await getAPI(APIKEYS.UPDATE_PIPELINE_METADATA, formData);
+      if (response) return response;
     }
   };
   return { updatePipeline };
@@ -79,12 +79,8 @@ export const useDeletePipeline = (pipelineUID) => {
     if (pipelineUID) {
       //PipelineMetadataWriter/delete
       const data = { uid: pipelineUID };
-      const response = await getAPI("8PSWYHbJF2ZHuXVP", data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting pipeline：", response.data);
-      }
+      const response = await getAPI(APIKEYS.DELETE_PIPELINE_METADATA, data);
+      if (response) return response;
     }
   };
   return { deletePipeline };
@@ -93,28 +89,31 @@ export const useDeletePipeline = (pipelineUID) => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updatePipeline } = useUpdatePipeline(formData);
   const response = await updatePipeline();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (pipelineUID, onDelete, onClose) => {
   const { deletePipeline } = useDeletePipeline(pipelineUID);
   const response = await deletePipeline();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createPipeline } = useCreatePipeline();
   const response = await createPipeline(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };
 
 export const HandleLinkClick = (

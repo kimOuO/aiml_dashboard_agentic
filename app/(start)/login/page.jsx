@@ -15,6 +15,13 @@ export default function LoginPage() {
     submit,
   } = useAuth();
 
+  // 監聽 enter 鍵按下
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      submit(e);  // 當按下 Enter 鍵時觸發 submit
+    }
+  };
+
   return (
     <div className="flex h-screen justify-center items-center bg-gray-100 overflow-y-auto">
       <div className="w-full max-w-md p-8 space-y-3 bg-white shadow-lg rounded-xl">
@@ -23,14 +30,14 @@ export default function LoginPage() {
             <div>
               <img
                 src="./mitlab_logo_black.png"
-                className="h-20 w-20 mx-auto "
+                className="h-20 w-20 mx-auto"
               ></img>
             </div>
           </div>
 
           <h1 className="text-2xl font-bold text-center">Login</h1>
         </div>
-        <form onSubmit={(e) => submit(e)} className="space-y-4">
+        <form onSubmit={submit} className="space-y-4" onKeyDown={handleKeyDown}>
           <div className="relative h-11 w-full min-w-[200px]">
             <input
               placeholder=""

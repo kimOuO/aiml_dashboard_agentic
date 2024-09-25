@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
 import APIKEYS from "@/app/api/api_key.json";
+
 export const useFetchAgents = (organizationUID) => {
   const [Agents, setAgents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +41,10 @@ export const useFetchOrganization = (organizationUID) => {
     const fetchOrganization = async () => {
       //OrganizationMetadataWriter/retrieve
       const data = { uid: organizationUID };
-      const response = await getAPI("mGlkFLqgBQgNRvU3", data);
+      const response = await getAPI(
+        APIKEYS.RETRIEVE_ORGANIZATION_METADATA,
+        data
+      );
       if (response.status === 200) {
         setOrganization(response.data.data);
       } else {
@@ -59,7 +63,7 @@ export const useCreateAgent = () => {
   const createAgent = async (formData) => {
     if (formData) {
       //AgentTopicManager/create
-      const response = await getAPI("SwuMUkAwSESxBkUw", formData);
+      const response = await getAPI(APIKEYS.CREATE_AGENT_TOPIC, formData);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -92,7 +96,7 @@ export const useDeleteAgent = (agentUID) => {
     if (agentUID) {
       //AgentTopicManager/delete
       const data = { agent_uid: agentUID };
-      const response = await getAPI("pWS6eH3ZKgYytsre", data);
+      const response = await getAPI(APIKEYS.DELETE_AGENT_TOPIC, data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {

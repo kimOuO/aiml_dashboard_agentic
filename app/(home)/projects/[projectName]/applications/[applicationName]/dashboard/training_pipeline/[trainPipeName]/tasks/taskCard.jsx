@@ -43,12 +43,9 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type }) => {
         <button onClick={handleEditClick}>
           <img src="/project/edit.svg" alt="Edit" />
         </button>
-        {/*根據task.status顯示或隱藏delete button */}
-        {task.status !== "running" && (
-          <button onClick={handleDeleteClick}>
-            <img src="/project/delete.svg" alt="Delete" />
-          </button>
-        )}
+        <button onClick={handleDeleteClick}>
+          <img src="/project/delete.svg" alt="Delete" />
+        </button>
         <button
           className="bg-gray-200 rounded-xl px-2 py-1 border border-gray-400"
           onClick={handleDownloadClick}
@@ -89,7 +86,6 @@ const TaskExecute = ({ execute_step }) => {
       text = "Generate File";
       break;
     case "prepare_file":
-      s;
       bgColor = "bg-slate-100";
       textColor = "text-slate-800";
       dotColor = "text-slate-500";

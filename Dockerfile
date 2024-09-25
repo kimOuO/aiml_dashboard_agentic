@@ -5,6 +5,7 @@ WORKDIR /app
 
 # 複製 package.json 和 package-lock.json 並安裝依賴
 COPY package*.json ./
+RUN npm i --save-dev @types/node
 RUN npm install
 
 # 複製整個項目到容器內

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchAgentApplications = (agentUID) => {
   const [applications, setApplications] = useState([]);
@@ -14,9 +15,12 @@ export const useFetchAgentApplications = (agentUID) => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
       if (agentUID) {
-        //ApplicationMetadataWriter/filter_by_project
+        //ApplicationPermissionManager/retrieve
         const data = { f_agent_uid: agentUID };
-        const response = await getAPI("BEsC50prU0PRIKIt", data);
+        const response = await getAPI(
+          APIKEYS.RETRIEVE_APPLICATION_PERMISSION,
+          data
+        );
         if (response.status === 200) {
           setApplications(response.data);
         } else if (response && response instanceof Error) {
@@ -42,7 +46,10 @@ export const useUpdateApplication = (formData) => {
   const updateApplication = async () => {
     if (formData) {
       //ApplicationMetadataWriter/update
-      const response = await getAPI("I5saSl6jjFMJJqKr", formData);
+      const response = await getAPI(
+        APIKEYS.UPDATE_APPLICATION_METADATA,
+        formData
+      );
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -59,7 +66,7 @@ export const useDeleteApplication = (applicationUID) => {
     if (applicationUID) {
       //ApplicationMetadataWriter/delete
       const data = { uid: applicationUID };
-      const response = await getAPI("z1gRhCXJskWRpxG1", data);
+      const response = await getAPI(APIKEYS.DELETE_APPLICATION_METADATA, data);
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -75,7 +82,10 @@ export const useCreateApplication = () => {
   const createApplication = async (formData) => {
     if (formData) {
       //ApplicationMetadataWriter/create
-      const response = await getAPI("ah3Q2A5rTQrER68p", formData);
+      const response = await getAPI(
+        APIKEYS.CREATE_APPLICATION_METADATA,
+        formData
+      );
       if (response.status === 200) {
         return response.data;
       } else if (response && response instanceof Error) {
@@ -100,8 +110,8 @@ export const HandlePublishToggle = async (
   isPublish
 ) => {
   const endpoint = isPublish
-    ? "ylw5GFhipRLkCQMh" // 取消連接的 API 路由
-    : "PnvwgsKI4ztEJnuj"; // 連接的 API 路由
+    ? APIKEYS.DELETE_APPLICATION_PERMISSION // ApplicationPermissionManager/delete
+    : APIKEYS.CREATE_APPLICATION_PERMISSION; // ApplicationPermissionManager/create
 
   try {
     const response = await getAPI(endpoint, {

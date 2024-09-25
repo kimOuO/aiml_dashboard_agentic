@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchProjects = (organizationUID) => {
   const [projects, setProjects] = useState([]);
@@ -13,7 +14,10 @@ export const useFetchProjects = (organizationUID) => {
       setIsLoading(true);
       //ProjectMetadataWriter/filter_by_organization
       const data = { f_organization_uid: organizationUID };
-      const response = await getAPI("a75vPQAyPqVGFwiZ", data);
+      const response = await getAPI(
+        APIKEYS.FILTER_PROJECT_BY_ORGANIZATION,
+        data
+      );
       if (response.status === 200) {
         setProjects(response.data.data);
       } else if (response && response instanceof Error) {
@@ -22,7 +26,7 @@ export const useFetchProjects = (organizationUID) => {
       setIsLoading(false);
     };
     fetchProjects();
-  }, [fetchTrigger,organizationUID]);
+  }, [fetchTrigger, organizationUID]);
 
   return {
     projects,
@@ -40,7 +44,10 @@ export const useFetchOrganization = (organizationUID) => {
     const fetchOrganization = async () => {
       //OrganizationMetadataWriter/retrieve
       const data = { uid: organizationUID };
-      const response = await getAPI("mGlkFLqgBQgNRvU3", data);
+      const response = await getAPI(
+        APIKEYS.RETRIEVE_ORGANIZATION_METADATA,
+        data
+      );
       if (response.status === 200) {
         setOrganization(response.data.data);
       } else {
@@ -59,12 +66,8 @@ export const useCreateProject = () => {
   const createProject = async (formData) => {
     if (formData) {
       //ProjectMetadataWriter/create
-      const response = await getAPI("9Q1lCs56iud4oPcS", formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating project:", response.data);
-      }
+      const response = await getAPI(APIKEYS.CREATE_PROJECT_METADATA, formData);
+      if (response) return response;
     }
   };
   return { createProject };
@@ -75,12 +78,8 @@ export const useUpdateProject = (formData) => {
   const updateProject = async () => {
     if (formData) {
       //ProjectMetadataWriter/update
-      const response = await getAPI("KIW6ZqwTMbMF4bWl", formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating project:", response.data);
-      }
+      const response = await getAPI(APIKEYS.UPDATE_PROJECT_METADATA, formData);
+      if (response) return response;
     }
   };
   return { updateProject };
@@ -92,12 +91,8 @@ export const useDeleteProject = (projectUID) => {
     if (projectUID) {
       //ProjectMetadataWriter/delete
       const data = { uid: projectUID };
-      const response = await getAPI("ThQHZcLlnq6GQ3zW", data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting project:", response.data);
-      }
+      const response = await getAPI(APIKEYS.DELETE_PROJECT_METADATA, data);
+      if (response) return response;
     }
   };
   return { deleteProject };
@@ -106,26 +101,29 @@ export const useDeleteProject = (projectUID) => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateProject } = useUpdateProject(formData);
   const response = await updateProject();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (projectUID, onDelete, onClose) => {
   const { deleteProject } = useDeleteProject(projectUID);
   const response = await deleteProject();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createProject } = useCreateProject();
   const response = await createProject(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };

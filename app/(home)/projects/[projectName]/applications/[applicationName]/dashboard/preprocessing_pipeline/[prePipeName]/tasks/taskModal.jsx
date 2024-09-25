@@ -12,6 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useToastNotification } from "@/app/modalComponent";
 
 export const CreateModal = ({
   pipelineUID,
@@ -20,15 +21,15 @@ export const CreateModal = ({
   onClose,
   taskFile,
 }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     access_key: "",
     secret_key: "",
     task_name: "",
     task_description: "",
     pipeline_uid: pipelineUID,
-    //original_dataset給他對應的dataset
     dataset_uid: "",
-    //type可以選project application
     type: "",
     config_uid: "",
     image_uid: {
@@ -37,7 +38,7 @@ export const CreateModal = ({
       upload_uid: "",
     },
     dataset_name: "",
-    dataset_description: "zip",
+    dataset_description: "",
     dataset_type: "",
     dataset_file_extension: "zip",
   });
@@ -48,8 +49,15 @@ export const CreateModal = ({
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    if (name.includes("image_uid")) {
-      //更新嵌套字串
+    if (name === "type") {
+      // 當 type 改變時，清空 dataset_uid 和 foreignkey_uid
+      setFormData({
+        ...formData,
+        type: value,
+        dataset_uid: "", // 清空 dataset_uid
+        foreignkey_uid: "", // 清空 foreignkey_uid
+      });
+    } else if (name.includes("image_uid")) {
       const key = name.split(".")[1];
       setFormData({
         ...formData,
@@ -58,8 +66,22 @@ export const CreateModal = ({
           [key]: value,
         },
       });
+    } else if (name === "dataset_uid") {
+      const selectedDataset = getOriginalDatasetOptions().find(
+        (dataset) => dataset.uid === value
+      );
+
+      const foreignkey =
+        formData.type === "Original Dataset"
+          ? selectedDataset?.f_project_uid
+          : selectedDataset?.f_application_uid;
+
+      setFormData({
+        ...formData,
+        [name]: value,
+        foreignkey_uid: foreignkey || "", // 設定 foreignkey_uid
+      });
     } else {
-      //更新非嵌套字串
       setFormData({
         ...formData,
         [name]: value,
@@ -69,15 +91,15 @@ export const CreateModal = ({
 
   //動態顯示不同的original dataset根據type
   const getOriginalDatasetOptions = () => {
-    if (formData.type === "application") {
+    if (formData.type === "Optimization Dataset") {
       return taskFile.taskFile.original_dataset?.application || [];
-    } else if (formData.type === "project") {
+    } else if (formData.type === "Original Dataset") {
       return taskFile.taskFile?.original_dataset?.project || [];
     }
     return [];
   };
 
-  const handleCreateClick = () => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = [
       "access_key",
       "secret_key",
@@ -96,10 +118,31 @@ export const CreateModal = ({
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      HandleCreate(formData, onCreate, onClose);
+      let updatedType = formData.type;
+
+      // 根據 type 動態修改值
+      if (formData.type === "Optimization Dataset") {
+        updatedType = "application";
+      } else if (formData.type === "Original Dataset") {
+        updatedType = "project";
+      }
+
+      // 更新 formData 並呼叫 HandleCreate
+      setFormData({
+        ...formData,
+        type: updatedType,
+      });
+
+      // 確保 type 更新後再進行創建操作
+      const response = await HandleCreate(
+        { ...formData, type: updatedType },
+        onCreate,
+        onClose
+      );
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
     }
   };
-
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
@@ -142,8 +185,8 @@ export const CreateModal = ({
                 name="type"
                 value={formData.type}
                 options={[
-                  { uid: "application", name: "application" },
-                  { uid: "project", name: "project" },
+                  { uid: "Original Dataset", name: "Original Dataset" },
+                  { uid: "Optimization Dataset", name: "Optimization Dataset" },
                 ]}
                 onChange={handleInputChange}
                 error={errors.type}
@@ -204,7 +247,7 @@ export const CreateModal = ({
               />
               <ModalInput
                 label="Training Dataset File Extension"
-                value={formData.dataset_description}
+                value={formData.dataset_file_extension}
                 readOnly
               />
               <ModalInput
@@ -212,7 +255,6 @@ export const CreateModal = ({
                 name="dataset_description"
                 value={formData.dataset_description}
                 onChange={handleInputChange}
-                error={errors.dataset_name}
               />
             </AccordionContent>
           </AccordionItem>
@@ -223,12 +265,14 @@ export const CreateModal = ({
             <AccordionContent>
               <ModalInput
                 label="Preprocessing Task Name"
+                name="task_name"
                 value={formData.task_name}
                 onChange={handleInputChange}
                 error={errors.task_name}
               />
               <ModalInput
                 label="Preprocessing Task Description"
+                name="task_description"
                 value={formData.task_description}
                 onChange={handleInputChange}
                 error={errors.task_description}
@@ -256,6 +300,8 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ task, onClose, onEdit, pipelineName }) => {
+  const {showToast} = useToastNotification();
+
   const [formData, setFormData] = useState({
     uid: task.uid,
     name: task.name,
@@ -271,8 +317,10 @@ export const EditModal = ({ task, onClose, onEdit, pipelineName }) => {
     });
   };
 
-  const handleUpdateClick = () => {
-    HandleUpdate(formData, onEdit, onClose);
+  const handleUpdateClick = async() => {
+    const response = await HandleUpdate(formData, onEdit, onClose);
+    // 根據 response 顯示對應的 toast
+    showToast(response && response.status === 200);
   };
 
   return (

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchBuildFiles = (pipelineUID) => {
   const [buildFiles, setBuildFiles] = useState([]);
@@ -17,7 +18,7 @@ export const useFetchBuildFiles = (pipelineUID) => {
       if (pipelineUID) {
         //ImageMetadataWriter/filter_by_pipeline
         const data = { f_pipeline_uid: pipelineUID };
-        const response = await getAPI("eu4oNOb8E0KVaOdo", data);
+        const response = await getAPI(APIKEYS.FILTER_IMAGE_BY_PIPELINE, data);
         if (response.status === 200) {
           setBuildFiles(response.data.data);
         } else if (response && response instanceof Error) {
@@ -40,12 +41,12 @@ export const useFetchBuildFiles = (pipelineUID) => {
 export const useCreateBuildFile = () => {
   const createBuildFile = async (formData) => {
     if (formData) {
-      const response = await getAPI("lwO7afcqdKtKEAhb", formData, true);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating build file:", response.data);
-      }
+      const response = await getAPI(
+        APIKEYS.CREATE_IMAGE_METADATA,
+        formData,
+        true
+      );
+      if (response) return response;
     }
   };
   return { createBuildFile };
@@ -56,12 +57,8 @@ export const useUpdateBuildFile = (formData) => {
   const updateBuildFile = async () => {
     if (formData) {
       //ImageMetadataWriter/update
-      const response = await getAPI("fQVBVFsISiNWCCzx", formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating pipeline：", response.data);
-      }
+      const response = await getAPI(APIKEYS.UPDATE_IMAGE_METADATA, formData);
+      if (response) return response;
     }
   };
   return { updateBuildFile };
@@ -73,12 +70,8 @@ export const useDeleteBuildFile = (buildFileUID) => {
     if (buildFileUID) {
       //ImageMetadataWriter/delete
       const data = { uid: buildFileUID };
-      const response = await getAPI("Ho7YDcRfgifigJvn", data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting build file", response.data);
-      }
+      const response = await getAPI(APIKEYS.DELETE_IMAGE_METADATA, data);
+      if (response) return response;
     }
   };
   return { deleteBuildFile };
@@ -87,28 +80,31 @@ export const useDeleteBuildFile = (buildFileUID) => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateBuildFile } = useUpdateBuildFile(formData);
   const response = await updateBuildFile();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (buildFileUID, onDelete, onClose) => {
   const { deleteBuildFile } = useDeleteBuildFile(buildFileUID);
   const response = await deleteBuildFile();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createBuildFile } = useCreateBuildFile();
   const response = await createBuildFile(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };
 
 export const HandleLinkClick = (

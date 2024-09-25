@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchApplications = (projectUID) => {
   const [applications, setApplications] = useState([]);
@@ -16,7 +17,10 @@ export const useFetchApplications = (projectUID) => {
       if (projectUID) {
         //ApplicationMetadataWriter/filter_by_project
         const data = { f_project_uid: projectUID };
-        const response = await getAPI("A19MSnNoF8p36XHn", data);
+        const response = await getAPI(
+          APIKEYS.FILTER_APPLICATION_BY_PROJECT,
+          data
+        );
         if (response.status === 200) {
           setApplications(response.data.data);
         } else if (response && response instanceof Error) {
@@ -41,12 +45,11 @@ export const useUpdateApplication = (formData) => {
   const updateApplication = async () => {
     if (formData) {
       //ApplicationMessenger/update
-      const response = await getAPI("OjlrjuAeA5HOkGqT", formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating application：", response.data);
-      }
+      const response = await getAPI(
+        APIKEYS.UPDATE_APPLICATION_MESSENGER,
+        formData
+      );
+      if (response) return response;
     }
   };
   return { updateApplication };
@@ -58,12 +61,8 @@ export const useDeleteApplication = (applicationUID) => {
     if (applicationUID) {
       //ApplicationTopicManager/delete
       const data = { application_uid: applicationUID };
-      const response = await getAPI("pWS6eH3ZKgYytsre", data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting application：", response.data);
-      }
+      const response = await getAPI(APIKEYS.DELETE_APPLICATION_TOPIC, data);
+      if (response) return response;
     }
   };
   return { deleteApplication };
@@ -74,12 +73,8 @@ export const useCreateApplication = () => {
   const createApplication = async (formData) => {
     if (formData) {
       //ApplicationTopicManager/create
-      const response = await getAPI("iGXyNAx4Kp3DrosK", formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating application:", response.data);
-      }
+      const response = await getAPI(APIKEYS.CREATE_APPLICATION_TOPIC, formData);
+      if (response) return response;
     }
   };
   return { createApplication };
@@ -88,26 +83,29 @@ export const useCreateApplication = () => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateApplication } = useUpdateApplication(formData);
   const response = await updateApplication();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (applicationUID, onDelete, onClose) => {
   const { deleteApplication } = useDeleteApplication(applicationUID);
   const response = await deleteApplication();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createApplication } = useCreateApplication();
   const response = await createApplication(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };

@@ -1,12 +1,18 @@
 import React, { useState } from "react";
-import { HandleCreate } from "./service";
-import { ModalInput, ValidateForm, SelectDropdown } from "@/app/modalComponent";
+import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
+import {
+  ModalInput,
+  ValidateForm,
+  SelectDropdown,
+  BaseDeleteModal,
+} from "@/app/modalComponent";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useToastNotification } from "@/app/modalComponent";
 
 export const CreateModal = ({
   pipelineUID,
@@ -15,6 +21,8 @@ export const CreateModal = ({
   onClose,
   taskFile,
 }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     access_key: "",
     secret_key: "",
@@ -22,7 +30,7 @@ export const CreateModal = ({
     task_description: "",
     pipeline_uid: pipelineUID,
     dataset_uid: "",
-    type: "",
+    type: "project",
     config_uid: "",
     image_uid: {
       download_uid: "",
@@ -31,12 +39,12 @@ export const CreateModal = ({
     },
     model_name: "",
     model_description: "",
-    model_type: "",
+    model_type: "default",
     model_file_extension: "zip",
-    application_uid: "",
+    model_input_format: "",
+    model_output_format: "",
   });
 
-  console.log(formData);
   const [errors, setErrors] = useState({});
 
   //暫存更新的value
@@ -62,17 +70,7 @@ export const CreateModal = ({
     }
   };
 
-  //動態顯示不同的original dataset根據type
-  const getOriginalDatasetOptions = () => {
-    if (formData.type === "application") {
-      return taskFile.taskFile.training_dataset?.application || [];
-    } else if (formData.type === "project") {
-      return taskFile.taskFile?.training_dataset?.project || [];
-    }
-    return [];
-  };
-
-  const handleCreateClick = () => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = [
       "access_key",
       "secret_key",
@@ -85,14 +83,17 @@ export const CreateModal = ({
       "task_name",
       "config_uid",
       "type",
+      "model_input_format",
+      "model_output_format",
     ];
-
     const validationErrors = ValidateForm(formData, fieldsToValidate);
 
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      HandleCreate(formData, onCreate, onClose);
+      const response = await HandleCreate(formData, onCreate, onClose);
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
     }
   };
 
@@ -133,22 +134,16 @@ export const CreateModal = ({
                 value={pipelineName}
                 readOnly
               />
-              <SelectDropdown
+              <ModalInput
                 label="Training Task Type"
-                name="type"
                 value={formData.type}
-                options={[
-                  { uid: "application", name: "application" },
-                  { uid: "project", name: "project" },
-                ]}
-                onChange={handleInputChange}
-                error={errors.type}
+                readOnly
               />
               <SelectDropdown
                 label="Training Dataset Name"
                 name="dataset_uid"
                 value={formData.dataset_uid}
-                options={getOriginalDatasetOptions()} // 根據type顯示動態數據
+                options={taskFile.taskFile?.training_dataset?.project}
                 onChange={handleInputChange}
                 error={errors.dataset_uid}
               />
@@ -196,7 +191,7 @@ export const CreateModal = ({
                 name="model_name"
                 value={formData.model_name}
                 onChange={handleInputChange}
-                error={errors.task_name}
+                error={errors.model_name}
               />
               <ModalInput
                 label="Model File Extension"
@@ -209,6 +204,21 @@ export const CreateModal = ({
                 value={formData.model_description}
                 onChange={handleInputChange}
               />
+
+              <ModalInput
+                label="Model Input Format"
+                name="model_input_format"
+                value={formData.model_input_format}
+                onChange={handleInputChange}
+                error={errors.model_input_format}
+              />
+              <ModalInput
+                label="Model Output Format"
+                name="model_output_format"
+                value={formData.model_output_format}
+                onChange={handleInputChange}
+                error={errors.model_output_format}
+              />
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="Task">
@@ -218,12 +228,14 @@ export const CreateModal = ({
             <AccordionContent>
               <ModalInput
                 label="Training Task Name"
+                name="task_name"
                 value={formData.task_name}
                 onChange={handleInputChange}
                 error={errors.task_name}
               />
               <ModalInput
                 label="Training Task Description"
+                name="task_description"
                 value={formData.task_description}
                 onChange={handleInputChange}
               />
@@ -246,5 +258,79 @@ export const CreateModal = ({
         </div>
       </div>
     </div>
+  );
+};
+
+export const EditModal = ({ task, onClose, onEdit, pipelineName }) => {
+  const { showToast } = useToastNotification();
+
+  const [formData, setFormData] = useState({
+    uid: task.uid,
+    name: task.name,
+    description: task.description,
+  });
+
+  //暫存更新的value
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleUpdateClick = async () => {
+    const response = await HandleUpdate(formData, onEdit, onClose);
+    // 根據 response 顯示對應的 toast
+    showToast(response && response.status === 200);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
+        <h2 className="text-2xl font-bold mb-4">Task</h2>
+        <ModalInput label="Pipeline" value={pipelineName} readOnly />
+        <ModalInput label="UID" value={formData.uid} readOnly />
+        <ModalInput
+          label="Name"
+          name="name"
+          value={formData.name}
+          onChange={handleInputChange}
+        />
+        <ModalInput
+          label="Description"
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
+        />
+        <ModalInput label="Created Time" value={task.created_time} readOnly />
+        <div className="flex justify-between">
+          <button
+            onClick={handleUpdateClick}
+            className="bg-green-700 text-white px-4 py-2 rounded-md font-bold"
+          >
+            Update
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-blue-700 text-white px-4 py-2 rounded-md font-bold"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const DeleteModal = ({ task, onClose, onDelete }) => {
+  return (
+    <BaseDeleteModal
+      entity={task}
+      entityName="Task"
+      onClose={onClose}
+      onDelete={onDelete}
+      handleDelete={HandleDelete}
+    />
   );
 };

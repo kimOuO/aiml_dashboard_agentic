@@ -6,8 +6,11 @@ import {
   ValidateForm,
 } from "@/app/modalComponent";
 import { format } from "date-fns";
+import { useToastNotification } from "@/app/modalComponent";
 
 export const CreateModal = ({ organization, onClose, onCreate }) => {
+  const {showToast} = useToastNotification();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -25,13 +28,15 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
     });
   };
 
-  const handleCreateClick = () => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = ["name"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      HandleCreate(formData, onCreate, onClose);
+      const response = await HandleCreate(formData, onCreate, onClose);
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
     }
   };
 
@@ -83,6 +88,8 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
 };
 
 export const EditModal = ({ project, onClose, onEdit, organizationName }) => {
+  const {showToast} = useToastNotification();
+
   const [formData, setFormData] = useState({
     uid: project.uid,
     name: project.name,
@@ -103,8 +110,10 @@ export const EditModal = ({ project, onClose, onEdit, organizationName }) => {
     });
   };
 
-  const handleUpdateClick = () => {
-    HandleUpdate(formData, onEdit, onClose);
+  const handleUpdateClick = async() => {
+    const response = await HandleUpdate(formData, onEdit, onClose);
+    // 根據 response 顯示對應的 toast
+    showToast(response && response.status === 200);
   };
 
   return (

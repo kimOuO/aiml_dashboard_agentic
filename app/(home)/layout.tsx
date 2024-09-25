@@ -26,7 +26,7 @@ export default function RootLayout({
         <AuthProvider>
           <main className="w-full h-screen flex flex-col">
             <Header></Header>
-            <div className="flex-grow p-6">{children}</div>
+            <div className="flex-grow">{children}</div>
             <Footer></Footer>
           </main>
         </AuthProvider>

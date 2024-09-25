@@ -6,6 +6,7 @@ import {
   ValidateForm,
   FileInput,
 } from "@/app/modalComponent";
+import { useToastNotification } from "@/app/modalComponent";
 
 export const CreateModal = ({
   applicationUID,
@@ -14,6 +15,8 @@ export const CreateModal = ({
   onClose,
   onCreate,
 }) => {
+  const {showToast} = useToastNotification();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -41,13 +44,16 @@ export const CreateModal = ({
     });
   };
 
-  const handleCreateClick = () => {
+  const handleCreateClick = async() => {
     const fieldsToValidate = ["name", "file"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      HandleCreate(formData, onCreate, onClose);
+      const response = await HandleCreate(formData, onCreate, onClose);
+      console.log(response)
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
     }
   };
 
@@ -70,7 +76,7 @@ export const CreateModal = ({
         />
         <ModalInput label="Type" name="type" value={formData.type} readOnly />
         <FileInput
-          label="Pipeline File"
+          label="Dataset File"
           onChange={handleFileChange}
           accept=".zip"
           error={errors.file}
@@ -102,6 +108,8 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ dataset, onClose, onEdit, applicationName }) => {
+  const {showToast} = useToastNotification();
+
   const [formData, setFormData] = useState({
     uid: dataset.uid,
     name: dataset.name,
@@ -117,8 +125,10 @@ export const EditModal = ({ dataset, onClose, onEdit, applicationName }) => {
     });
   };
 
-  const handleUpdateClick = () => {
-    HandleUpdate(formData, onEdit, onClose);
+  const handleUpdateClick = async() => {
+    const response = await HandleUpdate(formData, onEdit, onClose);
+    // 根據 response 顯示對應的 toast
+    showToast(response && response.status === 200);
   };
 
   return (

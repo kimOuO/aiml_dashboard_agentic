@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchConfigs = (pipelineUID) => {
   const [configs, setConfigs] = useState([]);
@@ -17,7 +18,7 @@ export const useFetchConfigs = (pipelineUID) => {
       if (pipelineUID) {
         //ConfigMetadataWriter/filter_by_pipeline
         const data = { f_pipeline_uid: pipelineUID };
-        const response = await getAPI("NVVJBLsdkIjTLB2P", data);
+        const response = await getAPI(APIKEYS.FILTER_CONFIG_BY_PIPELINE, data);
         if (response.status === 200) {
           setConfigs(response.data.data);
         } else if (response && response instanceof Error) {
@@ -43,7 +44,7 @@ const useFindApplicationUID = (pipelineUID) => {
       if (pipelineUID) {
         //PipelineMetadataWriter/retrieve
         const data = { uid: pipelineUID };
-        const response = await getAPI("owbCDAJ9rJW2AEO5", data);
+        const response = await getAPI(APIKEYS.RETRIEVE_PIPELINE_METADATA, data);
         if (response.status === 200) {
           setApplicationUID(response.data.f_application_uid);
         } else if (response && response instanceof Error) {
@@ -61,12 +62,8 @@ export const useCreateConfig = () => {
   const createConfig = async (formData) => {
     if (formData) {
       //ConfigMetadataWriter/create
-      const response = await getAPI("42XzWaxjE6dKA9mZ", formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating config:", response.data);
-      }
+      const response = await getAPI(APIKEYS.CREATE_CONFIG_METADATA, formData);
+      if (response) return response;
     }
   };
   return { createConfig };
@@ -77,12 +74,8 @@ export const useUpdateConfig = (formData) => {
   const updateConfig = async () => {
     if (formData) {
       //ConfigMetadataWriter/update
-      const response = await getAPI("IIfzauWfQZ3RsHUZ", formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating config:", response.data);
-      }
+      const response = await getAPI(APIKEYS.UPDATE_CONFIG_METADATA, formData);
+      if (response) return response;
     }
   };
   return { updateConfig };
@@ -94,12 +87,8 @@ export const useDeleteConfig = (configUID) => {
     if (configUID) {
       //ConfigMetadataWriter/delete
       const data = { uid: configUID };
-      const response = await getAPI("DUj6JZvlwBE3WMbX", data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting config", response.data);
-      }
+      const response = await getAPI(APIKEYS.DELETE_CONFIG_METADATA, data);
+      if (response) return response;
     }
   };
   return { deleteConfig };
@@ -108,28 +97,31 @@ export const useDeleteConfig = (configUID) => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateConfig } = useUpdateConfig(formData);
   const response = await updateConfig();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (configUID, onDelete, onClose) => {
   const { deleteConfig } = useDeleteConfig(configUID);
   const response = await deleteConfig();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createConfig } = useCreateConfig();
   const response = await createConfig(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };
 
 export const HandleLinkClick = (

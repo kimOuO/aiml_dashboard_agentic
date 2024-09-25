@@ -11,6 +11,7 @@ import {
   HandleCreate,
   HandleUpload,
 } from "./service";
+import { useToastNotification } from "@/app/modalComponent";
 
 export const CreateModal = ({
   applicationUID,
@@ -18,14 +19,15 @@ export const CreateModal = ({
   onCreate,
   onClose,
 }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    type: "Default",
+    type: "default",
     model_input_format: "",
     model_output_format: "",
-    source: "",
-    status: "can't publish",
+    status: "unavailable",
     f_application_uid: applicationUID,
     file: null,
     extension: "zip",
@@ -49,7 +51,7 @@ export const CreateModal = ({
     });
   };
 
-  const handleCreateClick = () => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = [
       "name",
       "model_input_format",
@@ -60,7 +62,9 @@ export const CreateModal = ({
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      HandleCreate(formData, onCreate, onClose);
+      const response = await HandleCreate(formData, onCreate, onClose);
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
     }
   };
 
@@ -96,7 +100,7 @@ export const CreateModal = ({
           error={errors.model_output_format}
         />
         <FileInput
-          label="Pipeline File"
+          label="Model File"
           onChange={handleFileChange}
           accept=".zip"
           error={errors.file}
@@ -129,12 +133,15 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     model_uid: model.uid,
     model_name: model.name,
     model_description: model.description,
     model_input_format: model.model_input_format,
-    model_output_format: model.model_output_format
+    model_output_format: model.model_output_format,
+    model_status: model.status,
   });
 
   //暫存更新的value
@@ -146,8 +153,10 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
     });
   };
 
-  const handleUpdateClick = () => {
-    HandleUpdate(formData, onEdit, onClose);
+  const handleUpdateClick = async () => {
+    const response = await HandleUpdate(formData, onEdit, onClose);
+    // 根據 response 顯示對應的 toast
+    showToast(response && response.status === 200);
   };
 
   return (
@@ -155,11 +164,11 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
         <h2 className="text-2xl font-bold mb-4">Model</h2>
         <ModalInput label="Application" value={applicationName} readOnly />
-        <ModalInput label="UID" value={formData.uid} readOnly />
+        <ModalInput label="UID" value={model.uid} readOnly />
         <ModalInput
           label="Name"
-          name="name"
-          value={formData.name}
+          name="model_name"
+          value={formData.model_name}
           onChange={handleInputChange}
         />
         <ModalInput
@@ -177,15 +186,15 @@ export const EditModal = ({ model, onClose, onEdit, applicationName }) => {
         <ModalInput
           label="Version"
           name="version"
-          value={String(formData.version)}
+          value={model.version}
           readOnly
         />
         <ModalInput label="Access Token" value={model.access_token} readOnly />
         <ModalInput label="File Extension" value="zip" readOnly />
         <ModalInput
           label="Description"
-          name="description"
-          value={formData.description}
+          name="model_description"
+          value={formData.model_description}
           onChange={handleInputChange}
         />
         <ModalInput label="Created Time" value={model.created_time} readOnly />
@@ -221,6 +230,8 @@ export const DeleteModal = ({ model, onClose, onDelete }) => {
 };
 
 export const UploadModal = ({ modelUID, onClose, onUpload }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -248,13 +259,15 @@ export const UploadModal = ({ modelUID, onClose, onUpload }) => {
     });
   };
 
-  const handleCreateClick = () => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = ["name", "file"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      HandleUpload(formData, onUpload, onClose);
+      const response = await HandleUpload(formData, onUpload, onClose);
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
     }
   };
 

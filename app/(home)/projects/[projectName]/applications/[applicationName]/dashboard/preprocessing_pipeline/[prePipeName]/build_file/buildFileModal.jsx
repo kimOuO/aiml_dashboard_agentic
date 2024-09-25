@@ -11,6 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useToastNotification } from "@/app/modalComponent";
 
 export const CreateModal = ({
   pipelineUID,
@@ -22,17 +23,19 @@ export const CreateModal = ({
   title2,
   title3,
 }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     name1: "",
-    sequence1: "Download",
+    sequence1: "download",
     description1: "",
     file1: null,
     name2: "",
-    sequence2: "Running",
+    sequence2: "running",
     description2: "",
     file2: null,
     name3: "",
-    sequence3: "Upload",
+    sequence3: "upload",
     description3: "",
     file3: null,
     f_pipeline_uid: pipelineUID,
@@ -72,7 +75,7 @@ export const CreateModal = ({
     });
   };
 
-  const handleCreateClick = () => {
+  const handleCreateClick = async () => {
     const prefixes = ["1", "2", "3"];
     const allErrors = {}; // 保存验证错误的字段
     const submissions = []; // 准备提交的数据
@@ -101,10 +104,29 @@ export const CreateModal = ({
     setErrors(allErrors);
 
     if (Object.keys(allErrors).length === 0) {
-      submissions.forEach((submission) => {
-        //一次創建一個buildFile
-        HandleCreate(submission, onCreate, onClose);
-      });
+      const promises = submissions.map((submission) =>
+        HandleCreate(submission, onCreate, onClose)
+      );
+      //等待所有請求完成
+      const results = await Promise.allSettled(promises);
+      // 檢查是否有任何請求失敗
+      const allSuccessful = results.every(
+        (result) =>
+          result.status === "fulfilled" &&
+          result.value &&
+          result.value.status === 200
+      );
+      const hasFailures = results.some(
+        (result) =>
+          result.status === "rejected" ||
+          (result.value && result.value.status !== 200)
+      );
+      // 根據是否有失敗來顯示對應的 toast
+      if (allSuccessful) {
+        showToast(true); // 所有請求成功
+      } else if (hasFailures) {
+        showToast(false); // 有失敗的請求
+      }
     }
   };
 
@@ -211,6 +233,8 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ buildFile, onClose, onEdit }) => {
+  const {showToast} = useToastNotification();
+
   const [formData, setFormData] = useState({
     uid: buildFile.uid,
     name: buildFile.name,
@@ -225,8 +249,10 @@ export const EditModal = ({ buildFile, onClose, onEdit }) => {
     });
   };
 
-  const handleUpdateClick = () => {
-    HandleUpdate(formData, onEdit, onClose);
+  const handleUpdateClick = async() => {
+    const response = await HandleUpdate(formData, onEdit, onClose);
+    // 根據 response 顯示對應的 toast
+    showToast(response && response.status === 200);
   };
 
   return (

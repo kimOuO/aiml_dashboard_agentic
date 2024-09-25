@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAPI } from "@/app/api/entrypoint";
+import APIKEYS from "@/app/api/api_key.json";
 
 export const useFetchDatasets = (
   applicationUID,
@@ -17,7 +18,10 @@ export const useFetchDatasets = (
       if (applicationUID) {
         //ApplicationDatasetMetadataWriter/filter_by_application
         const data = { f_application_uid: applicationUID };
-        const response = await getAPI("1sphuopUuLnIqoPU", data);
+        const response = await getAPI(
+          APIKEYS.FILTER_APPLICATION_DATASET_BY_APPLICATION,
+          data
+        );
         if (response.status === 200) {
           //根據activeTab過濾datasets
           const filteredDatasets = response.data.data.filter(
@@ -45,12 +49,11 @@ export const useUpdateDataset = (formData) => {
   const updateOptimiDataset = async () => {
     if (formData) {
       //ApplicationDatasetMetadataWriter/update
-      const response = await getAPI("lXqKKZYiy6XKJaVg", formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating dataset:", response.data);
-      }
+      const response = await getAPI(
+        APIKEYS.UPDATE_APPLICATION_DATASET_METADATA,
+        formData
+      );
+      if (response) return response;
     }
   };
   return { updateOptimiDataset };
@@ -62,12 +65,11 @@ export const useDeleteDataset = (datasetUID) => {
     if (datasetUID) {
       //ApplicationDatasetMetadataWriter/delete
       const data = { uid: datasetUID };
-      const response = await getAPI("9uKWKnG5ZTSew1HD", data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting dataset:", response.data);
-      }
+      const response = await getAPI(
+        APIKEYS.DELETE_APPLICATION_DATASET_METADATA,
+        data
+      );
+      if (response) return response;
     }
   };
   return { deleteOptimiDataset };
@@ -78,12 +80,13 @@ export const useCreateDataset = () => {
   const createOptimiDataset = async (formData) => {
     if (formData) {
       //ApplicationDatasetMetadataWriter/create
-      const response = await getAPI("5fk1gVLi8q0mcHf4", formData, true);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating dataset:", response.data);
-      }
+      const response = await getAPI(
+        APIKEYS.CREATE_APPLICATION_DATASET_METADATA,
+        formData,
+        true
+      );
+      console.log(response)
+      if (response) return response;
     }
   };
   return { createOptimiDataset };
@@ -92,26 +95,30 @@ export const useCreateDataset = () => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateOptimiDataset } = useUpdateDataset(formData);
   const response = await updateOptimiDataset();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (datasetUID, onDelete, onClose) => {
   const { deleteOptimiDataset } = useDeleteDataset(datasetUID);
   const response = await deleteOptimiDataset();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createOptimiDataset } = useCreateDataset();
   const response = await createOptimiDataset(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  console.log(response)
+  return response;
 };

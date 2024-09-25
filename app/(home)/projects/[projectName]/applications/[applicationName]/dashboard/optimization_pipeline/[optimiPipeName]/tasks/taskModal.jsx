@@ -23,7 +23,7 @@ export const CreateModal = ({
     pipeline_uid: pipelineUID,
     model_uid: "",
     dataset_uid: "",
-    type: "",
+    type: "application",
     config_uid: "",
     image_uid: {
       download_uid: "",
@@ -32,11 +32,10 @@ export const CreateModal = ({
     },
     model_name: "",
     model_description: "",
-    model_type: "",
+    model_type: "agent",
     model_input_format: "",
     model_output_format: "",
     model_file_extension: "zip",
-    application_uid: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -64,31 +63,20 @@ export const CreateModal = ({
     }
   };
 
-  //動態顯示不同的original dataset根據type
-  const getOriginalDatasetOptions = () => {
-    if (formData.type === "application") {
-      return taskFile.taskFile.training_dataset?.application || [];
-    } else if (formData.type === "project") {
-      return taskFile.taskFile?.training_dataset?.project || [];
-    }
-    return [];
-  };
-
   const handleCreateClick = () => {
     const fieldsToValidate = [
       "access_key",
       "secret_key",
       "dataset_uid",
+      "model_uid",
+      "config_uid",
       "image_uid.download_uid",
       "image_uid.running_uid",
       "image_uid.upload_uid",
       "model_name",
-      "model_type",
-      "task_name",
       "model_input_format",
       "model_output_format",
-      "config_uid",
-      "type",
+      "task_name"  
     ];
 
     const validationErrors = ValidateForm(formData, fieldsToValidate);
@@ -137,22 +125,16 @@ export const CreateModal = ({
                 value={pipelineName}
                 readOnly
               />
-              <SelectDropdown
+              <ModalInput
                 label="Retrain Task Type"
-                name="type"
                 value={formData.type}
-                options={[
-                  { uid: "application", name: "application" },
-                  { uid: "project", name: "project" },
-                ]}
-                onChange={handleInputChange}
-                error={errors.type}
+                readOnly
               />
               <SelectDropdown
                 label="Retrain Dataset Name"
                 name="dataset_uid"
                 value={formData.dataset_uid}
-                options={getOriginalDatasetOptions()} // 根據type顯示動態數據
+                options={taskFile.taskFile.training_dataset?.application}
                 onChange={handleInputChange}
                 error={errors.dataset_uid}
               />
@@ -208,7 +190,18 @@ export const CreateModal = ({
                 name="model_name"
                 value={formData.model_name}
                 onChange={handleInputChange}
-                error={errors.task_name}
+                error={errors.model_name}
+              />
+              <ModalInput
+                label="Model File Extension"
+                value={formData.model_file_extension}
+                readOnly
+              />
+              <ModalInput
+                label="Model Description"
+                name="model_description"
+                value={formData.model_description}
+                onChange={handleInputChange}
               />
               <ModalInput
                 label="Model Input Format"
@@ -224,17 +217,6 @@ export const CreateModal = ({
                 onChange={handleInputChange}
                 error={errors.model_output_format}
               />
-              <ModalInput
-                label="Model File Extension"
-                value={formData.model_file_extension}
-                readOnly
-              />
-              <ModalInput
-                label="Model Description"
-                name="model_description"
-                value={formData.model_description}
-                onChange={handleInputChange}
-              />
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="Task">
@@ -244,12 +226,14 @@ export const CreateModal = ({
             <AccordionContent>
               <ModalInput
                 label="Retrain Task Name"
+                name="task_name"
                 value={formData.task_name}
                 onChange={handleInputChange}
                 error={errors.task_name}
               />
               <ModalInput
                 label="Retrain Task Description"
+                name="task_description"
                 value={formData.task_description}
                 onChange={handleInputChange}
               />
