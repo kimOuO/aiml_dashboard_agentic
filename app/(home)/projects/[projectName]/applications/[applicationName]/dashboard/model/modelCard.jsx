@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { EditModal, DeleteModal, UploadModal } from "./modelModal";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -7,11 +8,12 @@ import { useToast } from "@/components/ui/use-toast";
 import { HandleDownloadFile } from "@/app/downloadFile";
 
 export const ModelCard = React.memo(
-  ({ model, onEdit, onDelete, onUpload, applicationName }) => {
+  ({ model, onEdit, onDelete, onUpload, applicationName,projectName,applicationUID }) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isPublish, setIsPublish] = useState(model.status === "publish");
+    const router = useRouter();
 
     const { toast } = useToast();
     //Edit modal開啟關閉
@@ -67,9 +69,15 @@ export const ModelCard = React.memo(
       }
     };
 
+    const handleModelClick = () => {
+      router.push(
+        `/projects/${projectName}/applications/${applicationName}/dashboard/model/${model.name}/tuning_model?modelUID=${model.uid}&applicationUID=${applicationUID}`
+      );
+    };
+
     return (
       <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer">
-        <div>
+        <div onClick={handleModelClick}>
           <div className="bg-blue-300 rounded-lg p-0.5">{model.uid}</div>
           <h2 className="text-xl font-semibold p-1">{model.name}</h2>
           <p className="text-gray-500">{model.description}</p>

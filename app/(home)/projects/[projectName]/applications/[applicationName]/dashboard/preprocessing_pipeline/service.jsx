@@ -66,7 +66,11 @@ export const useUpdatePipeline = (formData) => {
   const updatePipeline = async () => {
     if (formData) {
       //PipelineMetadataWriter/update
-      const response = await getAPI(APIKEYS.UPDATE_PIPELINE_METADATA, formData);
+      const response = await getAPI(
+        APIKEYS.UPDATE_PIPELINE_METADATA,
+        formData,
+        true
+      );
       if (response) return response;
     }
   };

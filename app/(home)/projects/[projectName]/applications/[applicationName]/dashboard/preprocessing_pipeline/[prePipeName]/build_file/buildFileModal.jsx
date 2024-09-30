@@ -4,6 +4,7 @@ import {
   ModalInput,
   BaseDeleteModal,
   ValidateForm,
+  FileInput
 } from "@/app/modalComponent";
 import {
   Accordion,
@@ -233,13 +234,15 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ buildFile, onClose, onEdit }) => {
-  const {showToast} = useToastNotification();
+  const { showToast } = useToastNotification();
 
   const [formData, setFormData] = useState({
+    file: buildFile.f_file_uid,
     uid: buildFile.uid,
     name: buildFile.name,
     description: buildFile.description,
   });
+
   //暫存更新的value
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -249,7 +252,14 @@ export const EditModal = ({ buildFile, onClose, onEdit }) => {
     });
   };
 
-  const handleUpdateClick = async() => {
+  const handleFileChange = (file) => {
+    setFormData({
+      ...formData,
+      file: file,
+    });
+  };
+
+  const handleUpdateClick = async () => {
     const response = await HandleUpdate(formData, onEdit, onClose);
     // 根據 response 顯示對應的 toast
     showToast(response && response.status === 200);
@@ -265,6 +275,12 @@ export const EditModal = ({ buildFile, onClose, onEdit }) => {
           name="name"
           value={formData.name}
           onChange={handleInputChange}
+        />
+        <FileInput
+          label="Dataset File"
+          file={buildFile.f_file_uid}
+          onChange={handleFileChange}
+          accept=""
         />
         <ModalInput label="Sequence" value={buildFile.sequence} readOnly />
         <ModalInput

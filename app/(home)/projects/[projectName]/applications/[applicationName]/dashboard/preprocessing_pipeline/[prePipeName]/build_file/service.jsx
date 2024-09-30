@@ -57,7 +57,11 @@ export const useUpdateBuildFile = (formData) => {
   const updateBuildFile = async () => {
     if (formData) {
       //ImageMetadataWriter/update
-      const response = await getAPI(APIKEYS.UPDATE_IMAGE_METADATA, formData);
+      const response = await getAPI(
+        APIKEYS.UPDATE_IMAGE_METADATA,
+        formData,
+        true
+      );
       if (response) return response;
     }
   };

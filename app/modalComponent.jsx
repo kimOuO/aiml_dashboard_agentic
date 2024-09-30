@@ -47,20 +47,20 @@ export const BaseDeleteModal = ({
   // 監聽鍵盤事件
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'Enter') {
+      if (event.key === "Enter") {
         handleDeleteClick(); // 當按下 Enter 鍵時觸發刪除
       }
     };
 
     // 綁定鍵盤事件
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     // 在組件卸載時移除事件監聽
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-  
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
@@ -88,17 +88,28 @@ export const BaseDeleteModal = ({
 };
 
 //通用的FileInput Component
-export const FileInput = ({ label, onChange, accept, error }) => {
-  const [fileName, setFileName] = useState("未選擇任何檔案");
+export const FileInput = ({ label, file, onChange, accept, error }) => {
+  const [fileName, setFileName] = useState(file ? file : "No file");
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFileName(file.name);
-      onChange(file);
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFileName(selectedFile.name);
+      onChange(selectedFile);
     } else {
-      setFileName("未選擇任何檔案");
+      setFileName("No file");
       onChange(null);
+    }
+  };
+
+  const handleClick = () => {
+    if (fileName === "No file") {
+      document.getElementById("fileInput").click();
+    } else {
+      const overwrite = window.confirm("Do you want to overwrite the file?");
+      if (overwrite) {
+        document.getElementById("fileInput").click();
+      }
     }
   };
 
@@ -110,10 +121,10 @@ export const FileInput = ({ label, onChange, accept, error }) => {
       <div className="relative">
         <button
           type="button"
-          onClick={() => document.getElementById("fileInput").click()}
+          onClick={handleClick}
           className="absolute right-0 top-0 bottom-0 bg-blue-500 text-white px-4 py-2 rounded-r-md"
         >
-          選擇檔案
+          Select File
         </button>
         <input
           type="file"

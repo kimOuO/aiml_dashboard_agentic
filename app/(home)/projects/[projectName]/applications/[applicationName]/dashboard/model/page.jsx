@@ -88,6 +88,7 @@ export default function ModelPage() {
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}
                 onUpload={triggerFetch}
+                applicationUID={applicationUID}
               />
             ))}
           </div>

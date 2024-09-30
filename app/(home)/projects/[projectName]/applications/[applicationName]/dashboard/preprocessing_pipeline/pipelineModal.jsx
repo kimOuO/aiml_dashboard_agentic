@@ -15,7 +15,7 @@ export const CreateModal = ({
   onCreate,
   onClose,
 }) => {
-  const {showToast} = useToastNotification();
+  const { showToast } = useToastNotification();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -44,7 +44,7 @@ export const CreateModal = ({
     });
   };
 
-  const handleCreateClick = async() => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = ["name", "file"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
@@ -107,13 +107,15 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
-  const {showToast} = useToastNotification();
-  
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
+    file: pipeline.f_file_uid,
     uid: pipeline.uid,
     name: pipeline.name,
     description: pipeline.description,
   });
+
   //暫存更新的value
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -123,7 +125,14 @@ export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
     });
   };
 
-  const handleUpdateClick = async() => {
+  const handleFileChange = (file) => {
+    setFormData({
+      ...formData,
+      file: file,
+    });
+  };
+
+  const handleUpdateClick = async () => {
     const response = await HandleUpdate(formData, onEdit, onClose);
     // 根據 response 顯示對應的 toast
     showToast(response && response.status === 200);
@@ -140,6 +149,12 @@ export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
           name="name"
           value={formData.name}
           onChange={handleInputChange}
+        />
+        <FileInput
+          label="Dataset File"
+          file={pipeline.f_file_uid}
+          onChange={handleFileChange}
+          accept=".py"
         />
         <ModalInput
           label="Description"
