@@ -32,6 +32,7 @@ export const CreateModal = ({
     f_application_uid: applicationUID,
     file: null,
     extension: "zip",
+    source:""
   });
 
   const [errors, setErrors] = useState({});
