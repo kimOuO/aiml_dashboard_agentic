@@ -15,7 +15,7 @@ export const CreateModal = ({
   onClose,
   onCreate,
 }) => {
-  const {showToast} = useToastNotification();
+  const { showToast } = useToastNotification();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -44,14 +44,14 @@ export const CreateModal = ({
     });
   };
 
-  const handleCreateClick = async() => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = ["name", "file"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
       const response = await HandleCreate(formData, onCreate, onClose);
-      console.log(response)
+      console.log(response);
       // 根據 response 顯示對應的 toast
       showToast(response && response.status === 200);
     }
@@ -108,9 +108,10 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ dataset, onClose, onEdit, applicationName }) => {
-  const {showToast} = useToastNotification();
+  const { showToast } = useToastNotification();
 
   const [formData, setFormData] = useState({
+    file: dataset.f_file_uid,
     uid: dataset.uid,
     name: dataset.name,
     description: dataset.description,
@@ -125,7 +126,14 @@ export const EditModal = ({ dataset, onClose, onEdit, applicationName }) => {
     });
   };
 
-  const handleUpdateClick = async() => {
+  const handleFileChange = (file) => {
+    setFormData({
+      ...formData,
+      file: file,
+    });
+  };
+
+  const handleUpdateClick = async () => {
     const response = await HandleUpdate(formData, onEdit, onClose);
     // 根據 response 顯示對應的 toast
     showToast(response && response.status === 200);
@@ -142,6 +150,12 @@ export const EditModal = ({ dataset, onClose, onEdit, applicationName }) => {
           name="name"
           value={formData.name}
           onChange={handleInputChange}
+        />
+        <FileInput
+          label="Dataset File"
+          file={dataset.f_file_uid}
+          onChange={handleFileChange}
+          accept=".zip"
         />
         <ModalInput
           label="Description"

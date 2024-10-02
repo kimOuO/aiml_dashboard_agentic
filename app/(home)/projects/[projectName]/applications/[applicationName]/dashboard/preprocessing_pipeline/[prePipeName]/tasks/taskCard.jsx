@@ -89,7 +89,6 @@ const TaskExecute = ({ execute_step }) => {
       text = "Generate File";
       break;
     case "prepare_file":
-      s;
       bgColor = "bg-slate-100";
       textColor = "text-slate-800";
       dotColor = "text-slate-500";

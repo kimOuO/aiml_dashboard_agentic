@@ -50,12 +50,11 @@ export const CreateModal = ({
     const { name, value } = e.target;
 
     if (name === "type") {
-      // 當 type 改變時，清空 dataset_uid 和 foreignkey_uid
+      // 當 type 改變時，清空 dataset_uid
       setFormData({
         ...formData,
         type: value,
-        dataset_uid: "", // 清空 dataset_uid
-        foreignkey_uid: "", // 清空 foreignkey_uid
+        dataset_uid: "",
       });
     } else if (name.includes("image_uid")) {
       const key = name.split(".")[1];
@@ -65,21 +64,6 @@ export const CreateModal = ({
           ...formData.image_uid,
           [key]: value,
         },
-      });
-    } else if (name === "dataset_uid") {
-      const selectedDataset = getOriginalDatasetOptions().find(
-        (dataset) => dataset.uid === value
-      );
-
-      const foreignkey =
-        formData.type === "Original Dataset"
-          ? selectedDataset?.f_project_uid
-          : selectedDataset?.f_application_uid;
-
-      setFormData({
-        ...formData,
-        [name]: value,
-        foreignkey_uid: foreignkey || "", // 設定 foreignkey_uid
       });
     } else {
       setFormData({
@@ -92,8 +76,10 @@ export const CreateModal = ({
   //動態顯示不同的original dataset根據type
   const getOriginalDatasetOptions = () => {
     if (formData.type === "Optimization Dataset") {
+      formData.dataset_type = "optimization";
       return taskFile.taskFile.original_dataset?.application || [];
     } else if (formData.type === "Original Dataset") {
+      formData.dataset_type = "training";
       return taskFile.taskFile?.original_dataset?.project || [];
     }
     return [];
@@ -300,7 +286,7 @@ export const CreateModal = ({
 };
 
 export const EditModal = ({ task, onClose, onEdit, pipelineName }) => {
-  const {showToast} = useToastNotification();
+  const { showToast } = useToastNotification();
 
   const [formData, setFormData] = useState({
     uid: task.uid,
@@ -317,7 +303,7 @@ export const EditModal = ({ task, onClose, onEdit, pipelineName }) => {
     });
   };
 
-  const handleUpdateClick = async() => {
+  const handleUpdateClick = async () => {
     const response = await HandleUpdate(formData, onEdit, onClose);
     // 根據 response 顯示對應的 toast
     showToast(response && response.status === 200);

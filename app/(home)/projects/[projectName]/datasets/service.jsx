@@ -51,7 +51,8 @@ export const useUpdateDataset = (formData) => {
       //ProjectDatasetMetadataWriter/update
       const response = await getAPI(
         APIKEYS.UPDATE_ROJECT_DATASET_METADATA,
-        formData
+        formData,
+        true
       );
       if (response) return response;
     }

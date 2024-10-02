@@ -6,8 +6,11 @@ import {
   ValidateForm,
 } from "@/app/modalComponent";
 import { format } from "date-fns";
+import { useToastNotification } from "@/app/modalComponent";
 
 export const CreateModal = ({ organization, onClose, onCreate }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     agent_name: "",
     agent_description: "",
@@ -25,13 +28,15 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
     });
   };
 
-  const handleCreateClick = () => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = ["agent_name"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      HandleCreate(formData, onCreate, onClose);
+      const response = await HandleCreate(formData, onCreate, onClose);
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
     }
   };
 
@@ -81,15 +86,17 @@ export const CreateModal = ({ organization, onClose, onCreate }) => {
   );
 };
 
-export const EditModal = ({ project, onClose, onEdit, organizationName }) => {
+export const EditModal = ({ agent, onClose, onEdit, organizationName }) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
-    uid: project.uid,
-    name: project.name,
-    description: project.description,
+    uid: agent.uid,
+    name: agent.name,
+    description: agent.description,
   });
 
   const formattedDate = format(
-    new Date(project.created_time),
+    new Date(agent.created_time),
     "yyyy-MM-dd HH:mm:ss"
   );
 
@@ -102,14 +109,16 @@ export const EditModal = ({ project, onClose, onEdit, organizationName }) => {
     });
   };
 
-  const handleUpdateClick = () => {
-    HandleUpdate(formData, onEdit, onClose);
+  const handleUpdateClick = async () => {
+    const response = await HandleUpdate(formData, onEdit, onClose);
+    // 根據 response 顯示對應的 toast
+    showToast(response && response.status === 200);
   };
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Project</h2>
+        <h2 className="text-2xl font-bold mb-4">Agent</h2>
         <ModalInput label="Organization" value={organizationName} readOnly />
         <ModalInput label="UID" value={formData.uid} readOnly />
         <ModalInput
@@ -123,6 +132,11 @@ export const EditModal = ({ project, onClose, onEdit, organizationName }) => {
           name="description"
           value={formData.description}
           onChange={handleInputChange}
+        />
+        <ModalInput
+          label="Access Token"
+          value={agent.activation_token}
+          readOnly
         />
         <ModalInput label="Created Time" value={formattedDate} readOnly />
         <div className="flex justify-between">
@@ -144,11 +158,11 @@ export const EditModal = ({ project, onClose, onEdit, organizationName }) => {
   );
 };
 
-export const DeleteModal = ({ project, onClose, onDelete }) => {
+export const DeleteModal = ({ agent, onClose, onDelete }) => {
   return (
     <BaseDeleteModal
-      entity={project}
-      entityName="Project"
+      entity={agent}
+      entityName="Agent"
       onClose={onClose}
       onDelete={onDelete}
       handleDelete={HandleDelete}

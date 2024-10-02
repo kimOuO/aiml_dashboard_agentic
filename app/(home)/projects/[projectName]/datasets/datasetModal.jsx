@@ -76,6 +76,7 @@ export const CreateModal = ({
         <ModalInput label="Type" name="type" value={formData.type} readOnly />
         <FileInput
           label="Dataset File"
+          file=""
           onChange={handleFileChange}
           accept=".zip"
           error={errors.file}
@@ -110,6 +111,7 @@ export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
   const { showToast } = useToastNotification();
 
   const [formData, setFormData] = useState({
+    file: dataset.f_file_uid,
     uid: dataset.uid,
     name: dataset.name,
     description: dataset.description,
@@ -121,6 +123,13 @@ export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
     setFormData({
       ...formData,
       [name]: value,
+    });
+  };
+  
+  const handleFileChange = (file) => {
+    setFormData({
+      ...formData,
+      file: file,
     });
   };
 
@@ -141,6 +150,12 @@ export const EditModal = ({ dataset, onClose, onEdit, projectName }) => {
           name="name"
           value={formData.name}
           onChange={handleInputChange}
+        />
+        <FileInput
+          label="Dataset File"
+          file={dataset.f_file_uid}
+          onChange={handleFileChange}
+          accept=".zip"
         />
         <ModalInput
           label="Description"

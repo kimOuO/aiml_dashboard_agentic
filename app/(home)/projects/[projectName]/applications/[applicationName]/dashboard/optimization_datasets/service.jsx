@@ -51,7 +51,8 @@ export const useUpdateDataset = (formData) => {
       //ApplicationDatasetMetadataWriter/update
       const response = await getAPI(
         APIKEYS.UPDATE_APPLICATION_DATASET_METADATA,
-        formData
+        formData,
+        true
       );
       if (response) return response;
     }
@@ -85,7 +86,7 @@ export const useCreateDataset = () => {
         formData,
         true
       );
-      console.log(response)
+      console.log(response);
       if (response) return response;
     }
   };
@@ -119,6 +120,6 @@ export const HandleCreate = async (formData, onCreate, onClose) => {
     onCreate();
     onClose();
   }
-  console.log(response)
+  console.log(response);
   return response;
 };
