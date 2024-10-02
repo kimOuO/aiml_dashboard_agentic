@@ -120,6 +120,25 @@ export const useUnpublishModel = (formData) => {
   return { unpublishModel };
 };
 
+//查詢inference
+export const useGetInference = (modelUID) => {
+  const [inference, setInference] = useState(null);
+  useEffect(() => {
+    const fetchInference = async () => {
+      if (modelUID) {
+        //InferenceMetadataWriter/filter_by_model
+        const data = { f_model_uid: modelUID };
+        const response = await getAPI(APIKEYS.FILTER_INFERENCE_BY_MODEL, data);
+        if (response.status === 200) {
+          setInference(response.data.data);
+        }
+      }
+    };
+    fetchInference();
+  }, [modelUID]);
+  return { inference };
+};
+
 export const HandleUpload = async (formData, onUpload, onClose) => {
   const { uploadInference } = useUploadInferenceModel();
   const response = await uploadInference(formData);
@@ -160,7 +179,7 @@ export const HandleCreate = async (formData, onCreate, onClose) => {
   return response;
 };
 
-export const HandlePublishToggle = async (model,onEdit) => {
+export const HandlePublishToggle = async (model, onEdit) => {
   const changeStatus = model.status === "publish" ? "unpublish" : "publish";
   const formData = {
     uid: model.uid,
@@ -170,7 +189,7 @@ export const HandlePublishToggle = async (model,onEdit) => {
   if (model.status === "unpublish") {
     const { publishModel } = usePublishModel(formData);
     const response = await publishModel();
-    onEdit()
+    onEdit();
     if (response.status === 200) return response;
   } else if (model.status === "publish") {
     const { unpublishModel } = useUnpublishModel(formData);

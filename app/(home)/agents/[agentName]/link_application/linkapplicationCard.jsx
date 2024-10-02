@@ -9,8 +9,6 @@ export default function LinkApplicationCard({
   agentUID,
   projectName,
   application,
-  onEdit,
-  onDelete,
 }) {
   const router = useRouter();
   const [isLinkApplicationModalOpen, setIsLinkApplicationModalOpen] =
@@ -38,7 +36,11 @@ export default function LinkApplicationCard({
 
   const handleConfirmToggle = async () => {
     setIsLinkApplicationModalOpen(false); // 關閉 Modal
-    const response = await HandlePublishToggle(application.uid,agentUID, isPublish);
+    const response = await HandlePublishToggle(
+      application.uid,
+      agentUID,
+      isPublish
+    );
     if (response) {
       setIsPublish(!isPublish); // 更新本地狀態
     }

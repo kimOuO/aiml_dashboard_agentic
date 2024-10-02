@@ -64,11 +64,7 @@ export const useCreateAgent = () => {
     if (formData) {
       //AgentTopicManager/create
       const response = await getAPI(APIKEYS.CREATE_AGENT_TOPIC, formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating agent:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { createAgent };
@@ -80,11 +76,7 @@ export const useUpdateAgent = (formData) => {
     if (formData) {
       //AgentMetadataWriter/update
       const response = await getAPI(APIKEYS.UPDATE_AGENT, formData);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating agent:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { updateAgent };
@@ -97,11 +89,7 @@ export const useDeleteAgent = (agentUID) => {
       //AgentTopicManager/delete
       const data = { agent_uid: agentUID };
       const response = await getAPI(APIKEYS.DELETE_AGENT_TOPIC, data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting agent:", response.data);
-      }
+      if (response) return response;
     }
   };
   return { deleteAgent };
@@ -110,26 +98,29 @@ export const useDeleteAgent = (agentUID) => {
 export const HandleUpdate = async (formData, onEdit, onClose) => {
   const { updateAgent } = useUpdateAgent(formData);
   const response = await updateAgent();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onEdit();
     onClose();
   }
+  return response;
 };
 
 export const HandleDelete = async (agentUID, onDelete, onClose) => {
   const { deleteAgent } = useDeleteAgent(agentUID);
   const response = await deleteAgent();
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onDelete();
     onClose();
   }
+  return response;
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
   const { createAgent } = useCreateAgent();
   const response = await createAgent(formData);
-  if (response && !(response instanceof Error)) {
+  if (response.status === 200) {
     onCreate();
     onClose();
   }
+  return response;
 };

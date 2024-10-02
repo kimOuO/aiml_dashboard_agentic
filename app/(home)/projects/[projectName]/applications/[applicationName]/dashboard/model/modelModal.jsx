@@ -12,6 +12,7 @@ import {
   HandleUpload,
 } from "./service";
 import { useToastNotification } from "@/app/modalComponent";
+import { HandleDownloadFile } from "@/app/downloadFile";
 
 export const CreateModal = ({
   applicationUID,
@@ -229,14 +230,19 @@ export const DeleteModal = ({ model, onClose, onDelete }) => {
   );
 };
 
-export const UploadModal = ({ modelUID, onClose, onUpload }) => {
+export const UploadInferenceModal = ({
+  inference,
+  modelUID,
+  onClose,
+  onUpload,
+}) => {
   const { showToast } = useToastNotification();
 
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
+    name: inference[0]?.name || "",
+    description: inference[0]?.description || "",
     type: "template",
-    file: null,
+    file: inference[0]?.f_file_uid || "",
     extension: "zip",
     f_model_uid: modelUID,
   });
@@ -271,6 +277,15 @@ export const UploadModal = ({ modelUID, onClose, onUpload }) => {
     }
   };
 
+  //download file
+  const handleDownloadClick = async () => {
+    const download = window.confirm("Do you want to download the file?");
+    if (download) {
+      const { downloadFile } = HandleDownloadFile(inference[0]);
+      await downloadFile();
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
@@ -282,12 +297,23 @@ export const UploadModal = ({ modelUID, onClose, onUpload }) => {
           onChange={handleInputChange}
           error={errors.name}
         />
-        <FileInput
-          label="Inference File"
-          onChange={handleFileChange}
-          accept=".zip"
-          error={errors.file}
-        />
+        <div className="flex items-center space-x-4">
+          <div className="flex-grow">
+            <FileInput
+              label="Dataset File"
+              file={formData.file}
+              onChange={handleFileChange}
+              error={errors.file}
+              accept=".zip"
+            />
+          </div>
+          {/*有inference file才可下載*/}
+          {inference[0]?.f_file_uid && (
+            <button onClick={handleDownloadClick}>
+              <img src="/project/download.svg" alt="Download" />
+            </button>
+          )}
+        </div>
         <ModalInput
           label="Inference Template Description"
           name="description"

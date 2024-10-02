@@ -1,21 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { EditModal, DeleteModal, UploadModal } from "./modelModal";
+import { EditModal, DeleteModal, UploadInferenceModal } from "./modelModal";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { HandlePublishToggle } from "./service";
+import { HandlePublishToggle, useGetInference } from "./service";
 import { useToast } from "@/components/ui/use-toast";
 import { HandleDownloadFile } from "@/app/downloadFile";
 
 export const ModelCard = React.memo(
-  ({ model, onEdit, onDelete, onUpload, applicationName,projectName,applicationUID }) => {
+  ({
+    model,
+    onEdit,
+    onDelete,
+    onUpload,
+    applicationName,
+    projectName,
+    applicationUID,
+  }) => {
+    const { inference } = useGetInference(model.uid);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isPublish, setIsPublish] = useState(model.status === "publish");
+
     const router = useRouter();
 
     const { toast } = useToast();
+
     //Edit modal開啟關閉
     const handleEditClick = () => {
       setIsEditModalOpen(true);
@@ -41,7 +52,7 @@ export const ModelCard = React.memo(
     };
 
     //upload folder modal開啟關閉
-    const handleUploadFolderClick = () => {
+    const handleUploadFolderClick = async () => {
       setIsUploadModalOpen(true);
     };
 
@@ -50,7 +61,7 @@ export const ModelCard = React.memo(
     };
 
     const handlePublishToggle = async () => {
-      const response = await HandlePublishToggle(model,onEdit);
+      const response = await HandlePublishToggle(model, onEdit);
       if (response) {
         setIsPublish((prev) => !prev); // 更新本地狀態
         toast({
@@ -133,10 +144,11 @@ export const ModelCard = React.memo(
           />
         )}
         {isUploadModalOpen && (
-          <UploadModal
+          <UploadInferenceModal
             modelUID={model.uid}
             onClose={handleCloseUploadFolderModal}
             onUpload={onUpload}
+            inference={inference}
           />
         )}
       </div>

@@ -28,9 +28,9 @@ const AgentCard = ({ agent, onEdit, onDelete, organization }) => {
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
       <div onClick={handleCardClick} className="cursor-pointer">
+        <div className="bg-blue-300 rounded-lg p-0.5">{agent.uid}</div>
         <h2 className="text-xl font-semibold p-1">{agent.name}</h2>
         <p className="text-gray-500">{agent.description}</p>
-        <p className="text-gray-500">{agent.created_time}</p>
       </div>
       <div className="flex space-x-8 px-5">
         <button onClick={handleEditClick}>
@@ -42,7 +42,7 @@ const AgentCard = ({ agent, onEdit, onDelete, organization }) => {
       </div>
       {isEditModalOpen && (
         <EditModal
-          project={agent}
+          agent={agent}
           onClose={handleCloseEditModal}
           onEdit={onEdit}
           organizationName={organization.name}
@@ -50,7 +50,7 @@ const AgentCard = ({ agent, onEdit, onDelete, organization }) => {
       )}
       {isDeleteModalOpen && (
         <DeleteModal
-          project={agent}
+          agent={agent}
           onClose={handleCloseDeleteModal}
           onDelete={onDelete}
         />
