@@ -23,7 +23,7 @@ export default function OptimizationTaskPage() {
     triggerFetch,
   } = useFetchTask(pipelineUID);
 
-  const taskFile = useFetchTaskFile(pipelineUID);
+  const {taskFile} = useFetchTaskFile(pipelineUID);
 
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
@@ -101,7 +101,7 @@ export default function OptimizationTaskPage() {
                 pipelineName={optimiPipeNameDecode}
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}
-                type="retrain"
+                type="Optimization"
               />
             ))}
           </div>

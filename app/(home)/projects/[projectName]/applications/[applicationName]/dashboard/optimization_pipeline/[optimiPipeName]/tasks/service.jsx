@@ -13,7 +13,7 @@ export const useFetchTaskFile = (pipelineUID) => {
       if (pipelineUID) {
         // Preparer/retrain
         const data = { pipeline_uid: pipelineUID };
-        const response = await getAPI(APIKEYS.PREPARER_RETRAIN_TASK, data);
+        const response = await getAPI(APIKEYS.PREPARER_OPTIMIZATION_TASK, data);
         if (response.status === 200) {
           setTaskFile(response.data.data);
         }

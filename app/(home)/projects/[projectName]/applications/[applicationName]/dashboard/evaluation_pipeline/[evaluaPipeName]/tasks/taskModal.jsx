@@ -13,7 +13,7 @@ export const CreateModal = ({
   pipelineName,
   onCreate,
   onClose,
-  taskFile
+  taskFile,
 }) => {
   const [formData, setFormData] = useState({
     access_key: "",
@@ -38,7 +38,14 @@ export const CreateModal = ({
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    if (name.includes("image_uid")) {
+    if (name === "type") {
+      //當type改變，清空dataset_uid
+      setFormData({
+        ...formData,
+        type: value,
+        dataset_uid: "",
+      });
+    } else if (name.includes("image_uid")) {
       //更新嵌套字串
       const key = name.split(".")[1];
       setFormData({
@@ -194,12 +201,14 @@ export const CreateModal = ({
             <AccordionContent>
               <ModalInput
                 label="Evaluation Task Name"
+                name="task_name"
                 value={formData.task_name}
                 onChange={handleInputChange}
                 error={errors.task_name}
               />
               <ModalInput
                 label="Evaluation Task Description"
+                name="task_description"
                 value={formData.task_description}
                 onChange={handleInputChange}
               />

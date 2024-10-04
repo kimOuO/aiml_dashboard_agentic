@@ -23,7 +23,7 @@ export const CreateModal = ({
     pipeline_uid: pipelineUID,
     model_uid: "",
     dataset_uid: "",
-    type: "application",
+    type: "",
     config_uid: "",
     image_uid: {
       download_uid: "",
@@ -44,7 +44,14 @@ export const CreateModal = ({
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    if (name.includes("image_uid")) {
+    if (name === "type") {
+      //當type改變時，清空dataset_uid
+      setFormData({
+        ...formData,
+        type: value,
+        dataset_uid: "",
+      });
+    } else if (name.includes("image_uid")) {
       //更新嵌套字串
       const key = name.split(".")[1];
       setFormData({
@@ -62,6 +69,25 @@ export const CreateModal = ({
       });
     }
   };
+  //根據type動態顯示不同的original dataset
+  const getTrainingDatasetOptions = () => {
+    if (formData.type === "Training Dataset") {
+      return taskFile.training_dataset?.project || [];
+    } else if (formData.type === "Optimization Dataset") {
+      return taskFile.training_dataset?.application || [];
+    }
+    return [];
+  };
+
+  console.log(taskFile.pretrain_model)
+  const getPretrainModelOptions = () => {
+    if (formData.type == "Training Dataset") {
+      return taskFile.pretrain_model?.retrain || [];
+    } else if (formData.type === "Optimization Dataset") {
+      return taskFile.pretrain_model?.tuning || [];
+    }
+    return [];
+  };
 
   const handleCreateClick = () => {
     const fieldsToValidate = [
@@ -76,7 +102,8 @@ export const CreateModal = ({
       "model_name",
       "model_input_format",
       "model_output_format",
-      "task_name"  
+      "task_name",
+      "type",
     ];
 
     const validationErrors = ValidateForm(formData, fieldsToValidate);
@@ -121,20 +148,26 @@ export const CreateModal = ({
             </AccordionTrigger>
             <AccordionContent>
               <ModalInput
-                label="Retrain Pipeline Name"
+                label="Optimization Pipeline Name"
                 value={pipelineName}
                 readOnly
               />
-              <ModalInput
-                label="Retrain Task Type"
+              <SelectDropdown
+                label="Optimization Task Type"
+                name="type"
                 value={formData.type}
-                readOnly
+                options={[
+                  { uid: "Training Dataset", name: "Training Dataset" },
+                  { uid: "Optimization Dataset", name: "Optimization Dataset" },
+                ]}
+                onChange={handleInputChange}
+                error={errors.type}
               />
               <SelectDropdown
-                label="Retrain Dataset Name"
+                label="Optimization Dataset Name"
                 name="dataset_uid"
                 value={formData.dataset_uid}
-                options={taskFile.taskFile.training_dataset?.application}
+                options={getTrainingDatasetOptions()} //根據type顯示動態數據
                 onChange={handleInputChange}
                 error={errors.dataset_uid}
               />
@@ -142,7 +175,7 @@ export const CreateModal = ({
                 label="Retrain Model Name"
                 name="model_uid"
                 value={formData.model_uid}
-                options={taskFile.taskFile.pretrain_model}
+                options={getPretrainModelOptions()} //根據type顯示動態數據
                 onChange={handleInputChange}
                 error={errors.model_uid}
               />
@@ -150,7 +183,7 @@ export const CreateModal = ({
                 label="Retrain Task Config"
                 name="config_uid"
                 value={formData.config_uid}
-                options={taskFile.taskFile.config}
+                options={taskFile.config}
                 onChange={handleInputChange}
                 error={errors.config_uid}
               />
@@ -158,7 +191,7 @@ export const CreateModal = ({
                 label="Build File:#1. Download Image Path"
                 name="image_uid.download_uid"
                 value={formData.image_uid.download_uid}
-                options={taskFile.taskFile.image.download}
+                options={taskFile.image.download}
                 onChange={handleInputChange}
                 error={errors.image_uid?.download_uid}
               />
@@ -166,7 +199,7 @@ export const CreateModal = ({
                 label="Build File:#2. Running Image Path"
                 name="image_uid.running_uid"
                 value={formData.image_uid.running_uid}
-                options={taskFile.taskFile.image.running}
+                options={taskFile.image.running}
                 onChange={handleInputChange}
                 error={errors.image_uid?.running_uid}
               />
@@ -174,7 +207,7 @@ export const CreateModal = ({
                 label="Build File:#2. Upload Image Path"
                 name="image_uid.upload_uid"
                 value={formData.image_uid.upload_uid}
-                options={taskFile.taskFile.image.upload}
+                options={taskFile.image.upload}
                 onChange={handleInputChange}
                 error={errors.image_uid?.upload_uid}
               />

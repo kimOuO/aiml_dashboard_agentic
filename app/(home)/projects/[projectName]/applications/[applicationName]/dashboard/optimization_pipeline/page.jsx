@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchPipeline } from "../preprocessing_pipeline/service";
 import { PipelineCard } from "../preprocessing_pipeline/pipelineCard";
-import { CreateModal } from "../preprocessing_pipeline/pipelineModal";
+import { CreateModal } from "./pipelineModal";
 
 export default function OptimizationPipelinePage() {
   const { projectName, applicationName } = useParams();
@@ -15,12 +15,18 @@ export default function OptimizationPipelinePage() {
   const applicationUID = searchParams.get("applicationUID");
 
   const handleBackClick = useBackNavigation();
-  const type = "retrain";
+
   const {
-    pipelines: optimiPipelines,
-    isLoading,
-    triggerFetch,
-  } = useFetchPipeline(applicationUID, type);
+    pipelines: retrainPipelines,
+    isLoading: retrainLoading,
+    triggerFetch: retrainTrigger,
+  } = useFetchPipeline(applicationUID, "retrain");
+
+  const {
+    pipelines: tuningPipelines,
+    isLoading: tuningLoading,
+    triggerFetch: tuningTrigger,
+  } = useFetchPipeline(applicationUID, "tuning");
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -55,19 +61,30 @@ export default function OptimizationPipelinePage() {
           </button>
         </div>
         {/*放card */}
-        {isLoading ? (
+        {retrainLoading && tuningLoading ? (
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {optimiPipelines.map((tunPipe) => (
+            {retrainPipelines.map((retrainPipe) => (
+              <PipelineCard
+                key={retrainPipe.uid}
+                projectName={projectNameDecode}
+                applicationName={applicationNameDecode}
+                pipeline={retrainPipe}
+                path="optimization_pipeline"
+                onEdit={retrainTrigger}
+                onDelete={retrainTrigger}
+              />
+            ))}
+            {tuningPipelines.map((tunPipe) => (
               <PipelineCard
                 key={tunPipe.uid}
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
                 pipeline={tunPipe}
                 path="optimization_pipeline"
-                onEdit={triggerFetch}
-                onDelete={triggerFetch}
+                onEdit={tuningTrigger}
+                onDelete={tuningTrigger}
               />
             ))}
           </div>
@@ -77,8 +94,8 @@ export default function OptimizationPipelinePage() {
         <CreateModal
           applicationUID={applicationUID}
           applicationName={applicationNameDecode}
-          type={type}
-          onCreate={triggerFetch}
+          onCreateRetain={retrainTrigger}
+          onCreateTuning={tuningTrigger}
           onClose={handleCloseCreateModal}
         />
       )}
