@@ -69,23 +69,24 @@ export const CreateModal = ({
       });
     }
   };
-
   //根據type動態顯示不同的original dataset
   const getTrainingDatasetOptions = () => {
     if (formData.type === "Training Dataset") {
-      return taskFile.taskFile?.training_dataset?.project || [];
+      return taskFile.training_dataset?.project || [];
     } else if (formData.type === "Optimization Dataset") {
-      return taskFile.taskFile?.training_dataset?.application || [];
+      return taskFile.training_dataset?.application || [];
     }
     return [];
   };
 
+  console.log(taskFile.pretrain_model)
   const getPretrainModelOptions = () => {
     if (formData.type == "Training Dataset") {
-      return taskFile.taskFile?.pretrain_model?.retrain || [];
+      return taskFile.pretrain_model?.retrain || [];
     } else if (formData.type === "Optimization Dataset") {
-      return taskFile.taskFile?.pretrain_model?.tuning || [];
+      return taskFile.pretrain_model?.tuning || [];
     }
+    return [];
   };
 
   const handleCreateClick = () => {
@@ -182,7 +183,7 @@ export const CreateModal = ({
                 label="Retrain Task Config"
                 name="config_uid"
                 value={formData.config_uid}
-                options={taskFile.taskFile.config}
+                options={taskFile.config}
                 onChange={handleInputChange}
                 error={errors.config_uid}
               />
@@ -190,7 +191,7 @@ export const CreateModal = ({
                 label="Build File:#1. Download Image Path"
                 name="image_uid.download_uid"
                 value={formData.image_uid.download_uid}
-                options={taskFile.taskFile.image.download}
+                options={taskFile.image.download}
                 onChange={handleInputChange}
                 error={errors.image_uid?.download_uid}
               />
@@ -198,7 +199,7 @@ export const CreateModal = ({
                 label="Build File:#2. Running Image Path"
                 name="image_uid.running_uid"
                 value={formData.image_uid.running_uid}
-                options={taskFile.taskFile.image.running}
+                options={taskFile.image.running}
                 onChange={handleInputChange}
                 error={errors.image_uid?.running_uid}
               />
@@ -206,7 +207,7 @@ export const CreateModal = ({
                 label="Build File:#2. Upload Image Path"
                 name="image_uid.upload_uid"
                 value={formData.image_uid.upload_uid}
-                options={taskFile.taskFile.image.upload}
+                options={taskFile.image.upload}
                 onChange={handleInputChange}
                 error={errors.image_uid?.upload_uid}
               />

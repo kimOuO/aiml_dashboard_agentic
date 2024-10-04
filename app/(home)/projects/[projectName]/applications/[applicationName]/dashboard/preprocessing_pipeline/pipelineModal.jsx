@@ -162,6 +162,11 @@ export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
           value={formData.description}
           onChange={handleInputChange}
         />
+        <ModalInput
+          label="Type"
+          value={pipeline.type}
+          readOnly
+        />
         <ModalInput label="File Extension" value="py" readOnly />
         <ModalInput
           label="Created Time"
