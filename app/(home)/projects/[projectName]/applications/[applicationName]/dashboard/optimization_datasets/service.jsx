@@ -86,7 +86,6 @@ export const useCreateDataset = () => {
         formData,
         true
       );
-      console.log(response);
       if (response) return response;
     }
   };
@@ -120,6 +119,5 @@ export const HandleCreate = async (formData, onCreate, onClose) => {
     onCreate();
     onClose();
   }
-  console.log(response);
   return response;
 };

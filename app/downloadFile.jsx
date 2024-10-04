@@ -61,7 +61,6 @@ export const HandlePrintLog = ({ task, type }) => {
         if (response.status === 200) {
           const blobData = await response.data.text();
           const jsonData = JSON.parse(blobData);
-          console.log(jsonData);
 
           // 構建可讀的日誌內容
           let logContent = "";

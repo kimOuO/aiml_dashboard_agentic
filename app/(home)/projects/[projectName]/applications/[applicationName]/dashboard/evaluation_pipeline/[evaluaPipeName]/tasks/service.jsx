@@ -42,7 +42,7 @@ export const useRunEvaluationTask = () => {
 };
 
 export const HandleCreate = async (formData, onCreate, onClose) => {
-  const { runTask } = useRunRetrainTask();
+  const { runTask } = useRunEvaluationTask();
 
   const runTaskResponse = await runTask(formData);
 
