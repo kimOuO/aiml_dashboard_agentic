@@ -79,10 +79,10 @@ export default function ModelPage() {
           <div>Loading ...</div>
         ) : (
           <div className="space-y-4">
-            {models.map((model) => (
+            {Object.keys(models).map((key) => (
               <ModelCard
-                key={model.uid}
-                model={model}
+                key={models[key].uid}
+                model={models[key]}
                 projectName={proejectNameDecode}
                 applicationName={applicationNameDecode}
                 onEdit={triggerFetch}

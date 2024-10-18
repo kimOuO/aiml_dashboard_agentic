@@ -18,11 +18,14 @@ export const useFetchModels = (applicationUID) => {
         //ModelMetadataWriter/filter_by_application
         const data = { f_application_uid: applicationUID };
         const response = await getAPI(
-          APIKEYS.FILTER_MODEL_BY_APPLICATION,
+          APIKEYS.GROUP,
+          // APIKEYS.FILTER_MODEL_BY_APPLICATION,
           data
         );
         if (response.status === 200) {
           setModels(response.data.data);
+          console.log(response.data.data)
+          console.log('successful')
         } else if (response && response instanceof Error) {
           console.error("Error fetching models：", response.data);
         }
