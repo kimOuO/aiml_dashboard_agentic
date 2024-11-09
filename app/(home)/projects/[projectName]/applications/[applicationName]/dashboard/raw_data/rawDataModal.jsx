@@ -1,0 +1,201 @@
+import React, { useState } from "react";
+import { HandleDelete, HandleUpdate, HandleCreate } from "./service";
+import {
+  ModalInput,
+  BaseDeleteModal,
+  ValidateForm,
+  FileInput,
+} from "@/app/modalComponent";
+import { useToastNotification } from "@/app/modalComponent";
+
+export const CreateModal = ({
+  applicationUID,
+  applicationName,
+  activeTab,
+  onClose,
+  onCreate,
+}) => {
+  const { showToast } = useToastNotification();
+
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    type: activeTab,
+    f_application_uid: applicationUID,
+    file: null,
+    extension: "zip",
+  });
+
+  const [errors, setErrors] = useState({});
+
+  //暫存更新的value
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleFileChange = (file) => {
+    setFormData({
+      ...formData,
+      file: file,
+    });
+  };
+
+  const handleCreateClick = async () => {
+    const fieldsToValidate = ["name", "file"];
+    const validationErrors = ValidateForm(formData, fieldsToValidate);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length === 0) {
+      const response = await HandleCreate(formData, onCreate, onClose);
+      // 根據 response 顯示對應的 toast
+      showToast(response && response.status === 200);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
+        <h2 className="text-2xl font-bold mb-4">Upload {activeTab} dataset</h2>
+        <ModalInput
+          label="Application UID"
+          value={formData.f_application_uid}
+          readOnly
+        />
+        <ModalInput label="Application Name" value={applicationName} readOnly />
+        <ModalInput
+          label="Name"
+          name="name"
+          value={formData.name}
+          onChange={handleInputChange}
+          error={errors.name}
+        />
+        <ModalInput label="Type" name="type" value={formData.type} readOnly />
+        <FileInput
+          label="Dataset File"
+          onChange={handleFileChange}
+          accept=".zip"
+          error={errors.file}
+        />
+        <ModalInput
+          label="Dataset Description"
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
+          error={errors.description}
+        />
+        <div className="flex justify-between">
+          <button
+            onClick={handleCreateClick}
+            className="bg-green-700 text-white px-4 py-2 rounded-md font-bold"
+          >
+            Create
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-blue-700 text-white px-4 py-2 rounded-md font-bold"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const EditModal = ({ rawData, onClose, onEdit, applicationName }) => {
+  const { showToast } = useToastNotification();
+
+  const [formData, setFormData] = useState({
+    file: rawData.f_file_uid,
+    uid: rawData.uid,
+    name: rawData.name,
+    description: rawData.description,
+  });
+
+  //暫存更新的value
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleFileChange = (file) => {
+    setFormData({
+      ...formData,
+      file: file,
+    });
+  };
+
+  const handleUpdateClick = async () => {
+    const response = await HandleUpdate(formData, onEdit, onClose);
+    // 根據 response 顯示對應的 toast
+    showToast(response && response.status === 200);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
+        <h2 className="text-2xl font-bold mb-4">Raw Data</h2>
+        <ModalInput label="Application" value={applicationName} readOnly />
+        <ModalInput label="UID" value={formData.uid} readOnly />
+        <ModalInput
+          label="Name"
+          name="name"
+          value={formData.name}
+          onChange={handleInputChange}
+        />
+        <FileInput
+          label="Dataset File"
+          file={rawData.f_file_uid}
+          onChange={handleFileChange}
+          accept=".zip"
+        />
+        <ModalInput
+          label="Description"
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
+        />
+        <ModalInput label="File Extension" value="zip" readOnly />
+        <ModalInput
+          label="Created Time"
+          value={rawData.created_time}
+          readOnly
+        />
+        <div className="flex justify-between">
+          <button
+            onClick={handleUpdateClick}
+            className="bg-green-700 text-white px-4 py-2 rounded-md font-bold"
+          >
+            Update
+          </button>
+          <button
+            onClick={onClose}
+            className="bg-blue-700 text-white px-4 py-2 rounded-md font-bold"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const DeleteModal = ({ rawData, onClose, onDelete }) => {
+  const entityName = `Raw Data`;
+  return (
+    <BaseDeleteModal
+      entity={rawData}
+      entityName={entityName}
+      onClose={onClose}
+      onDelete={onDelete}
+      handleDelete={HandleDelete}
+    />
+  );
+};

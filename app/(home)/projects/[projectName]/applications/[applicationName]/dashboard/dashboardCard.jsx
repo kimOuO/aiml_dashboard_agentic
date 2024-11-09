@@ -44,6 +44,12 @@ export default function ApplicationDashboard({
     );
   };
 
+  const handleRawDataClick = () => {
+    router.push(
+      `/projects/${projectName}/applications/${applicationName}/dashboard/raw_data?applicationUID=${applicationUID}`
+    )
+  }
+
   return (
     <div className="space-y-10">
       <div
@@ -97,6 +103,15 @@ export default function ApplicationDashboard({
       >
         <div className="flex space-x-4">
           <h2 className=" text-xl font-semibold p-1">Evaluation Pipeline</h2>
+          <span className="text-2xl font-bold">→</span>
+        </div>
+      </div>
+      <div
+        className="relative bg-yellow-100 shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer border-2 border-yellow-300"
+        onClick={handleRawDataClick}
+      >
+        <div className="flex space-x-4">
+          <h2 className=" text-xl font-semibold p-1">Raw Data</h2>
           <span className="text-2xl font-bold">→</span>
         </div>
       </div>

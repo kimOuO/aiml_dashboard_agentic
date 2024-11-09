@@ -1,0 +1,93 @@
+[
+    {
+        "id": 1,
+        "uid": "1",
+        "name": "raw_data",
+        "description": "Sample description",
+        "f_application_uid": "c738b516-73a2-47db-88d0-0e81afec33bf",
+        "f_agent_uid": {
+            "uid": "2938114c-3fa2-4e7d-8464-9d8e731b3ad8",
+            "name": "Agent A"
+        },
+        "f_model_uid": {
+            "uid":"a1fa957f-eee3-4d66-b06c-a94a17bf0376",
+            "name":"Model A"
+        },
+        "f_file_uid": "0623f985-b0ef-43c0-8e14-ae672746b68d",
+        "extension": "zip",
+        "created_time": "2024/11/09 15:27"
+    },
+    {
+        "id": 2,
+        "uid": "2",
+        "name": "training_data",
+        "description": "Sample description",
+        "f_application_uid": "c89f4e82-b2db-4400-87d6-2fa076d573ca",
+        "f_agent_uid": {
+            "uid":"99566da5-057b-45ea-aecb-e67004d6ed49",
+            "name":"Agent B"
+        },
+        "f_model_uid": {
+            "uid":"ce13b88e-9932-42cc-a45b-e636fad12429",
+            "name":"Model B"
+        },
+        "f_file_uid": "fb48fa49-77a0-4338-9867-2e2c54c94a98",
+        "extension": "zip",
+        "created_time": "2024/11/09 15:27"
+    },
+    {
+        "id": 3,
+        "uid": "3",
+        "name": "training_data",
+        "description": "Sample description",
+        "f_application_uid": "2127fa7a-5a71-4090-81b7-57b45d6092f5",
+        "f_agent_uid": {
+            "uid":"04fab032-31ed-4e9d-82fc-8d44bce57e60",
+            "name":"Agent C"
+        },
+        "f_model_uid": {
+            "uid":"1354ff99-ef3d-44e9-9d9e-6cf4d972ee33",
+            "name":"Model C"
+        },
+        "f_file_uid": "964af3df-43c7-4de4-b84a-aa9c4ea09360",
+        "extension": "zip",
+        "created_time": "2024/11/09 15:27"
+    },
+    {
+        "id": 4,
+        "uid": "4",
+        "name": "training_data",
+        "description": "Sample description",
+        "f_application_uid": "2127fa7a-5a71-4090-81b7-57b45d6092f5",
+        "f_agent_uid": {
+            "uid":"04fab032-31ed-4e9d-82fc-8d44bce57e60",
+            "name":"Agent C"
+        },
+        "f_model_uid": {
+            "uid":"1354ff99-ef3d-44e9-9d9e-6cf4d972ee33",
+            "name":"Model C"
+        },
+        "f_file_uid": "964af3df-43c7-4de4-b84a-aa9c4ea09360",
+        "extension": "zip",
+        "created_time": "2024/11/09 15:27"
+    },
+    {
+        "id": 5,
+        "uid": "5",
+        "name": "training_data",
+        "description": "Sample description",
+        "f_application_uid": "2127fa7a-5a71-4090-81b7-57b45d6092f5",
+        "f_agent_uid": {
+            "uid":"04fab032-31ed-4e9d-82fc-8d44bce57e60",
+            "name":"Agent C"
+        },
+        "f_model_uid": {
+            "uid":"1354ff99-ef3d-44e9-9d9e-6cf4d972ee33",
+            "name":"Model C"
+        },
+        "f_file_uid": "964af3df-43c7-4de4-b84a-aa9c4ea09360",
+        "extension": "zip",
+        "created_time": "2024/11/09 15:27"
+    }
+]
+
