@@ -24,8 +24,6 @@ export const useFetchModels = (applicationUID) => {
         );
         if (response.status === 200) {
           setModels(response.data.data);
-          console.log(response.data.data)
-          console.log('successful')
         } else if (response && response instanceof Error) {
           console.error("Error fetching models：", response.data);
         }

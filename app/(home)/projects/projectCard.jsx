@@ -13,7 +13,7 @@ const ProjectCard = ({ project, onEdit, onDelete, organization }) => {
 
   const handleApplicationsClick = () => {
     router.push(
-      `/projects/${project.name}/applications?projectUID=${project.uid}`
+      `/projects/${project.name}/applications?projectUID=${project.uid}&organizationUID=${organization.uid}`
     );
   };
 
@@ -36,7 +36,7 @@ const ProjectCard = ({ project, onEdit, onDelete, organization }) => {
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
       <div>
-      <div className="bg-blue-300 rounded-lg p-0.5">{project.uid}</div>
+        <div className="bg-blue-300 rounded-lg p-0.5">{project.uid}</div>
         <h2 className="text-xl font-semibold p-1">{project.name}</h2>
         <p className="text-gray-500">{project.description}</p>
       </div>

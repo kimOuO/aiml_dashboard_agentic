@@ -8,8 +8,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-//管理dataset動作
-export const useDatasetHandlers = () => {
+//管理rawData動作
+export const useRawDataHandlers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [inputValue, setInputValue] = useState("");
@@ -42,28 +42,44 @@ export const useDatasetHandlers = () => {
   };
 };
 
-//搜尋以過濾dataset功能
-export const useFilteredDatasets = (datasets, searchQuery, currentPage) => {
-  const filteredDatasets = useMemo(() => {
-    return datasets.filter((dataset) =>
-      dataset.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [datasets, searchQuery]);
+//搜尋以過濾rawData功能
+export const useFilteredRawDatas = (
+  rawDatas,
+  selectedAgent,
+  selectedModel,
+  searchQuery,
+  currentPage
+) => {
+  const filteredRawDatas = useMemo(() => {
+    return rawDatas.filter((rawData) => {
+      //過濾條件
+      const matchSearchQuery = rawData.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchAgent =
+        !selectedAgent || rawData.f_agent_uid === selectedAgent;
+      const matchModel =
+        !selectedModel || rawData.f_model_uid === selectedModel;
 
-  //每頁顯示之dataset數量
-  const datasetsPerPage = 5;
-  const totalPage = Math.ceil(filteredDatasets.length / datasetsPerPage);
-  //每個頁面要顯示哪一些dataset
-  const paginatedDatasets = filteredDatasets.slice(
-    (currentPage - 1) * datasetsPerPage,
-    currentPage * datasetsPerPage
+      //同時符合search、agent filter、model filter
+      return matchSearchQuery && matchAgent && matchModel;
+    });
+  }, [rawDatas, searchQuery, selectedAgent, selectedModel]);
+
+  //每頁顯示之rawData數量
+  const rawDatasPerPage = 5;
+  const totalPage = Math.ceil(filteredRawDatas.length / rawDatasPerPage);
+  //每個頁面要顯示哪一些rawData
+  const paginatedRawDatas = filteredRawDatas.slice(
+    (currentPage - 1) * rawDatasPerPage,
+    currentPage * rawDatasPerPage
   );
 
-  return { paginatedDatasets, totalPage };
+  return { paginatedRawDatas, totalPage };
 };
 
-//dataset分頁邏輯
-export const DatasetsPagination = ({
+//rawdata分頁邏輯
+export const RawDatasPagination = ({
   currentPage,
   totalPage,
   onPageChange,

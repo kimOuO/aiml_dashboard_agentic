@@ -5,6 +5,7 @@ export default function ApplicationDashboard({
   projectName,
   applicationName,
   applicationUID,
+  organizationUID,
 }) {
   const router = useRouter();
 
@@ -46,9 +47,9 @@ export default function ApplicationDashboard({
 
   const handleRawDataClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/raw_data?applicationUID=${applicationUID}`
-    )
-  }
+      `/projects/${projectName}/applications/${applicationName}/dashboard/raw_data?applicationUID=${applicationUID}&organizationUID=${organizationUID}`
+    );
+  };
 
   return (
     <div className="space-y-10">

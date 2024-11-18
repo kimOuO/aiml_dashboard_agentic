@@ -4,6 +4,7 @@ import { EditModal, DeleteModal } from "./applicationModal";
 
 export default function ApplicationCard({
   projectName,
+  organizationUID,
   application,
   onEdit,
   onDelete,
@@ -31,7 +32,7 @@ export default function ApplicationCard({
 
   const handleApplicationClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${application.name}/dashboard?applicationUID=${application.uid}`
+      `/projects/${projectName}/applications/${application.name}/dashboard?applicationUID=${application.uid}&organizationUID=${organizationUID}`
     );
   };
 

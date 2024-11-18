@@ -4,12 +4,19 @@ import React, { useState, useEffect } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import {
-  useDatasetHandlers,
-  useFilteredDatasets,
-  DatasetsPagination,
+  useRawDataHandlers,
+  useFilteredRawDatas,
+  RawDatasPagination,
 } from "./handleService";
+import {
+  ModalInput,
+  ValidateForm,
+  SelectDropdown,
+  FileInput,
+} from "@/app/modalComponent";
 import RawDataCard from "./rawDataCard";
 import rawDataList from "/public/raw_data.json";
+import { useFetchRawData } from "./service";
 
 export default function RawDataPage() {
   const { projectName, applicationName } = useParams();
@@ -17,9 +24,19 @@ export default function RawDataPage() {
   const applicationNameDecode = decodeURIComponent(applicationName);
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
+  const organizationUID = searchParams.get("organizationUID");
   const handleBackClick = useBackNavigation();
 
-  //tab切換、過濾dataset、分頁功能
+  //暫存選擇的過濾條件
+  const [selectedAgent, setSelectedAgent] = useState("");
+  const [selectedModel, setSelectedModel] = useState("");
+
+  const { rawData, agents, models, isLoading, triggerFetch } = useFetchRawData(
+    applicationUID,
+    organizationUID
+  );
+
+  //過濾rawData、分頁功能
   const {
     searchQuery,
     currentPage,
@@ -27,13 +44,24 @@ export default function RawDataPage() {
     handleSearchChange,
     handleSearchClick,
     handlePageChange,
-  } = useDatasetHandlers();
+  } = useRawDataHandlers();
 
-  const { paginatedDatasets, totalPage } = useFilteredDatasets(
+  const { paginatedRawDatas, totalPage } = useFilteredRawDatas(
     rawDataList,
+    selectedAgent,
+    selectedModel,
     searchQuery,
     currentPage
   );
+
+  //暫存更新的value
+  const handleFilterChange = (name, value) => {
+    if (name === "agent") {
+      setSelectedAgent(value);
+    } else if (name === "model") {
+      setSelectedModel(value);
+    }
+  };
 
   return (
     <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
@@ -56,7 +84,7 @@ export default function RawDataPage() {
           </button>
         </div>
         <div className="flex items-center mb-4 justify-between">
-          <div className="items-center space-x-2">
+          <div className="flex items-center space-x-2">
             <input
               type="text"
               value={inputValue}
@@ -68,10 +96,28 @@ export default function RawDataPage() {
               <img src="/project/search.svg" alt="Search" />
             </button>
           </div>
+          {/* 將兩個 SelectDropdown 包在一個 flex 容器中 */}
+          <div className="flex items-center gap-2">
+            <SelectDropdown
+              label="filter_by_model"
+              name="model"
+              value={selectedModel}
+              onChange={(e) => handleFilterChange("model", e.target.value)}
+              options={[{ uid: "", name: "ALL" }, ...models]}
+            />
+            <SelectDropdown
+              label="filter_by_agent"
+              name="agent"
+              value={selectedAgent}
+              onChange={(e) => handleFilterChange("agent", e.target.value)}
+              options={[{ uid: "", name: "ALL" }, ...agents]}
+            />
+          </div>
         </div>
+
         {/* Render RawDataCard for each item */}
         <div className="grid grid-cols-1 gap-6">
-          {paginatedDatasets.map((rawData) => (
+          {paginatedRawDatas.map((rawData) => (
             <RawDataCard
               key={rawData.uid}
               rawData={rawData}
@@ -83,7 +129,7 @@ export default function RawDataPage() {
         </div>
 
         {/* 分頁按鈕顯示 */}
-        <DatasetsPagination
+        <RawDatasPagination
           currentPage={currentPage}
           totalPage={totalPage}
           onPageChange={handlePageChange}

@@ -78,8 +78,7 @@ export const CreateModal = ({
     }
     return [];
   };
-
-  console.log(taskFile.pretrain_model)
+  
   const getPretrainModelOptions = () => {
     if (formData.type == "Training Dataset") {
       return taskFile.pretrain_model?.retrain || [];

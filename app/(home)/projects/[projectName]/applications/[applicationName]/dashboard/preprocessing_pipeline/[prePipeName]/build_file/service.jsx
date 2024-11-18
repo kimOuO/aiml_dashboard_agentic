@@ -22,7 +22,7 @@ export const useFetchBuildFiles = (pipelineUID) => {
         if (response.status === 200) {
           setBuildFiles(response.data.data);
         } else if (response && response instanceof Error) {
-          console.log("Error fetching build files：", response.data);
+          console.error("Error fetching build files：", response.data);
         }
         setIsLoading(false);
       }
