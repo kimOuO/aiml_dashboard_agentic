@@ -11,7 +11,7 @@ export default function ApplicationDashboard({
 
   const handleModelClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/model?applicationUID=${applicationUID}`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/model?applicationUID=${applicationUID}&organizationUID=${organizationUID}`
     );
   };
 
@@ -35,7 +35,7 @@ export default function ApplicationDashboard({
 
   const handleOptimizationPipelineClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/optimization_pipeline?applicationUID=${applicationUID}`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/optimization_pipeline?applicationUID=${applicationUID}&organizationUID=${organizationUID}`
     );
   };
 

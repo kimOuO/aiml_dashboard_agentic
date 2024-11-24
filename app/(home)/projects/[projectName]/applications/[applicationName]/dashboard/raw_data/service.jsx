@@ -78,3 +78,55 @@ export const useFetchRawData = (applicationUID, organizationUID) => {
     triggerFetch: () => setFetchTrigger(!fetchTrigger),
   };
 };
+
+//更新RawData
+export const useUpdateRawData = (formData) => {
+  const updateRawData = async () => {
+    if (formData) {
+      //RawDataMetadataWriter/update
+      const response = await getAPI(
+        APIKEYS.UPDATE_RAWDATA_METADATA,
+        formData,
+        true
+      );
+      if (response) return response;
+    }
+  };
+  return { updateRawData };
+};
+
+//刪除RawData
+export const useDeleteRawData = (datasetUID) => {
+  const deleteRawData = async () => {
+    if (datasetUID) {
+      //RawDataMetadataWriter/delete
+      const data = { uid: datasetUID };
+      const response = await getAPI(
+        APIKEYS.DELETE_RAWDATA_METADATA,
+        data
+      );
+      if (response) return response;
+    }
+  };
+  return { deleteRawData };
+};
+
+export const HandleUpdate = async (formData, onEdit, onClose) => {
+  const { updateRawData } = useUpdateRawData(formData);
+  const response = await updateRawData();
+  if (response.status === 200) {
+    onEdit();
+    onClose();
+  }
+  return response;
+};
+
+export const HandleDelete = async (modelUID, onDelete, onClose) => {
+  const { deleteRawData } = useDeleteRawData(modelUID);
+  const response = await deleteRawData();
+  if (response.status === 200) {
+    onDelete();
+    onClose();
+  }
+  return response;
+};

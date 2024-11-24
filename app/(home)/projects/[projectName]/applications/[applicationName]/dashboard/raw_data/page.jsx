@@ -8,12 +8,7 @@ import {
   useFilteredRawDatas,
   RawDatasPagination,
 } from "./handleService";
-import {
-  ModalInput,
-  ValidateForm,
-  SelectDropdown,
-  FileInput,
-} from "@/app/modalComponent";
+import { SelectDropdown } from "@/app/modalComponent";
 import RawDataCard from "./rawDataCard";
 import rawDataList from "/public/raw_data.json";
 import { useFetchRawData } from "./service";
@@ -114,19 +109,23 @@ export default function RawDataPage() {
             />
           </div>
         </div>
-
-        {/* Render RawDataCard for each item */}
-        <div className="grid grid-cols-1 gap-6">
-          {paginatedRawDatas.map((rawData) => (
-            <RawDataCard
-              key={rawData.uid}
-              rawData={rawData}
-              onEdit={() => console.log("Edit:", rawData.uid)}
-              onDelete={() => console.log("Delete:", rawData.uid)}
-              applicationName={applicationNameDecode}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <p>Loading...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6">
+            {paginatedRawDatas.map((rawData) => (
+              <RawDataCard
+                key={rawData.uid}
+                rawData={rawData}
+                onEdit={triggerFetch}
+                onDelete={triggerFetch}
+                applicationName={applicationNameDecode}
+              />
+            ))}
+          </div>
+        )}
 
         {/* 分頁按鈕顯示 */}
         <RawDatasPagination

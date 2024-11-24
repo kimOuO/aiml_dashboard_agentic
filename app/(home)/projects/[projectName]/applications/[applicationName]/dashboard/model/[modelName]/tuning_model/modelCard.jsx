@@ -21,7 +21,7 @@ export const ModelCard = React.memo(
     onUpload,
     applicationName,
     projectName,
-    organizationUID,
+    applicationUID,
   }) => {
     const { inference } = useGetInference(model.uid);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -29,7 +29,6 @@ export const ModelCard = React.memo(
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isPublish, setIsPublish] = useState(model.status === "publish");
     const [currentModel, setCurrentModel] = useState(null);
-    const modelName = model.name;
 
     const router = useRouter();
 
@@ -93,18 +92,11 @@ export const ModelCard = React.memo(
         });
       }
     };
-
-    const handleTrainingModelClick = () => {
-      router.push(
-        `/projects/${projectName}/applications/${applicationName}/dashboard/model/${modelName}/tuning_model?modelVERSION=${model.version}&modelSOURCE=${model.source}&organizationUID=${organizationUID}`
-      );
-    };
-
     return (
       <Accordion type="single" collapsible>
         <AccordionItem value="model-card">
           <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer mb-4">
-            <div onClick={handleTrainingModelClick}>
+            <div>
               <div className="bg-blue-300 rounded-lg p-0.5">{model.uid}</div>
               <h2 className="text-xl font-semibold p-1">{model.name}</h2>
               <p className="text-gray-500">{model.description}</p>
@@ -153,17 +145,10 @@ export const ModelCard = React.memo(
 
           <AccordionContent className="py-2 px-8">
             {model.retrain_model.map((retrainModel) => (
-              <div
-                key={retrainModel.uid}
-                className="relative bg-white shadow-md rounded-lg p-4 mb-2 flex justify-between items-center cursor-pointer"
-              >
+              <div key={retrainModel.uid} className="relative bg-white shadow-md rounded-lg p-4 mb-2 flex justify-between items-center cursor-pointer">
                 <div>
-                  <div className="bg-blue-300 rounded-lg p-0.5">
-                    {retrainModel.uid}
-                  </div>
-                  <h2 className="text-xl font-semibold p-1">
-                    {retrainModel.name}
-                  </h2>
+                  <div className="bg-blue-300 rounded-lg p-0.5">{retrainModel.uid}</div>
+                  <h2 className="text-xl font-semibold p-1">{retrainModel.name}</h2>
                   <p className="text-gray-500">{retrainModel.description}</p>
                 </div>
                 <div className="space-x-8 flex items-center">
@@ -181,9 +166,7 @@ export const ModelCard = React.memo(
                   </button>
                   <div className="flex flex-col items-center space-y-1 bg-gray-200 p-2 rounded">
                     <div>Performance</div>
-                    <div className="font-bold text-xl">
-                      {retrainModel.accuracy}
-                    </div>
+                    <div className="font-bold text-xl">{retrainModel.accuracy}</div>
                   </div>
                 </div>
               </div>
