@@ -19,7 +19,6 @@ export const useFetchModels = (applicationUID) => {
         const data = { f_application_uid: applicationUID };
         const response = await getAPI(
           APIKEYS.GROUP,
-          // APIKEYS.FILTER_MODEL_BY_APPLICATION,
           data
         );
         if (response.status === 200) {

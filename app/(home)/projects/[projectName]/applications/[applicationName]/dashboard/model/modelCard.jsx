@@ -96,6 +96,12 @@ export const ModelCard = React.memo(
 
     const handleTrainingModelClick = () => {
       router.push(
+        `/projects/${projectName}/applications/${applicationName}/dashboard/model/${modelName}/tuning_model?modelVERSION=${model.version}&modelSOURCE=${model.uid}&organizationUID=${organizationUID}`
+      );
+    };
+
+    const handleRetrainModelClick = () => {
+      router.push(
         `/projects/${projectName}/applications/${applicationName}/dashboard/model/${modelName}/tuning_model?modelVERSION=${model.version}&modelSOURCE=${model.source}&organizationUID=${organizationUID}`
       );
     };
@@ -120,9 +126,11 @@ export const ModelCard = React.memo(
                 <button onClick={() => handleDeleteClick(model)}>
                   <img src="/project/delete.svg" alt="Delete" />
                 </button>
-                <button onClick={() => handleUploadFolderClick(model)}>
-                  <img src="/project/folder.svg" alt="Folder" />
-                </button>
+                {model.status !== "publish" && (
+                  <button onClick={() => handleUploadFolderClick(model)}>
+                    <img src="/project/folder.svg" alt="Folder" />
+                  </button>
+                )}
                 {model.status === "unavailable" ? (
                   <div className="flex items-center space-x-1">
                     <Label className="text-red-500 text-lg" htmlFor="publish">
@@ -157,7 +165,7 @@ export const ModelCard = React.memo(
                 key={retrainModel.uid}
                 className="relative bg-white shadow-md rounded-lg p-4 mb-2 flex justify-between items-center cursor-pointer"
               >
-                <div>
+                <div onClick={handleRetrainModelClick}>
                   <div className="bg-blue-300 rounded-lg p-0.5">
                     {retrainModel.uid}
                   </div>

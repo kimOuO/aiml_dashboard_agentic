@@ -112,9 +112,11 @@ export const ModelCard = React.memo(
                 <button onClick={() => handleDeleteClick(model)}>
                   <img src="/project/delete.svg" alt="Delete" />
                 </button>
-                <button onClick={() => handleUploadFolderClick(model)}>
-                  <img src="/project/folder.svg" alt="Folder" />
-                </button>
+                {model.status !== "publish" && (
+                  <button onClick={() => handleUploadFolderClick(model)}>
+                    <img src="/project/folder.svg" alt="Folder" />
+                  </button>
+                )}
                 {model.status === "unavailable" ? (
                   <div className="flex items-center space-x-1">
                     <Label className="text-red-500 text-lg" htmlFor="publish">
@@ -145,10 +147,17 @@ export const ModelCard = React.memo(
 
           <AccordionContent className="py-2 px-8">
             {model.retrain_model.map((retrainModel) => (
-              <div key={retrainModel.uid} className="relative bg-white shadow-md rounded-lg p-4 mb-2 flex justify-between items-center cursor-pointer">
+              <div
+                key={retrainModel.uid}
+                className="relative bg-white shadow-md rounded-lg p-4 mb-2 flex justify-between items-center cursor-pointer"
+              >
                 <div>
-                  <div className="bg-blue-300 rounded-lg p-0.5">{retrainModel.uid}</div>
-                  <h2 className="text-xl font-semibold p-1">{retrainModel.name}</h2>
+                  <div className="bg-blue-300 rounded-lg p-0.5">
+                    {retrainModel.uid}
+                  </div>
+                  <h2 className="text-xl font-semibold p-1">
+                    {retrainModel.name}
+                  </h2>
                   <p className="text-gray-500">{retrainModel.description}</p>
                 </div>
                 <div className="space-x-8 flex items-center">
@@ -166,7 +175,9 @@ export const ModelCard = React.memo(
                   </button>
                   <div className="flex flex-col items-center space-y-1 bg-gray-200 p-2 rounded">
                     <div>Performance</div>
-                    <div className="font-bold text-xl">{retrainModel.accuracy}</div>
+                    <div className="font-bold text-xl">
+                      {retrainModel.accuracy}
+                    </div>
                   </div>
                 </div>
               </div>

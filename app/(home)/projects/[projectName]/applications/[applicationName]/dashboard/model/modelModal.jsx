@@ -30,6 +30,7 @@ export const CreateModal = ({
     model_output_format: "",
     status: "unavailable",
     f_application_uid: applicationUID,
+    f_agent_uid: "",
     file: null,
     extension: "zip",
     source:""

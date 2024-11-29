@@ -40,70 +40,6 @@ export const useFetchAgentApplications = (agentUID) => {
   };
 };
 
-//更新application
-//尚未測試成功
-export const useUpdateApplication = (formData) => {
-  const updateApplication = async () => {
-    if (formData) {
-      //ApplicationMetadataWriter/update
-      const response = await getAPI(
-        APIKEYS.UPDATE_APPLICATION_METADATA,
-        formData
-      );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error updating application：", response.data);
-      }
-    }
-  };
-  return { updateApplication };
-};
-
-//刪除application
-export const useDeleteApplication = (applicationUID) => {
-  const deleteApplication = async () => {
-    if (applicationUID) {
-      //ApplicationMetadataWriter/delete
-      const data = { uid: applicationUID };
-      const response = await getAPI(APIKEYS.DELETE_APPLICATION_METADATA, data);
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error deleting application：", response.data);
-      }
-    }
-  };
-  return { deleteApplication };
-};
-
-//創建application
-export const useCreateApplication = () => {
-  const createApplication = async (formData) => {
-    if (formData) {
-      //ApplicationMetadataWriter/create
-      const response = await getAPI(
-        APIKEYS.CREATE_APPLICATION_METADATA,
-        formData
-      );
-      if (response.status === 200) {
-        return response.data;
-      } else if (response && response instanceof Error) {
-        console.error("Error creating application:", response.data);
-      }
-    }
-  };
-  return { createApplication };
-};
-
-export const HandleUpdate = async (formData, onEdit, onClose) => {
-  const { updateApplication } = useUpdateApplication(formData);
-  const response = await updateApplication();
-  if (response && !(response instanceof Error)) {
-    onEdit();
-    onClose();
-  }
-};
 export const HandlePublishToggle = async (
   applicationUID,
   agentUID,
@@ -127,14 +63,5 @@ export const HandlePublishToggle = async (
   } catch (error) {
     console.error("Error in HandlePublishToggle:", error);
     return null;
-  }
-};
-
-export const HandleCreate = async (formData, onCreate, onClose) => {
-  const { createApplication } = useCreateApplication();
-  const response = await createApplication(formData);
-  if (response && !(response instanceof Error)) {
-    onCreate();
-    onClose();
   }
 };

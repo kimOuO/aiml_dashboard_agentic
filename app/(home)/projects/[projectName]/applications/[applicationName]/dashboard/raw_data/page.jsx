@@ -42,7 +42,7 @@ export default function RawDataPage() {
   } = useRawDataHandlers();
 
   const { paginatedRawDatas, totalPage } = useFilteredRawDatas(
-    rawDataList,
+    rawData,
     selectedAgent,
     selectedModel,
     searchQuery,

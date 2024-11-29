@@ -5,11 +5,16 @@ import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
 import APIKEYS from "@/app/api/api_key.json";
 
-export const useFetchTuningModels = (modelSOURCE, modelVERISON,organizationUID) => {
+export const useFetchTuningModels = (
+  modelSOURCE,
+  modelVERISON,
+  organizationUID
+) => {
   const [models, setModels] = useState([]);
   const [agents, setAgents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchTrigger, setFetchTrigger] = useState(false);
+  console.log(APIKEYS.GET_TUNING_MODEL_GROUP);
 
   useEffect(() => {
     const fetchModels = async () => {
@@ -18,9 +23,7 @@ export const useFetchTuningModels = (modelSOURCE, modelVERISON,organizationUID) 
       if (modelSOURCE && modelVERISON) {
         //ModelMetadataWriter/get_tuning_model_group
         const data = { source: modelSOURCE, version: modelVERISON };
-        const response = await getAPI();
-        // APIKEYS,
-        // data
+        const response = await getAPI(APIKEYS.GET_TUNING_MODEL_GROUP, data);
         if (response.status === 200) {
           setModels(response.data.data);
         } else if (response && response instanceof Error) {
