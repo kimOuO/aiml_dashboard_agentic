@@ -229,7 +229,7 @@ export const useToastNotification = () => {
     if (isSuccess) {
       toast({
         description: <span className="text-xl">Operation successful!</span>,
-        variant: "success",
+        variant: "default",
         duration: 1500,
       });
     } else {
