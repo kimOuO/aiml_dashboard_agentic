@@ -14,7 +14,6 @@ export const useFetchTuningModels = (
   const [agents, setAgents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchTrigger, setFetchTrigger] = useState(false);
-  console.log(APIKEYS.GET_TUNING_MODEL_GROUP);
 
   useEffect(() => {
     const fetchModels = async () => {
@@ -52,7 +51,6 @@ export const useFetchTuningModels = (
     fetchModels();
     fetchAgents();
   }, [modelSOURCE, modelVERISON, fetchTrigger]);
-
   return {
     models,
     agents,
@@ -87,22 +85,6 @@ export const useDeleteModel = (modelUID) => {
   return { deleteModel };
 };
 
-//上傳inference model
-export const useUploadInferenceModel = () => {
-  const uploadInference = async (formData) => {
-    if (formData) {
-      //InferenceMetadataWriter/create
-      const response = await getAPI(
-        APIKEYS.CREATE_INFERENCE_METADATA,
-        formData,
-        true
-      );
-      if (response) return response;
-    }
-  };
-  return { uploadInference };
-};
-
 //發布model
 export const usePublishModel = (formData) => {
   const publishModel = async () => {
@@ -125,35 +107,6 @@ export const useUnpublishModel = (formData) => {
     }
   };
   return { unpublishModel };
-};
-
-//查詢inference
-export const useGetInference = (modelUID) => {
-  const [inference, setInference] = useState(null);
-  useEffect(() => {
-    const fetchInference = async () => {
-      if (modelUID) {
-        //InferenceMetadataWriter/filter_by_model
-        const data = { f_model_uid: modelUID };
-        const response = await getAPI(APIKEYS.FILTER_INFERENCE_BY_MODEL, data);
-        if (response.status === 200) {
-          setInference(response.data.data);
-        }
-      }
-    };
-    fetchInference();
-  }, [modelUID]);
-  return { inference };
-};
-
-export const HandleUpload = async (formData, onUpload, onClose) => {
-  const { uploadInference } = useUploadInferenceModel();
-  const response = await uploadInference(formData);
-  if (response.status === 200) {
-    onUpload();
-    onClose();
-  }
-  return response;
 };
 
 export const HandleUpdate = async (formData, onEdit, onClose) => {
@@ -187,6 +140,7 @@ export const HandleCreate = async (formData, onCreate, onClose) => {
 };
 
 export const HandlePublishToggle = async (model, onEdit) => {
+  console.log(model.status)
   const changeStatus = model.status === "publish" ? "unpublish" : "publish";
   const formData = {
     uid: model.uid,

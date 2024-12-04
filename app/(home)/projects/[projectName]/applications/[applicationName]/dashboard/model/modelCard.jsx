@@ -181,11 +181,25 @@ export const ModelCard = React.memo(
                   <button onClick={() => handleDownloadClick(retrainModel)}>
                     <img src="/project/download.svg" alt="Download" />
                   </button>
+                  {model.status === "unavailable" ? (
+                  <div className="flex items-center space-x-1">
+                    <Label className="text-red-500 text-lg" htmlFor="publish">
+                      Unavailable
+                    </Label>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-1">
+                    <Switch
+                      checked={isPublish}
+                      onCheckedChange={handlePublishToggle}
+                    />
+                    <Label className="text-lg" htmlFor="publish">
+                      Publish
+                    </Label>
+                  </div>
+                )}
                   <button onClick={() => handleDeleteClick(retrainModel)}>
                     <img src="/project/delete.svg" alt="Delete" />
-                  </button>
-                  <button onClick={() => handleUploadFolderClick(retrainModel)}>
-                    <img src="/project/folder.svg" alt="Folder" />
                   </button>
                   <div className="flex flex-col items-center space-y-1 bg-gray-200 p-2 rounded">
                     <div>Performance</div>

@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFilteredTuningModel } from "./handleService";
 import { SelectDropdown } from "@/app/modalComponent";
-import ModelCard from "../../modelCard";
+import ModelCard from "./modelCard";
 import { useFetchTuningModels } from "./service";
 
 export default function TuningModelPage() {
@@ -28,7 +28,7 @@ export default function TuningModelPage() {
     organizationUID
   );
 
-  const { filteredTuningModel } = useFilteredTuningModel(models, selectedAgent);
+  const filteredTuningModel = useFilteredTuningModel(models, selectedAgent);
 
   //暫存更新的value
   const handleFilterChange = (name, value) => {
@@ -69,7 +69,7 @@ export default function TuningModelPage() {
             />
           </div>
         </div>
-        {/* {isLoading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center min-h-[200px]">
             <p>Loading...</p>
           </div>
@@ -78,14 +78,14 @@ export default function TuningModelPage() {
             {filteredTuningModel.map((tuningModel) => (
               <ModelCard
                 key={tuningModel.uid}
-                rawData={tuningModel}
+                model={tuningModel}
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}
                 applicationName={applicationNameDecode}
               />
             ))}
           </div>
-        )} */}
+        )}
       </div>
     </div>
   );
