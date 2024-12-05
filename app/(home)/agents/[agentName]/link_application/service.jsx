@@ -22,7 +22,7 @@ export const useFetchAgentApplications = (agentUID) => {
           data
         );
         if (response.status === 200) {
-          setApplications(response.data);
+          setApplications(response.data.data);
         } else if (response && response instanceof Error) {
           console.error("Error fetching applications:", response.data);
         }
