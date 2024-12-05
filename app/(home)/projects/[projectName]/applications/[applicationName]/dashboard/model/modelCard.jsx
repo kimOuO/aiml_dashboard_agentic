@@ -94,15 +94,17 @@ export const ModelCard = React.memo(
       }
     };
 
+    console.log(model.retrainModel)
+
     const handleTrainingModelClick = () => {
       router.push(
         `/projects/${projectName}/applications/${applicationName}/dashboard/model/${modelName}/tuning_model?modelVERSION=${model.version}&modelSOURCE=${model.uid}&organizationUID=${organizationUID}`
       );
     };
 
-    const handleRetrainModelClick = () => {
+    const handleRetrainModelClick = (retrainModel) => {
       router.push(
-        `/projects/${projectName}/applications/${applicationName}/dashboard/model/${modelName}/tuning_model?modelVERSION=${model.version}&modelSOURCE=${model.source}&organizationUID=${organizationUID}`
+        `/projects/${projectName}/applications/${applicationName}/dashboard/model/${modelName}/tuning_model?modelVERSION=${retrainModel.version}&modelSOURCE=${retrainModel.source}&organizationUID=${organizationUID}`
       );
     };
 
@@ -165,7 +167,7 @@ export const ModelCard = React.memo(
                 key={retrainModel.uid}
                 className="relative bg-white shadow-md rounded-lg p-4 mb-2 flex justify-between items-center cursor-pointer"
               >
-                <div onClick={handleRetrainModelClick}>
+                <div onClick={()=>handleRetrainModelClick(retrainModel)}>
                   <div className="bg-blue-300 rounded-lg p-0.5">
                     {retrainModel.uid}
                   </div>
