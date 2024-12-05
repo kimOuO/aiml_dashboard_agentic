@@ -56,7 +56,6 @@ const listRole = async (): Promise<AxiosResponse | Error> => {
 };
 
 const login = async (data: JSON): Promise<AxiosResponse | Error> => {
-  console.log("hello")
   const API_ACTOR = "AccountValidator";
   const API_FUNCTION = "login";
   try {

@@ -27,7 +27,6 @@ export const ModelCard = React.memo(
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [isPublish, setIsPublish] = useState(model.status === "publish");
     const [currentModel, setCurrentModel] = useState(null);
     const modelName = model.name;
 
@@ -74,10 +73,9 @@ export const ModelCard = React.memo(
       setCurrentModel(null);
     };
 
-    const handlePublishToggle = async () => {
-      const response = await HandlePublishToggle(model, onEdit);
+    const handlePublishToggle = async (item) => {
+      const response = await HandlePublishToggle(item, onEdit);
       if (response) {
-        setIsPublish((prev) => !prev); // 更新本地狀態
         toast({
           description: (
             <span className="text-xl">Status changed successfully !</span>
@@ -93,8 +91,6 @@ export const ModelCard = React.memo(
         });
       }
     };
-
-    console.log(model.retrainModel)
 
     const handleTrainingModelClick = () => {
       router.push(
@@ -142,11 +138,11 @@ export const ModelCard = React.memo(
                 ) : (
                   <div className="flex items-center space-x-1">
                     <Switch
-                      checked={isPublish}
-                      onCheckedChange={handlePublishToggle}
+                      checked={model.status === "publish"}
+                      onCheckedChange={() => handlePublishToggle(model)}
                     />
                     <Label className="text-lg" htmlFor="publish">
-                      Publish
+                      {model.status === "publish" ? "Publish" : "Unpublish"}
                     </Label>
                   </div>
                 )}
@@ -167,7 +163,7 @@ export const ModelCard = React.memo(
                 key={retrainModel.uid}
                 className="relative bg-white shadow-md rounded-lg p-4 mb-2 flex justify-between items-center cursor-pointer"
               >
-                <div onClick={()=>handleRetrainModelClick(retrainModel)}>
+                <div onClick={() => handleRetrainModelClick(retrainModel)}>
                   <div className="bg-blue-300 rounded-lg p-0.5">
                     {retrainModel.uid}
                   </div>
@@ -183,23 +179,27 @@ export const ModelCard = React.memo(
                   <button onClick={() => handleDownloadClick(retrainModel)}>
                     <img src="/project/download.svg" alt="Download" />
                   </button>
-                  {model.status === "unavailable" ? (
-                  <div className="flex items-center space-x-1">
-                    <Label className="text-red-500 text-lg" htmlFor="publish">
-                      Unavailable
-                    </Label>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-1">
-                    <Switch
-                      checked={isPublish}
-                      onCheckedChange={handlePublishToggle}
-                    />
-                    <Label className="text-lg" htmlFor="publish">
-                      Publish
-                    </Label>
-                  </div>
-                )}
+                  {retrainModel.status === "unavailable" ? (
+                    <div className="flex items-center space-x-1">
+                      <Label className="text-red-500 text-lg" htmlFor="publish">
+                        Unavailable
+                      </Label>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-1">
+                      <Switch
+                        checked={retrainModel.status === "publish"} // 根據 `retrainModel.status` 判斷
+                        onCheckedChange={() =>
+                          handlePublishToggle(retrainModel)
+                        }
+                      />
+                      <Label className="text-lg" htmlFor="publish">
+                        {retrainModel.status === "publish"
+                          ? "Publish"
+                          : "Unpublish"}
+                      </Label>
+                    </div>
+                  )}
                   <button onClick={() => handleDeleteClick(retrainModel)}>
                     <img src="/project/delete.svg" alt="Delete" />
                   </button>

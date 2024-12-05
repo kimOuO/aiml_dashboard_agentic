@@ -140,7 +140,6 @@ export const HandleCreate = async (formData, onCreate, onClose) => {
 };
 
 export const HandlePublishToggle = async (model, onEdit) => {
-  console.log(model.status)
   const changeStatus = model.status === "publish" ? "unpublish" : "publish";
   const formData = {
     uid: model.uid,
