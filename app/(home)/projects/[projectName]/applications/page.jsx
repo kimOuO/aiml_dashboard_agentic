@@ -70,6 +70,7 @@ export default function ApplicationPage() {
         <CreateModal
           projectName={projectNameDecode}
           projectUID={projectUID}
+          organizationUID={organizationUID}
           onClose={handleCloseCreateModal}
           onCreate={triggerFetch}
         />
