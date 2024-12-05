@@ -22,7 +22,7 @@ export const useFetchConfigs = (pipelineUID) => {
         if (response.status === 200) {
           setConfigs(response.data.data);
         } else if (response && response instanceof Error) {
-          console.log("Error fetching config：", response.data);
+          console.error("Error fetching config：", response.data);
         }
         setIsLoading(false);
       }

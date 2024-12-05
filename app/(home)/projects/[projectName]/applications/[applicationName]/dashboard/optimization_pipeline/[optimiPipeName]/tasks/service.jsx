@@ -5,6 +5,58 @@ import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
 import APIKEYS from "@/app/api/api_key.json";
 
+export const useFetchTask = (pipelineUID, organizationUID) => {
+  const [tasks, setTasks] = useState([]);
+  const [agents, setAgents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  //用於觸發重新抓取data
+  const [fetchTrigger, setFetchTrigger] = useState(false);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      //開始抓取資料，畫面顯示loading
+      setIsLoading(true);
+      if (pipelineUID) {
+        //TaskMetadataWriter/filter_by_pipeline
+        const data = { f_pipeline_uid: pipelineUID };
+        const response = await getAPI(APIKEYS.FILTER_TASK_BY_PIPELINE, data);
+        if (response.status === 200) {
+          setTasks(response.data.data);
+        } else if (response && response instanceof Error) {
+          console.error("Error fetching task：", response.data);
+        }
+        setIsLoading(false);
+      }
+    };
+
+    const fetchAgents = async () => {
+      if (organizationUID) {
+        //AgentMetadataWriter/filter_by_organization
+        const data = { f_organization_uid: organizationUID };
+        const response = await getAPI(
+          APIKEYS.FILTER_AGENT_BY_ORGANIZATION,
+          data
+        );
+        if (response.status === 200) {
+          setAgents(response.data.data);
+        } else if (response && response instanceof Error) {
+          console.error("Error fetching agents:", response.data);
+        }
+      }
+    };
+
+    fetchAgents();
+    fetchTasks();
+  }, [pipelineUID, organizationUID, fetchTrigger]);
+  return {
+    tasks,
+    agents,
+    isLoading,
+    //用於觸發重新抓取
+    triggerFetch: () => setFetchTrigger(!fetchTrigger),
+  };
+};
+
 export const useFetchTaskFile = (pipelineUID) => {
   const [taskFile, setTaskFile] = useState(null);
 

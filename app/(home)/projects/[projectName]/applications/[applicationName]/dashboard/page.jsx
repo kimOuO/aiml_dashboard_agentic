@@ -11,6 +11,7 @@ export default function DashboardPage() {
   const applicationNameDecode = decodeURIComponent(applicationName);
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
+  const organizationUID = searchParams.get("organizationUID");
   const handleBackClick = useBackNavigation();
 
   return (
@@ -35,6 +36,7 @@ export default function DashboardPage() {
             projectName={proejectNameDecode}
             applicationName={applicationNameDecode}
             applicationUID={applicationUID}
+            organizationUID={organizationUID}
           />
         </div>
       </div>

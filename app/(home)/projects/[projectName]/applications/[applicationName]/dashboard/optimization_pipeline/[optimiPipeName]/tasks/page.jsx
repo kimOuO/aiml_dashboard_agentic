@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
-import { useFetchTask } from "../../../preprocessing_pipeline/[prePipeName]/tasks/service";
-import { HandleLinkClick, useFetchTaskFile } from "./service";
+import { HandleLinkClick, useFetchTaskFile, useFetchTask } from "./service";
 import { TaskCard } from "../../../preprocessing_pipeline/[prePipeName]/tasks/taskCard";
 import { CreateModal } from "./taskModal";
 
@@ -15,15 +14,17 @@ export default function OptimizationTaskPage() {
   const optimiPipeNameDecode = decodeURIComponent(optimiPipeName);
   const searchParams = useSearchParams();
   const pipelineUID = searchParams.get("pipelineUID");
+  const organizationUID = searchParams.get("organizationUID");
 
   const handleBackClick = useBackNavigation();
   const {
     tasks: optimizationTasks,
+    agents,
     isLoading,
     triggerFetch,
-  } = useFetchTask(pipelineUID);
+  } = useFetchTask(pipelineUID,organizationUID);
 
-  const {taskFile} = useFetchTaskFile(pipelineUID);
+  const { taskFile } = useFetchTaskFile(pipelineUID);
 
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
@@ -115,6 +116,7 @@ export default function OptimizationTaskPage() {
           onCreate={triggerFetch}
           onClose={handleCloseCreateModal}
           taskFile={taskFile}
+          agents={agents}
         />
       )}
     </div>

@@ -5,8 +5,13 @@ import { useRouter } from "next/navigation";
 import { getAPI } from "@/app/api/entrypoint";
 import APIKEYS from "@/app/api/api_key.json";
 
-export const useFetchModels = (applicationUID) => {
+export const useFetchTuningModels = (
+  modelSOURCE,
+  modelVERISON,
+  organizationUID
+) => {
   const [models, setModels] = useState([]);
+  const [agents, setAgents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fetchTrigger, setFetchTrigger] = useState(false);
 
@@ -14,45 +19,45 @@ export const useFetchModels = (applicationUID) => {
     const fetchModels = async () => {
       //開始抓取資料，畫面顯示loading
       setIsLoading(true);
-      if (applicationUID) {
-        //ModelMetadataWriter/filter_by_application
-        const data = { f_application_uid: applicationUID };
-        const response = await getAPI(
-          APIKEYS.GROUP,
-          data
-        );
+      if (modelSOURCE && modelVERISON) {
+        //ModelMetadataWriter/get_tuning_model_group
+        const data = { source: modelSOURCE, version: modelVERISON };
+        const response = await getAPI(APIKEYS.GET_TUNING_MODEL_GROUP, data);
         if (response.status === 200) {
           setModels(response.data.data);
         } else if (response && response instanceof Error) {
-          console.error("Error fetching models：", response.data);
+          console.error("Error fetching tuning models：", response.data);
         }
         setIsLoading(false);
       }
     };
+
+    const fetchAgents = async () => {
+      if (organizationUID) {
+        //AgentMetadataWriter/filter_by_organization
+        const data = { f_organization_uid: organizationUID };
+        const response = await getAPI(
+          APIKEYS.FILTER_AGENT_BY_ORGANIZATION,
+          data
+        );
+        if (response.status === 200) {
+          setAgents(response.data.data);
+        } else if (response && response instanceof Error) {
+          console.error("Error fetching agents:", response.data);
+        }
+      }
+    };
+
     fetchModels();
-  }, [applicationUID, fetchTrigger]);
+    fetchAgents();
+  }, [modelSOURCE, modelVERISON, fetchTrigger]);
   return {
     models,
+    agents,
     isLoading,
     //用於觸發重新抓取
     triggerFetch: () => setFetchTrigger(!fetchTrigger),
   };
-};
-
-//創建model
-export const useCreateModel = () => {
-  const createModel = async (formData) => {
-    if (formData) {
-      //ModelMetadataWriter/create
-      const response = await getAPI(
-        APIKEYS.CREATE_MODEL_METADATA,
-        formData,
-        true
-      );
-      if (response) return response;
-    }
-  };
-  return { createModel };
 };
 
 //更新model
@@ -80,22 +85,6 @@ export const useDeleteModel = (modelUID) => {
   return { deleteModel };
 };
 
-//上傳inference model
-export const useUploadInferenceModel = () => {
-  const uploadInference = async (formData) => {
-    if (formData) {
-      //InferenceMetadataWriter/create
-      const response = await getAPI(
-        APIKEYS.CREATE_INFERENCE_METADATA,
-        formData,
-        true
-      );
-      if (response) return response;
-    }
-  };
-  return { uploadInference };
-};
-
 //發布model
 export const usePublishModel = (formData) => {
   const publishModel = async () => {
@@ -118,35 +107,6 @@ export const useUnpublishModel = (formData) => {
     }
   };
   return { unpublishModel };
-};
-
-//查詢inference
-export const useGetInference = (modelUID) => {
-  const [inference, setInference] = useState(null);
-  useEffect(() => {
-    const fetchInference = async () => {
-      if (modelUID) {
-        //InferenceMetadataWriter/filter_by_model
-        const data = { f_model_uid: modelUID };
-        const response = await getAPI(APIKEYS.FILTER_INFERENCE_BY_MODEL, data);
-        if (response.status === 200) {
-          setInference(response.data.data);
-        }
-      }
-    };
-    fetchInference();
-  }, [modelUID]);
-  return { inference };
-};
-
-export const HandleUpload = async (formData, onUpload, onClose) => {
-  const { uploadInference } = useUploadInferenceModel();
-  const response = await uploadInference(formData);
-  if (response.status === 200) {
-    onUpload();
-    onClose();
-  }
-  return response;
 };
 
 export const HandleUpdate = async (formData, onEdit, onClose) => {
@@ -180,6 +140,7 @@ export const HandleCreate = async (formData, onCreate, onClose) => {
 };
 
 export const HandlePublishToggle = async (model, onEdit) => {
+  console.log(model.status)
   const changeStatus = model.status === "publish" ? "unpublish" : "publish";
   const formData = {
     uid: model.uid,

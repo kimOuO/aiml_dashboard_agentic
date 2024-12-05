@@ -14,6 +14,7 @@ export const CreateModal = ({
   onCreate,
   onClose,
   taskFile,
+  agents,
 }) => {
   const [formData, setFormData] = useState({
     access_key: "",
@@ -24,6 +25,7 @@ export const CreateModal = ({
     model_uid: "",
     dataset_uid: "",
     type: "",
+    f_agent_uid: "",
     config_uid: "",
     image_uid: {
       download_uid: "",
@@ -79,7 +81,6 @@ export const CreateModal = ({
     return [];
   };
 
-  console.log(taskFile.pretrain_model)
   const getPretrainModelOptions = () => {
     if (formData.type == "Training Dataset") {
       return taskFile.pretrain_model?.retrain || [];
@@ -163,6 +164,16 @@ export const CreateModal = ({
                 onChange={handleInputChange}
                 error={errors.type}
               />
+              {formData.type === "Optimization Dataset" && (
+                <SelectDropdown
+                  label="Agent"
+                  name="agent"
+                  value={formData.f_agent_uid}
+                  options={agents || []}
+                  onChange={handleInputChange}
+                  error={errors.f_agent_uid}
+                />
+              )}
               <SelectDropdown
                 label="Optimization Dataset Name"
                 name="dataset_uid"

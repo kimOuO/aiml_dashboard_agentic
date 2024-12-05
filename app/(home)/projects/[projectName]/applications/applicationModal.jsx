@@ -7,14 +7,21 @@ import {
 } from "@/app/modalComponent";
 import { useToastNotification } from "@/app/modalComponent";
 
-export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
-  const {showToast} = useToastNotification();
-  
+export const CreateModal = ({
+  projectUID,
+  projectName,
+  organizationUID,
+  onClose,
+  onCreate,
+}) => {
+  const { showToast } = useToastNotification();
+
   const [formData, setFormData] = useState({
     application_name: "",
     application_description: "",
     f_project_uid: projectUID,
     f_agent_uid: [],
+    f_organization_uid: organizationUID
   });
 
   const [errors, setErrors] = useState({});
@@ -28,7 +35,7 @@ export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
     });
   };
 
-  const handleCreateClick = async() => {
+  const handleCreateClick = async () => {
     const fieldsToValidate = ["application_name"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
@@ -84,7 +91,7 @@ export const CreateModal = ({ projectUID, projectName, onClose, onCreate }) => {
 };
 
 export const EditModal = ({ application, onClose, onEdit, projectName }) => {
-  const {showToast} = useToastNotification();
+  const { showToast } = useToastNotification();
 
   const [formData, setFormData] = useState({
     application_uid: application.uid,
@@ -101,7 +108,7 @@ export const EditModal = ({ application, onClose, onEdit, projectName }) => {
     });
   };
 
-  const handleUpdateClick = async() => {
+  const handleUpdateClick = async () => {
     const response = await HandleUpdate(formData, onEdit, onClose);
     // 根據 response 顯示對應的 toast
     showToast(response && response.status === 200);

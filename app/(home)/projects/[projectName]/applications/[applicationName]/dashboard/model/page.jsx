@@ -13,6 +13,7 @@ export default function ModelPage() {
   const applicationNameDecode = decodeURIComponent(applicationName);
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
+  const organizationUID = searchParams.get("organizationUID")
   const handleBackClick = useBackNavigation();
   const { models, isLoading, triggerFetch } = useFetchModels(applicationUID);
   const { handlePreprocessingPipelineClick, handleTrainingPipelineClick } =
@@ -88,7 +89,7 @@ export default function ModelPage() {
                 onEdit={triggerFetch}
                 onDelete={triggerFetch}
                 onUpload={triggerFetch}
-                applicationUID={applicationUID}
+                organizationUID={organizationUID}
               />
             ))}
           </div>

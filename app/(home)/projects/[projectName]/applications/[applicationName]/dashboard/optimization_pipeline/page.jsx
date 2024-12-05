@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useBackNavigation } from "@/app/backNavigation";
 import { useFetchPipeline } from "../preprocessing_pipeline/service";
-import { PipelineCard } from "../preprocessing_pipeline/pipelineCard";
+import { PipelineCard } from "./pipelineCard";
 import { CreateModal } from "./pipelineModal";
 
 export default function OptimizationPipelinePage() {
@@ -13,6 +13,7 @@ export default function OptimizationPipelinePage() {
   const applicationNameDecode = decodeURIComponent(applicationName);
   const searchParams = useSearchParams();
   const applicationUID = searchParams.get("applicationUID");
+  const organizationUID = searchParams.get("organizationUID");
 
   const handleBackClick = useBackNavigation();
 
@@ -70,6 +71,7 @@ export default function OptimizationPipelinePage() {
                 key={retrainPipe.uid}
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
+                organizationUID={organizationUID}
                 pipeline={retrainPipe}
                 path="optimization_pipeline"
                 onEdit={retrainTrigger}
@@ -81,6 +83,7 @@ export default function OptimizationPipelinePage() {
                 key={tunPipe.uid}
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
+                organizationUID={organizationUID}
                 pipeline={tunPipe}
                 path="optimization_pipeline"
                 onEdit={tuningTrigger}

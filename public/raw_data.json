@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "uid": "1",
+    "name": "raw_data",
+    "description": "Sample description",
+    "f_application_uid": "c738b516-73a2-47db-88d0-0e81afec33bf",
+    "f_agent_uid": "4931649e-30a0-4f81-a7a8-6e332974cbb1",
+    "f_model_uid": "430efa5a-ad74-41b0-a3ce-9e10773612d7",
+    "f_file_uid": "0623f985-b0ef-43c0-8e14-ae672746b68d",
+    "extension": "zip",
+    "created_time": "2024/11/09 15:27"
+  },
+  {
+    "id": 2,
+    "uid": "2",
+    "name": "training_data",
+    "description": "Sample description",
+    "f_application_uid": "c89f4e82-b2db-4400-87d6-2fa076d573ca",
+    "f_agent_uid": "4931649e-30a0-4f81-a7a8-6e332974cbb1",
+    "f_model_uid": "6ad2befd-e6cc-4155-98a4-3010e4d1d875",
+    "f_file_uid": "fb48fa49-77a0-4338-9867-2e2c54c94a98",
+    "extension": "zip",
+    "created_time": "2024/11/09 15:27"
+  },
+  {
+    "id": 3,
+    "uid": "3",
+    "name": "training_data",
+    "description": "Sample description",
+    "f_application_uid": "2127fa7a-5a71-4090-81b7-57b45d6092f5",
+    "f_agent_uid": "4931649e-30a0-4f81-a7a8-6e332974cbb1",
+    "f_model_uid": "aab240cf-c941-41e3-ac26-1701defcf090",
+    "f_file_uid": "964af3df-43c7-4de4-b84a-aa9c4ea09360",
+    "extension": "zip",
+    "created_time": "2024/11/09 15:27"
+  },
+  {
+    "id": 4,
+    "uid": "4",
+    "name": "training_data",
+    "description": "Sample description",
+    "f_application_uid": "2127fa7a-5a71-4090-81b7-57b45d6092f5",
+    "f_agent_uid": "27a998d5-0b8f-49d6-bd63-5706c8dffd40",
+    "f_model_uid": "a1fa957f-eee3-4d66-b06c-a94a17bf0376",
+    "f_file_uid": "964af3df-43c7-4de4-b84a-aa9c4ea09360",
+    "extension": "zip",
+    "created_time": "2024/11/09 15:27"
+  },
+  {
+    "id": 5,
+    "uid": "5",
+    "name": "training_data",
+    "description": "Sample description",
+    "f_application_uid": "2127fa7a-5a71-4090-81b7-57b45d6092f5",
+    "f_agent_uid": "27a998d5-0b8f-49d6-bd63-5706c8dffd40",
+    "f_model_uid": "a1fa957f-eee3-4d66-b06c-a94a17bf0376",
+    "f_file_uid": "964af3df-43c7-4de4-b84a-aa9c4ea09360",
+    "extension": "zip",
+    "created_time": "2024/11/09 15:27"
+  }
+]

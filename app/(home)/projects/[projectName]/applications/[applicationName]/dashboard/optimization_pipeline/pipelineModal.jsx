@@ -2,7 +2,12 @@
 
 import React, { useState } from "react";
 import { HandleCreate } from "../preprocessing_pipeline/service";
-import { ModalInput, ValidateForm, SelectDropdown,FileInput } from "@/app/modalComponent";
+import {
+  ModalInput,
+  ValidateForm,
+  SelectDropdown,
+  FileInput,
+} from "@/app/modalComponent";
 import { useToastNotification } from "@/app/modalComponent";
 
 export const CreateModal = ({
@@ -20,7 +25,7 @@ export const CreateModal = ({
     type: "",
     f_application_uid: applicationUID,
     file: null,
-    extension: "py",
+    extension: "py"
   });
 
   const [errors, setErrors] = useState({});
@@ -42,13 +47,13 @@ export const CreateModal = ({
   };
 
   const handleCreateClick = async () => {
-    const fieldsToValidate = ["name", "file","type"];
+    const fieldsToValidate = ["name", "file", "type","f_agent_uid"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
       const onCreate =
-        formData.type === "Retrain" ? onCreateRetain : onCreateTuning;
+        formData.type === "retrain" ? onCreateRetain : onCreateTuning;
 
       const response = await HandleCreate(formData, onCreate, onClose);
       // 根據 response 顯示對應的 toast
@@ -59,7 +64,9 @@ export const CreateModal = ({
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Upload Optimization pipeline</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          Upload Optimization pipeline
+        </h2>
         <ModalInput
           label="Application UID"
           value={formData.f_application_uid}

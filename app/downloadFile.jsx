@@ -65,9 +65,15 @@ export const HandlePrintLog = ({ task, type }) => {
           // 構建可讀的日誌內容
           let logContent = "";
 
-          Object.keys(jsonData.data).forEach((key) => {
-            logContent += `${key} Log:\n${jsonData.data[key]}\n\n`;
-          });
+          // 檢查 jsonData.data 是否為物件或字串
+          if (typeof jsonData.data === "object") {
+            Object.keys(jsonData.data).forEach((key) => {
+              logContent += `${key} Log:\n${jsonData.data[key]}\n\n`;
+            });
+          } else if (typeof jsonData.data === "string") {
+            logContent = `Log:\n${jsonData.data}\n\n`;
+          }
+          
           const blob = new Blob([logContent], { type: "text/plain" });
           const url = window.URL.createObjectURL(blob);
 

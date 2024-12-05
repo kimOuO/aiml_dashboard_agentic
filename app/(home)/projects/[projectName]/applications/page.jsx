@@ -12,6 +12,7 @@ export default function ApplicationPage() {
   const projectNameDecode = decodeURIComponent(projectName);
   const searchParams = useSearchParams();
   const projectUID = searchParams.get("projectUID");
+  const organizationUID = searchParams.get("organizationUID");
 
   const handleBackClick = useBackNavigation();
   const { applications, isLoading, triggerFetch } =
@@ -55,6 +56,7 @@ export default function ApplicationPage() {
             {applications.map((application) => (
               <ApplicationCard
                 projectName={projectNameDecode}
+                organizationUID={organizationUID}
                 key={application.uid}
                 application={application}
                 onEdit={triggerFetch}
@@ -68,6 +70,7 @@ export default function ApplicationPage() {
         <CreateModal
           projectName={projectNameDecode}
           projectUID={projectUID}
+          organizationUID={organizationUID}
           onClose={handleCloseCreateModal}
           onCreate={triggerFetch}
         />
