@@ -47,7 +47,7 @@ export const CreateModal = ({
   };
 
   const handleCreateClick = async () => {
-    const fieldsToValidate = ["name", "file", "type","f_agent_uid"];
+    const fieldsToValidate = ["name", "file", "type"];
     const validationErrors = ValidateForm(formData, fieldsToValidate);
     setErrors(validationErrors);
 

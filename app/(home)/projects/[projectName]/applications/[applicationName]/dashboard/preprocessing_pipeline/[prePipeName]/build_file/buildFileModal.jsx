@@ -260,7 +260,15 @@ export const EditModal = ({ buildFile, onClose, onEdit }) => {
   };
 
   const handleUpdateClick = async () => {
-    const response = await HandleUpdate(formData, onEdit, onClose);
+    //有更新file才需要傳file這個欄位給backend
+    const updatedFormData = {...formData};
+    if(formData.file !== buildFile.f_file_uid){
+      updatedFormData.file = formData.file;
+    }else{
+      delete updatedFormData.file
+    }
+    
+    const response = await HandleUpdate(updatedFormData, onEdit, onClose);
     // 根據 response 顯示對應的 toast
     showToast(response && response.status === 200);
   };

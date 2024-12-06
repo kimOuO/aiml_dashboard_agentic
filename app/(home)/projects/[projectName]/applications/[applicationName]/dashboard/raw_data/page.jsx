@@ -10,7 +10,6 @@ import {
 } from "./handleService";
 import { SelectDropdown } from "@/app/modalComponent";
 import RawDataCard from "./rawDataCard";
-import rawDataList from "/public/raw_data.json";
 import { useFetchRawData } from "./service";
 
 export default function RawDataPage() {
@@ -74,9 +73,6 @@ export default function RawDataPage() {
               <p className="text-3xl">Raw Data</p>
             </div>
           </div>
-          <button className="bg-green-800 text-white px-6 py-4 rounded-2xl text-xl ">
-            Upload Raw Data
-          </button>
         </div>
         <div className="flex items-center mb-4 justify-between">
           <div className="flex items-center space-x-2">
