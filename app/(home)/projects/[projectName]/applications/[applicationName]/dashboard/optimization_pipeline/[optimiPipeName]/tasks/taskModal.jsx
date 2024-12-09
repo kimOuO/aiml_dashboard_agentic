@@ -81,15 +81,6 @@ export const CreateModal = ({
     return [];
   };
 
-  const getPretrainModelOptions = () => {
-    if (formData.type == "Training Dataset") {
-      return taskFile.pretrain_model?.retrain || [];
-    } else if (formData.type === "Optimization Dataset") {
-      return taskFile.pretrain_model?.tuning || [];
-    }
-    return [];
-  };
-
   const handleCreateClick = () => {
     const fieldsToValidate = [
       "access_key",
@@ -105,6 +96,7 @@ export const CreateModal = ({
       "model_output_format",
       "task_name",
       "type",
+      "f_agent_uid"
     ];
 
     const validationErrors = ValidateForm(formData, fieldsToValidate);
@@ -167,7 +159,7 @@ export const CreateModal = ({
               {formData.type === "Optimization Dataset" && (
                 <SelectDropdown
                   label="Agent"
-                  name="agent"
+                  name="f_agent_uid"
                   value={formData.f_agent_uid}
                   options={agents || []}
                   onChange={handleInputChange}
@@ -186,7 +178,7 @@ export const CreateModal = ({
                 label="Retrain Model Name"
                 name="model_uid"
                 value={formData.model_uid}
-                options={getPretrainModelOptions()} //根據type顯示動態數據
+                options={taskFile.pretrain_model} //根據type顯示動態數據
                 onChange={handleInputChange}
                 error={errors.model_uid}
               />
