@@ -24,7 +24,7 @@ export const CreateModal = ({
     pipeline_uid: pipelineUID,
     model_uid: "",
     dataset_uid: "",
-    type: "",
+    type: "project",
     f_agent_uid: "",
     config_uid: "",
     image_uid: {
@@ -34,7 +34,7 @@ export const CreateModal = ({
     },
     model_name: "",
     model_description: "",
-    model_type: "agent",
+    model_type: "default",
     model_input_format: "",
     model_output_format: "",
     model_file_extension: "zip",
@@ -50,11 +50,12 @@ export const CreateModal = ({
       //當type改變時，清空dataset_uid
       setFormData({
         ...formData,
-        type: value,
+        type: value==="Training Dataset"?"project":"application",
+        model_type : value==="Training Dataset"?"default":"agent",
         dataset_uid: "",
       });
     } else if (name.includes("image_uid")) {
-      //更新嵌套字串
+      // 處理嵌套欄位的值
       const key = name.split(".")[1];
       setFormData({
         ...formData,
@@ -64,7 +65,7 @@ export const CreateModal = ({
         },
       });
     } else {
-      //更新非嵌套字串
+      // 處理其他欄位
       setFormData({
         ...formData,
         [name]: value,
@@ -73,15 +74,16 @@ export const CreateModal = ({
   };
   //根據type動態顯示不同的original dataset
   const getTrainingDatasetOptions = () => {
-    if (formData.type === "Training Dataset") {
-      return taskFile.training_dataset?.project || [];
-    } else if (formData.type === "Optimization Dataset") {
-      return taskFile.training_dataset?.application || [];
+    if (formData.type === "project") {
+      return taskFile.training_dataset.project || [];
+    } else if (formData.type === "application") {
+      return taskFile.training_dataset.application || [];
     }
     return [];
   };
 
   const handleCreateClick = () => {
+    //根據type動態調整fieldsToValidate
     const fieldsToValidate = [
       "access_key",
       "secret_key",
@@ -96,8 +98,12 @@ export const CreateModal = ({
       "model_output_format",
       "task_name",
       "type",
-      "f_agent_uid"
     ];
+
+    if (formData.type === "Optimization Dataset") {
+      //Optimization Dataset 時驗證 f_agent_uid
+      fieldsToValidate.push("f_agent_uid");
+    }
 
     const validationErrors = ValidateForm(formData, fieldsToValidate);
 
@@ -148,7 +154,7 @@ export const CreateModal = ({
               <SelectDropdown
                 label="Optimization Task Type"
                 name="type"
-                value={formData.type}
+                value={formData.type==="project"?"Training Dataset":"Optimization Dataset"}
                 options={[
                   { uid: "Training Dataset", name: "Training Dataset" },
                   { uid: "Optimization Dataset", name: "Optimization Dataset" },
