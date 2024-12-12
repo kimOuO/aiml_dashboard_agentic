@@ -53,12 +53,6 @@ export const EditModal = ({ rawData, onClose, onEdit, applicationName }) => {
           value={formData.name}
           onChange={handleInputChange}
         />
-        <FileInput
-          label="Dataset File"
-          file={rawData.f_file_uid}
-          onChange={handleFileChange}
-          accept=".zip"
-        />
         <ModalInput
           label="Description"
           name="description"
