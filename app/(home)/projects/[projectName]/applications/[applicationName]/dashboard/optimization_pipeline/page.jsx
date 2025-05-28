@@ -69,6 +69,7 @@ export default function OptimizationPipelinePage() {
             {retrainPipelines.map((retrainPipe) => (
               <PipelineCard
                 key={retrainPipe.uid}
+                pipelineType={retrainPipe.type}
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
                 organizationUID={organizationUID}
@@ -81,6 +82,7 @@ export default function OptimizationPipelinePage() {
             {tuningPipelines.map((tunPipe) => (
               <PipelineCard
                 key={tunPipe.uid}
+                pipelineType={tunPipe.type}
                 projectName={projectNameDecode}
                 applicationName={applicationNameDecode}
                 organizationUID={organizationUID}

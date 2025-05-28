@@ -5,6 +5,7 @@ import { HandleDownloadFile } from "@/app/downloadFile";
 
 export const PipelineCard = ({
   projectName,
+  pipelineType,
   applicationName,
   organizationUID,
   pipeline,
@@ -18,7 +19,7 @@ export const PipelineCard = ({
 
   const handlePreprocessingPipelineClick = () => {
     router.push(
-      `/projects/${projectName}/applications/${applicationName}/dashboard/${path}/${pipeline.name}/tasks?pipelineUID=${pipeline.uid}&organizationUID=${organizationUID}`
+      `/projects/${projectName}/applications/${applicationName}/dashboard/${path}/${pipeline.name}/tasks?pipelineUID=${pipeline.uid}&organizationUID=${organizationUID}&pipelineType=${pipelineType}`
     );
   };
 

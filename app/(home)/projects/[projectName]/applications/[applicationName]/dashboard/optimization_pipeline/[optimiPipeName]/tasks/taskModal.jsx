@@ -10,6 +10,7 @@ import {
 
 export const CreateModal = ({
   pipelineUID,
+  pipelineType,
   pipelineName,
   onCreate,
   onClose,
@@ -34,7 +35,7 @@ export const CreateModal = ({
     },
     model_name: "",
     model_description: "",
-    model_type: "default",
+    model_type: pipelineType === "retrain" ? "default" : "agent",
     model_input_format: "",
     model_output_format: "",
     model_file_extension: "zip",
@@ -78,6 +79,16 @@ export const CreateModal = ({
       return taskFile.training_dataset.project || [];
     } else if (formData.type === "application") {
       return taskFile.training_dataset.application || [];
+    }
+    return [];
+  };
+
+  //根據pipelineType動態顯示不同的pretrain model
+  const getPretrainModelsList = () => {
+    if (pipelineType === "retrain") {
+      return taskFile.retrain_pretrain_model || [];
+    } else if (pipelineType === "tuning") {
+      return taskFile.tuning_pretrain_model || [];
     }
     return [];
   };
@@ -184,7 +195,7 @@ export const CreateModal = ({
                 label="Retrain Model Name"
                 name="model_uid"
                 value={formData.model_uid}
-                options={taskFile.pretrain_model} //根據type顯示動態數據
+                options={getPretrainModelsList()} //根據pipelineType顯示動態數據
                 onChange={handleInputChange}
                 error={errors.model_uid}
               />

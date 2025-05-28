@@ -15,6 +15,7 @@ export default function OptimizationTaskPage() {
   const searchParams = useSearchParams();
   const pipelineUID = searchParams.get("pipelineUID");
   const organizationUID = searchParams.get("organizationUID");
+  const pipelineType = searchParams.get("pipelineType")
 
   const handleBackClick = useBackNavigation();
   const {
@@ -25,6 +26,8 @@ export default function OptimizationTaskPage() {
   } = useFetchTask(pipelineUID,organizationUID);
 
   const { taskFile } = useFetchTaskFile(pipelineUID);
+
+  console.log (taskFile)
 
   const { handleBuildFileClick, handleConfigClick } = HandleLinkClick(
     projectNameDecode,
@@ -111,6 +114,7 @@ export default function OptimizationTaskPage() {
       {isCreateModalOpen && (
         <CreateModal
           pipelineUID={pipelineUID}
+          pipelineType={pipelineType}
           pipelineName={optimiPipeNameDecode}
           type="Optimization"
           onCreate={triggerFetch}

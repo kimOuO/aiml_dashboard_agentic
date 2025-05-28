@@ -21,6 +21,7 @@ export const useFetchModels = (applicationUID) => {
           APIKEYS.GROUP,
           data
         );
+        console.log(response)
         if (response.status === 200) {
           setModels(response.data.data);
         } else if (response && response instanceof Error) {
