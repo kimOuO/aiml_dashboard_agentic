@@ -1,174 +1,107 @@
-import { SYSTEM_PROMPTS } from '../config/systemPrompts';
-
-export interface ContextualPromptData {
-  pageType: string;
-  projectName?: string;
-  applicationName?: string;
-  pipelineName?: string;
-  contextInfo: string;
-  helpTopics: string[];
-  userMessage: string;
-  modalType?: string;
-  modalTitle?: string;
-  modalFields?: Array<{ label?: string; placeholder?: string; name?: string; type?: string }>;
-  modalButtons?: string[];
-}
+// utils/promptBuilder.ts
+import { ContentAnalyzer, PageContext } from '@/lib/contentAnalyzer';
 
 export class PromptBuilder {
-  /**
-   * Builds a token-efficient contextual prompt
-   */
-  static buildContextualPrompt(data: ContextualPromptData): string {
-    const pageConfig = SYSTEM_PROMPTS.pageSpecific[data.pageType] || SYSTEM_PROMPTS.pageSpecific.general;
+  static buildIntelligentPrompt(userMessage: string): string {
+    const context = ContentAnalyzer.analyzePageContent();
     
-    // Build a concise, structured prompt
-    const contextualPrompt = `[CONTEXT]
-Page: ${data.pageType}
-${data.projectName ? `Project: ${data.projectName}` : ''}
-${data.applicationName ? `Application: ${data.applicationName}` : ''}
-${data.pipelineName ? `Pipeline: ${data.pipelineName}` : ''}
-
-[CURRENT_SITUATION]
-${pageConfig.context}
-
-[ASSISTANT_FOCUS]
-${pageConfig.instructions}
-
-[USER_QUESTION]
-${data.userMessage}
-
-Provide a concise, actionable response focused on the user's current page and immediate needs.`;
-
-    return contextualPrompt;
+    return this.buildContextualPrompt({
+      pageContext: context,
+      userMessage
+    });
   }
 
-  /**
-   * Builds an even more token-efficient prompt for simple queries
-   */
-  static buildMinimalPrompt(data: ContextualPromptData): string {
-    const pageConfig = SYSTEM_PROMPTS.pageSpecific[data.pageType] || SYSTEM_PROMPTS.pageSpecific.general;
+  static buildContextualPrompt(data: { pageContext: PageContext; userMessage: string }): string {
+    const { pageContext, userMessage } = data;
     
-    return `Context: ${data.pageType}${data.pipelineName ? ` (${data.pipelineName})` : ''}
-Focus: ${pageConfig.instructions.split('.')[0]}
-Q: ${data.userMessage}`;
-  }
-
-  /**
-   * Estimates token count (rough approximation: 1 token ≈ 4 characters)
-   */
-  static estimateTokens(text: string): number {
-    return Math.ceil(text.length / 4);
-  }
-
-  /**
-   * Chooses the most appropriate prompt based on message complexity
-   */
-  static buildOptimalPrompt(data: ContextualPromptData): string {
-    const messageLength = data.userMessage.length;
-    const isComplexQuery = messageLength > 50 || data.userMessage.includes('?') || data.userMessage.toLowerCase().includes('how');
-    
-    if (isComplexQuery) {
-      return this.buildContextualPrompt(data);
-    } else {
-      return this.buildMinimalPrompt(data);
-    }
-  }
-
-  /**
-   * Builds a modal-aware contextual prompt
-   */
-  static buildModalAwarePrompt(data: ContextualPromptData): string {
-    const pageConfig = SYSTEM_PROMPTS.pageSpecific[data.pageType] || SYSTEM_PROMPTS.pageSpecific.general;
-    
-    let contextualPrompt = `[CONTEXT]
-Page: ${data.pageType}
-${data.projectName ? `Project: ${data.projectName}` : ''}
-${data.applicationName ? `Application: ${data.applicationName}` : ''}
-${data.pipelineName ? `Pipeline: ${data.pipelineName}` : ''}`;
+    let prompt = `[CONTEXT]
+Page: ${pageContext.pageTitle}
+Entity: ${pageContext.semanticContext.entityType} - ${pageContext.semanticContext.entityName}
+Section: ${pageContext.semanticContext.section}
+Action: ${pageContext.semanticContext.action}`;
 
     // Add navigation context
-    if (data.navigationLinks && data.navigationLinks.length > 0) {
-      const navLinks = data.navigationLinks
-        .filter(link => link.clickable)
-        .map(link => link.text)
+    if (pageContext.navigationContext.length > 0) {
+      const navLinks = pageContext.navigationContext
+        .filter(nav => nav.clickable)
+        .map(nav => nav.text)
         .join(', ');
       
       if (navLinks) {
-        contextualPrompt += `
+        prompt += `
 Available Navigation: ${navLinks}`;
       }
     }
-    
-    if (data.availableActions && data.availableActions.length > 0) {
-      contextualPrompt += `
-Primary Actions: ${data.availableActions.join(', ')}`;
-    }
-    
-    if (data.breadcrumbs && data.breadcrumbs.length > 0) {
-      const cleanBreadcrumbs = data.breadcrumbs.filter(crumb => !this.isUUIDOrTimestamp(crumb));
-      if (cleanBreadcrumbs.length > 0) {
-        contextualPrompt += `
-Current Path: ${cleanBreadcrumbs.join(' → ')}`;
-      }
+
+    // Add primary actions
+    if (pageContext.primaryActions.length > 0) {
+      prompt += `
+Primary Actions: ${pageContext.primaryActions.join(', ')}`;
     }
 
-    // Add modal-specific context if present
-    if (data.modalType) {
-      contextualPrompt += `
-Modal: ${data.modalType}
-Modal Title: "${data.modalTitle}"`;
+    // Add form context
+    const activeForms = pageContext.formContext.filter(form => 
+      form.isModal ? true : form.fields.length > 0
+    );
+    
+    if (activeForms.length > 0) {
+      const activeForm = activeForms[0]; // Focus on first active form
       
-      if (data.modalFields && data.modalFields.length > 0) {
-        const fieldDescriptions = data.modalFields.map(field => {
-          const labelText = field.label || field.placeholder || field.name;
-          return `${labelText} (${field.type})`;
-        }).join(', ');
+      if (activeForm.isModal && activeForm.modalTitle) {
+        prompt += `
+Modal: ${activeForm.modalTitle}`;
+      }
+      
+      if (activeForm.fields.length > 0) {
+        const fieldDescriptions = activeForm.fields.map(field => 
+          `${field.label || field.name} (${field.type})`
+        ).join(', ');
         
-        contextualPrompt += `
+        prompt += `
 Form Fields: ${fieldDescriptions}`;
         
-        // Add readonly field guidance
-        const readonlyFields = data.modalFields.filter(f => f.readonly || f.type.includes('readonly'));
+        // Highlight readonly fields
+        const readonlyFields = activeForm.fields.filter(f => f.readonly);
         if (readonlyFields.length > 0) {
-          const readonlyFieldNames = readonlyFields.map(f => f.label || f.placeholder || f.name);
-          contextualPrompt += `
-Note: These fields are read-only: ${readonlyFieldNames.join(', ')}`;
+          const readonlyNames = readonlyFields.map(f => f.label || f.name);
+          prompt += `
+Note: Read-only fields: ${readonlyNames.join(', ')}`;
         }
       }
       
-      if (data.modalButtons && data.modalButtons.length > 0) {
-        contextualPrompt += `
-Modal Actions: ${data.modalButtons.join(', ')}`;
+      if (activeForm.submitButtons.length > 0) {
+        prompt += `
+Form Actions: ${activeForm.submitButtons.join(', ')}`;
       }
     }
 
-    contextualPrompt += `
+    // Add data context
+    if (pageContext.dataContext.cards.length > 0) {
+      prompt += `
+Data: ${pageContext.dataContext.cards.length} items displayed`;
+      
+      if (pageContext.dataContext.pagination) {
+        prompt += ` (page ${pageContext.dataContext.pagination.currentPage} of ${pageContext.dataContext.pagination.totalPages})`;
+      }
+    }
 
-[CURRENT_SITUATION]
-${pageConfig.context}
+    // Add capabilities
+    if (pageContext.semanticContext.capabilities.length > 0) {
+      prompt += `
+User Can: ${pageContext.semanticContext.capabilities.join(', ')}`;
+    }
 
-[ASSISTANT_FOCUS]
-${pageConfig.instructions}
-${data.modalType ? 'Focus on helping with the current modal form. Do not suggest editing read-only fields.' : ''}
+    prompt += `
 
 [USER_QUESTION]
-${data.userMessage}
+${userMessage}
 
-Provide specific help referencing the available navigation and actions. For read-only fields, explain their purpose instead of suggesting edits.`;
+Provide specific help based on the current page context. Reference available actions and navigation options. For read-only fields, explain their purpose instead of suggesting edits.`;
 
-    return contextualPrompt;
+    return prompt;
   }
 
-  // Helper function for UUID detection
-  static isUUIDOrTimestamp(text: string): boolean {
-    const uuidPattern = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
-    const timestampPatterns = [
-      /^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/,
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
-      /^\d{13}$/,
-    ];
-    
-    if (uuidPattern.test(text)) return true;
-    return timestampPatterns.some(pattern => pattern.test(text));
+  static estimateTokens(text: string): number {
+    return Math.ceil(text.length / 4);
   }
 }
