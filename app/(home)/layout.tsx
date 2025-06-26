@@ -4,6 +4,7 @@ import Footer from "@/components/base/Footer";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/components/base/AuthProvider";
+import DifyChatbot from "@/components/base/DifyChatbot";
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         </AuthProvider>
 
         <Toaster />
+        <DifyChatbot />
       </body>
     </html>
   );
