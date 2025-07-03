@@ -10,6 +10,7 @@ import {
 } from "@/app/modalComponent";
 import { useToastNotification } from "@/app/modalComponent";
 import CodeEditor from "@/components/base/CodeEditor";
+import { PIPELINE_TEMPLATES } from '@/utils/pipelineTemplates';
 
 export const CreateModal = ({
   applicationUID,
@@ -74,45 +75,8 @@ export const CreateModal = ({
       ? `${formData.name}.py`
       : `${pipelineType}_pipeline.py`;
 
-    const templateCode = `# ${pipelineType.toUpperCase()} Pipeline Code
-# Created on ${new Date().toLocaleString()}
-
-import numpy as np
-import pandas as pd
-${
-  pipelineType === "retrain"
-    ? 'from sklearn.model_selection import train_test_split'
-    : ""
-}
-${
-  pipelineType === "tuning"
-    ? 'from sklearn.model_selection import GridSearchCV'
-    : ""
-}
-
-def ${pipelineType}_pipeline():
-    """
-    ${pipelineType.charAt(0).toUpperCase() + pipelineType.slice(1)} pipeline implementation
-    """
-    print(f"Starting ${pipelineType} pipeline...")
-    
-    # Load data
-    # data = load_data()
-    
-    ${pipelineType === "retrain" ? `# Retrain model logic
-    # model = train_model(data)
-    # save_model(model)` : ""}
-    
-    ${pipelineType === "tuning" ? `# Hyperparameter tuning logic
-    # param_grid = {'param1': [1, 2, 3]}
-    # grid_search = GridSearchCV(model, param_grid)
-    # best_model = grid_search.fit(X_train, y_train)` : ""}
-    
-    pass
-
-if __name__ == '__main__':
-    ${pipelineType}_pipeline()
-`;
+    // Use the utility to generate template code
+    const templateCode = PIPELINE_TEMPLATES.generateTemplate(pipelineType);
 
     // Create a file object for the blank template
     const blob = new Blob([templateCode], { type: "text/plain" });

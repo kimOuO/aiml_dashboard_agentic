@@ -10,6 +10,7 @@ import { useToastNotification } from "@/app/modalComponent";
 import CodeEditor from "@/components/base/CodeEditor";
 import { getAPI } from "@/app/api/entrypoint";
 import APIKEYS from "@/app/api/api_key.json";
+import { PIPELINE_TEMPLATES } from '@/utils/pipelineTemplates';
 
 export const CreateModal = ({
   applicationUID,
@@ -77,22 +78,8 @@ export const CreateModal = ({
 
     const fileName = formData.name ? `${formData.name}.py` : 'pipeline.py';
     
-    // Create blank file content
-    const blankCode = `# ${type} Pipeline Code
-# Created on ${new Date().toLocaleString()}
-
-def main():
-    """
-    Main ${type.toLowerCase()} pipeline function
-    """
-    print("Starting ${type.toLowerCase()} pipeline...")
-    
-    # Add your ${type.toLowerCase()} logic here
-    pass
-
-if __name__ == '__main__':
-    main()
-`;
+    // Use the utility to generate template code
+    const blankCode = PIPELINE_TEMPLATES.generateTemplate(type);
 
     // Create a file object for the blank template
     const blob = new Blob([blankCode], { type: 'text/plain' });
@@ -180,7 +167,7 @@ if __name__ == '__main__':
                 className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-700"
                 title={formData.file ? "This will replace your uploaded file" : "Create a new blank template"}
               >
-                🆕 Create Blank File
+                🆕 Create Blank Template
                 {formData.file && <span className="ml-1 text-yellow-200">⚠️</span>}
               </button>
               
@@ -321,21 +308,7 @@ if __name__ == '__main__':
         }
       } else {
         // No file UID object, provide template
-        setCurrentCode(`# ${pipeline.type} Pipeline Code
-# Created on ${new Date().toLocaleString()}
-
-def main():
-    """
-    Main ${pipeline.type.toLowerCase()} pipeline function
-    """
-    print("Starting ${pipeline.type.toLowerCase()} pipeline...")
-    
-    # Add your ${pipeline.type.toLowerCase()} logic here
-    pass
-
-if __name__ == '__main__':
-    main()
-`);
+        setCurrentCode(PIPELINE_TEMPLATES.generateTemplate(pipeline.type));
       }
     };
 
