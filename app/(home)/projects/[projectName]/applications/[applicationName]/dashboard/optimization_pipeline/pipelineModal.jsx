@@ -75,7 +75,7 @@ export const CreateModal = ({
       : `${pipelineType}_pipeline.py`;
 
     const templateCode = `# ${pipelineType.toUpperCase()} Pipeline Code
-# Generated on ${new Date().toLocaleString()}
+# Created on ${new Date().toLocaleString()}
 
 import numpy as np
 import pandas as pd
@@ -168,6 +168,10 @@ if __name__ == '__main__':
       showToast(response && response.status === 200);
     }
   };
+
+  const fileName = formData.name
+    ? `${formData.name}.py`
+    : `${formData.type || "optimization"}_pipeline.py`;
 
   return (
     <>
@@ -277,12 +281,9 @@ if __name__ == '__main__':
         initialCode={currentCode}
         onSave={handleCodeSave}
         onClose={() => setIsCodeEditorOpen(false)}
-        fileName={
-          formData.name
-            ? `${formData.name}.py`
-            : `${formData.type || "optimization"}_pipeline.py`
-        }
+        fileName={fileName}
         isOpen={isCodeEditorOpen}
+        pipelineType={formData.type || "optimization"} // Use dynamic type (retrain/tuning) or fallback to optimization
       />
     </>
   );

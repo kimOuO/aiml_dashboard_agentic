@@ -17,6 +17,7 @@ export const CreateModal = ({
   type,
   onCreate,
   onClose,
+  pipelineType,
 }) => {
   const { showToast } = useToastNotification();
   const [isCodeEditorOpen, setIsCodeEditorOpen] = useState(false);
@@ -78,7 +79,7 @@ export const CreateModal = ({
     
     // Create blank file content
     const blankCode = `# ${type} Pipeline Code
-# Generated on ${new Date().toLocaleString()}
+# Created on ${new Date().toLocaleString()}
 
 def main():
     """
@@ -232,12 +233,13 @@ if __name__ == '__main__':
         onClose={() => setIsCodeEditorOpen(false)}
         fileName={formData.name ? `${formData.name}.py` : 'pipeline.py'}
         isOpen={isCodeEditorOpen}
+        pipelineType={pipelineType || type || "preprocessing"} // Use passed prop, fallback to type, then preprocessing
       />
     </>
   );
 };
 
-export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
+export const EditModal = ({ pipeline, onClose, onEdit, applicationName, pipelineType }) => {
   const { showToast } = useToastNotification();
   const [isCodeEditorOpen, setIsCodeEditorOpen] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
@@ -320,7 +322,7 @@ if __name__ == '__main__':
       } else {
         // No file UID object, provide template
         setCurrentCode(`# ${pipeline.type} Pipeline Code
-# Generated on ${new Date().toLocaleString()}
+# Created on ${new Date().toLocaleString()}
 
 def main():
     """
@@ -497,7 +499,7 @@ if __name__ == '__main__':
         </div>
       </div>
 
-      {/* use CodeEditor with isReadOnly prop */}
+      {/* use CodeEditor with dynamic pipeline context */}
       {isCodeEditorOpen && (
         <CodeEditor
           initialCode={currentCode}
@@ -505,7 +507,8 @@ if __name__ == '__main__':
           onClose={handleCodeClose}
           fileName={`${formData.name}.py`}
           isOpen={isCodeEditorOpen}
-          isReadOnly={isViewMode}  // This is the key prop
+          isReadOnly={isViewMode}
+          pipelineType={pipelineType || pipeline.type || "preprocessing"} // Use passed prop, fallback to pipeline type
         />
       )}
     </>

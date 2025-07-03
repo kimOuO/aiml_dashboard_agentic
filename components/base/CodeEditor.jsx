@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useToastNotification } from '@/app/modalComponent';
+import { CODE_EDITOR_PROMPTS } from '@/utils/prompts/codeEditorPrompts';
 
 // Import Prism.js
 import Prism from 'prismjs';
@@ -12,7 +13,8 @@ const CodeEditor = ({
   onClose, 
   fileName = 'untitled.py',
   isOpen = false,
-  isReadOnly = false
+  isReadOnly = false,
+  pipelineType = null // Add pipeline context prop
 }) => {
   const [code, setCode] = useState(initialCode);
   const [isModified, setIsModified] = useState(false);
@@ -122,16 +124,7 @@ const CodeEditor = ({
     if (isOpen && !isReadOnly && chatMessages.length === 0) {
       setChatMessages([{
         type: 'assistant',
-        content: `👋 Hi! I'm here to help you with your code. I can:
-• Generate new code snippets
-• Review and improve existing code
-• Add comments and documentation
-• Fix bugs and optimize performance
-• Suggest best practices
-
-Use Ctrl+Z to undo and Ctrl+Y to redo changes.
-
-What would you like me to help you with?`,
+        content: CODE_EDITOR_PROMPTS.welcomeMessage,
         timestamp: new Date()
       }]);
     }
@@ -235,7 +228,7 @@ What would you like me to help you with?`,
     showToast(true, 'Code saved successfully');
   };
 
-  // Enhanced AI chat function
+  // Enhanced AI chat function with pipeline context
   const handleAiChat = async () => {
     if (isReadOnly) return;
     if (!aiPrompt.trim()) {
@@ -252,27 +245,20 @@ What would you like me to help you with?`,
     setChatMessages(prev => [...prev, userMessage]);
     setIsGenerating(true);
     
-    // Clear input immediately
     const currentPrompt = aiPrompt;
     setAiPrompt('');
 
     try {
-      // Enhanced prompt with context
-      const enhancedPrompt = `
-Context: I'm working on a file called "${fileName}" with the following code:
+      // Enhanced prompt with pipeline context
+      const enhancedPrompt = CODE_EDITOR_PROMPTS.aiChatPrompt(
+        fileName, 
+        code, 
+        currentPrompt, 
+        detectedPipelineType
+      );
 
-\`\`\`python
-${code}
-\`\`\`
-
-User Request: ${currentPrompt}
-
-Please provide a helpful response. If you're suggesting code changes:
-1. Explain what you're suggesting and why
-2. Provide the code in a clear format
-3. Mention any important considerations or trade-offs
-
-Response:`;
+      // Generate pipeline-specific user ID
+      const userId = CODE_EDITOR_PROMPTS.generateUserId(detectedPipelineType);
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_DIFY_BASE_URL}/v1/chat-messages`, {
         method: 'POST',
@@ -284,7 +270,7 @@ Response:`;
           inputs: {},
           query: enhancedPrompt,
           response_mode: 'blocking',
-          user: 'code-editor-user'
+          user: userId // Pipeline-specific user identification
         })
       });
 
@@ -406,6 +392,12 @@ Response:`;
   };
 
   if (!isOpen) return null;
+
+  // Detect pipeline type from props or filename
+  const detectedPipelineType = pipelineType || detectPipelineTypeFromFileName(fileName);
+
+  // Update quick actions to be pipeline-specific
+  const quickActions = CODE_EDITOR_PROMPTS.getQuickActions(detectedPipelineType);
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60]">
@@ -683,17 +675,13 @@ if __name__ == '__main__':
                 <div ref={chatEndRef} />
               </div>
 
-              {/* Quick Actions */}
+              {/* Quick Actions with pipeline-specific actions */}
               <div className="px-3 pt-3 bg-white border-t">
-                <div className="text-xs text-gray-600 mb-2">Quick actions:</div>
+                <div className="text-xs text-gray-600 mb-2">
+                  Quick actions for {detectedPipelineType} pipeline:
+                </div>
                 <div className="flex flex-wrap gap-1 mb-3">
-                  {[
-                    'Review this code',
-                    'Add comments',
-                    'Optimize performance',
-                    'Add error handling',
-                    'Create unit tests'
-                  ].map((action) => (
+                  {quickActions.map((action) => (
                     <button
                       key={action}
                       onClick={() => setAiPrompt(action)}
@@ -734,3 +722,15 @@ if __name__ == '__main__':
 };
 
 export default CodeEditor;
+
+// Helper function to detect pipeline type from filename
+function detectPipelineTypeFromFileName(fileName) {
+  const fileNameLower = fileName.toLowerCase();
+  
+  if (fileNameLower.includes('preprocessing')) return 'preprocessing';
+  if (fileNameLower.includes('training')) return 'training';
+  if (fileNameLower.includes('optimization') || fileNameLower.includes('tuning')) return 'optimization';
+  if (fileNameLower.includes('evaluation')) return 'evaluation';
+  
+  return 'general';
+}
