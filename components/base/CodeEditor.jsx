@@ -35,6 +35,55 @@ const CodeEditor = ({
   const [isUndoRedoAction, setIsUndoRedoAction] = useState(false);
   const lastSaveTimeRef = useRef(Date.now());
 
+  // Download function
+  const handleDownload = () => {
+    try {
+      const blob = new Blob([code], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName || 'code.py';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      showToast(true, `File downloaded as ${fileName}`);
+    } catch (error) {
+      showToast(false, 'Failed to download file');
+      console.error('Download error:', error);
+    }
+  };
+
+  // Enhanced close function with unsaved changes warning
+  const handleClose = () => {
+    if (isModified && !isReadOnly) {
+      const userConfirmed = window.confirm(
+        '⚠️ You have unsaved changes!\n\nYour changes will be lost if you close without saving.\n\nClick "OK" to close anyway or "Cancel" to stay and save your work.'
+      );
+      
+      if (!userConfirmed) {
+        return; // Don't close, let user save
+      }
+    }
+    
+    onClose();
+  };
+
+  // Prevent browser tab/window close with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isModified && !isReadOnly) {
+        e.preventDefault();
+        e.returnValue = ''; // Required for Chrome
+        return ''; // Required for some browsers
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isModified, isReadOnly]);
+
   // Highlight code using Prism.js
   const highlightCode = (code) => {
     return Prism.highlight(code, Prism.languages.python, 'python');
@@ -371,11 +420,22 @@ Response:`;
               <span className="text-sm text-blue-600 font-medium">👁️ View Mode</span>
             ) : (
               isModified && (
-                <span className="text-sm text-orange-600 font-medium">● Unsaved changes</span>
+                <span className="text-sm text-orange-600 font-medium">
+                  ● Unsaved changes
+                </span>
               )
             )}
           </div>
           <div className="flex gap-2">
+            {/* Download button - available in both modes */}
+            <button
+              onClick={handleDownload}
+              className="bg-purple-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700"
+              title="Download file to your computer"
+            >
+              💾 Download
+            </button>
+            
             {/* Show edit controls only in edit mode */}
             {!isReadOnly && (
               <>
@@ -404,14 +464,19 @@ Response:`;
                 <button
                   onClick={handleSave}
                   disabled={!isModified}
-                  className="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 hover:bg-green-700"
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    isModified 
+                      ? 'bg-green-600 text-white hover:bg-green-700' 
+                      : 'bg-gray-300 text-gray-500'
+                  }`}
+                  title={isModified ? "Save your changes" : "No changes to save"}
                 >
-                  Save
+                  {isModified ? '💾 Save' : '✓ Saved'}
                 </button>
               </>
             )}
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-600"
             >
               Close
@@ -423,29 +488,6 @@ Response:`;
         <div className="flex-1 flex overflow-hidden">
           {/* Code Editor/Viewer Section */}
           <div className={`flex flex-col ${!isReadOnly && isChatVisible ? 'w-1/2' : 'w-full'} ${!isReadOnly ? 'border-r' : ''}`}>
-            {/* AI Input Panel - only show in edit mode */}
-            {!isReadOnly && (
-              <div className="p-3 border-b bg-blue-50">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={aiPrompt}
-                    onChange={(e) => setAiPrompt(e.target.value)}
-                    placeholder="Ask AI about your code or request help..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    onKeyDown={(e) => e.key === 'Enter' && handleAiChat()}
-                  />
-                  <button
-                    onClick={handleAiChat}
-                    disabled={isGenerating || !aiPrompt.trim()}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 hover:bg-blue-700"
-                  >
-                    {isGenerating ? '🔄' : '💬'}
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* Code Editor/Viewer */}
             <div className="flex-1 overflow-hidden">
               {isReadOnly ? (
@@ -495,8 +537,7 @@ Response:`;
                         border: 'none',
                         outline: 'none',
                         zIndex: 2,
-                        color: '#1f2937', // Default color for unhighlighted text
-                        caretColor: '#1e293b'
+                        color: '#1f2937'
                       }}
                       dangerouslySetInnerHTML={{ 
                         __html: highlightCode(code) 
@@ -510,7 +551,7 @@ Response:`;
                       onChange={(e) => handleCodeChange(e.target.value)}
                       onKeyDown={handleKeyDown}
                       onScroll={handleScroll}
-                      className="absolute inset-0 w-full h-full font-mono text-sm leading-6 p-4 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent caret-blue-600"
+                      className="absolute inset-0 w-full h-full font-mono text-sm leading-6 p-4 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
                       placeholder="# Start writing your Python code here...
 # Use the chat panel to get AI assistance
 # Press Ctrl+Z to undo, Ctrl+Y to redo
@@ -527,7 +568,8 @@ if __name__ == '__main__':
                         background: 'transparent',
                         border: 'none',
                         outline: 'none',
-                        zIndex: 1
+                        zIndex: 1,
+                        caretColor: '#1e293b'
                       }}
                     />
                   </div>
@@ -535,20 +577,27 @@ if __name__ == '__main__':
               )}
             </div>
 
-            {/* Status Bar */}
+            {/* Clean Status Bar */}
             <div className="px-4 py-2 bg-gray-50 border-t text-sm text-gray-600 flex justify-between flex-shrink-0">
-              <div>
-                Lines: {code.split('\n').length} | Characters: {code.length}
-                {!isReadOnly && isModified && <span className="ml-4 text-orange-600">Unsaved changes</span>}
+              <div className="flex items-center gap-4">
+                <span>Lines: {code.split('\n').length} | Characters: {code.length}</span>
                 {isReadOnly ? (
-                  <span className="ml-4 text-blue-600">Read-Only • Prism.js Highlighted</span>
+                  <span className="text-blue-600">Read-Only • Syntax Highlighted</span>
                 ) : (
-                  <span className="ml-4 text-green-600">Live Syntax Highlighting</span>
+                  <span className="text-green-600">Live Syntax Highlighting</span>
                 )}
+                <button
+                  onClick={handleDownload}
+                  className="text-purple-600 hover:text-purple-800 text-xs font-medium"
+                  title="Download current code"
+                >
+                  💾 Download
+                </button>
               </div>
               {!isReadOnly && (
-                <div className="text-xs">
-                  History: {historyIndex + 1}/{history.length} | Ctrl+Z: Undo | Ctrl+Y: Redo
+                <div className="text-xs flex items-center gap-4">
+                  <span>History: {historyIndex + 1}/{history.length}</span>
+                  <span>Ctrl+Z: Undo | Ctrl+Y: Redo</span>
                 </div>
               )}
             </div>
@@ -635,9 +684,9 @@ if __name__ == '__main__':
               </div>
 
               {/* Quick Actions */}
-              <div className="p-3 border-t bg-white">
+              <div className="px-3 pt-3 bg-white border-t">
                 <div className="text-xs text-gray-600 mb-2">Quick actions:</div>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1 mb-3">
                   {[
                     'Review this code',
                     'Add comments',
@@ -653,6 +702,27 @@ if __name__ == '__main__':
                       {action}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* AI Chat Input */}
+              <div className="p-3 bg-white border-t">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="Ask AI about your code or request help..."
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onKeyDown={(e) => e.key === 'Enter' && handleAiChat()}
+                  />
+                  <button
+                    onClick={handleAiChat}
+                    disabled={isGenerating || !aiPrompt.trim()}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 hover:bg-blue-700"
+                  >
+                    {isGenerating ? '🔄' : '💬'}
+                  </button>
                 </div>
               </div>
             </div>
