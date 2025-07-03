@@ -83,6 +83,16 @@ if __name__ == '__main__':
   };
 
   const handleCodeSave = (file, code) => {
+    // Create a proper File object with the correct properties
+    const blob = new Blob([code], { type: 'text/plain' });
+    const fileName = formData.name ? `${formData.name}.py` : 'pipeline.py';
+    
+    // Create a File object that behaves more like a real uploaded file
+    const codeFile = new File([blob], fileName, {
+      type: 'text/plain',
+      lastModified: Date.now()
+    });
+    
     setFormData({
       ...formData,
       file: file
@@ -218,7 +228,7 @@ export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
           
           // Build file path from the existing file structure - using the CORRECT pattern from downloadFile.jsx
           const fileInfo = pipeline.f_file_uid;
-          let file_path = fileInfo.path + "/" + fileInfo.uid; // Use fileInfo.uid, NOT pipeline.uid
+          let file_path = fileInfo.path + "/" + pipeline.uid; // Use fileInfo.uid, NOT pipeline.uid
           
           // Add extension if it exists
           if (fileInfo.extension && fileInfo.extension !== "null") {
