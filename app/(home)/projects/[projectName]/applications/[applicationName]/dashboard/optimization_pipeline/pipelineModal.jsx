@@ -58,6 +58,17 @@ export const CreateModal = ({
   };
 
   const handleCreateBlankFile = () => {
+    // Check if there's already a file uploaded
+    if (formData.file) {
+      const confirmOverwrite = window.confirm(
+        `You have already uploaded "${formData.file.name}". Creating a blank file will replace it. Do you want to continue?`
+      );
+
+      if (!confirmOverwrite) {
+        return; // User cancelled, don't proceed
+      }
+    }
+
     const pipelineType = formData.type || "optimization";
     const fileName = formData.name
       ? `${formData.name}.py`
@@ -103,11 +114,38 @@ if __name__ == '__main__':
     ${pipelineType}_pipeline()
 `;
 
+    // Create a file object for the blank template
+    const blob = new Blob([templateCode], { type: "text/plain" });
+    const templateFile = new File([blob], fileName, {
+      type: "text/plain",
+      lastModified: Date.now(),
+    });
+
+    // Update form data with the new blank file
+    setFormData({
+      ...formData,
+      file: templateFile,
+    });
+
     setCurrentCode(templateCode);
     setIsCodeEditorOpen(true);
+
+    showToast(true, "Blank template created! You can now edit it in the code editor.");
   };
 
   const handleCodeSave = (file, code) => {
+    // Create a proper File object with the correct properties
+    const blob = new Blob([code], { type: "text/plain" });
+    const fileName = formData.name
+      ? `${formData.name}.py`
+      : `${formData.type || "optimization"}_pipeline.py`;
+
+    // Create a File object that behaves more like a real uploaded file
+    const codeFile = new File([blob], fileName, {
+      type: "text/plain",
+      lastModified: Date.now(),
+    });
+
     setFormData({
       ...formData,
       file: file,
@@ -177,12 +215,20 @@ if __name__ == '__main__':
                 onClick={handleCreateBlankFile}
                 disabled={!formData.type}
                 className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                title={
+                  formData.file
+                    ? "This will replace your uploaded file"
+                    : `Create a new ${formData.type || "template"} template`
+                }
               >
                 🆕 Create{" "}
                 {formData.type
                   ? formData.type.charAt(0).toUpperCase() +
                     formData.type.slice(1)
                   : "Template"}
+                {formData.file && (
+                  <span className="ml-1 text-yellow-200">⚠️</span>
+                )}
               </button>
 
               {formData.file && (

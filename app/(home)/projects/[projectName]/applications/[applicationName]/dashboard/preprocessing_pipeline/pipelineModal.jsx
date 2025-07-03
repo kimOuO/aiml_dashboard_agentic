@@ -63,8 +63,21 @@ export const CreateModal = ({
   };
 
   const handleCreateBlankFile = () => {
+    // Check if there's already a file uploaded
+    if (formData.file) {
+      const confirmOverwrite = window.confirm(
+        `You have already uploaded "${formData.file.name}". Creating a blank file will replace it. Do you want to continue?`
+      );
+      
+      if (!confirmOverwrite) {
+        return; // User cancelled, don't proceed
+      }
+    }
+
     const fileName = formData.name ? `${formData.name}.py` : 'pipeline.py';
-    setCurrentCode(`# ${type} Pipeline Code
+    
+    // Create blank file content
+    const blankCode = `# ${type} Pipeline Code
 # Generated on ${new Date().toLocaleString()}
 
 def main():
@@ -78,8 +91,25 @@ def main():
 
 if __name__ == '__main__':
     main()
-`);
+`;
+
+    // Create a file object for the blank template
+    const blob = new Blob([blankCode], { type: 'text/plain' });
+    const templateFile = new File([blob], fileName, {
+      type: 'text/plain',
+      lastModified: Date.now()
+    });
+
+    // Update form data with the new blank file
+    setFormData({
+      ...formData,
+      file: templateFile
+    });
+    
+    setCurrentCode(blankCode);
     setIsCodeEditorOpen(true);
+    
+    showToast(true, 'Blank template created! You can now edit it in the code editor.');
   };
 
   const handleCodeSave = (file, code) => {
@@ -147,8 +177,10 @@ if __name__ == '__main__':
                 type="button"
                 onClick={handleCreateBlankFile}
                 className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-700"
+                title={formData.file ? "This will replace your uploaded file" : "Create a new blank template"}
               >
                 🆕 Create Blank File
+                {formData.file && <span className="ml-1 text-yellow-200">⚠️</span>}
               </button>
               
               {formData.file && (
@@ -208,6 +240,7 @@ if __name__ == '__main__':
 export const EditModal = ({ pipeline, onClose, onEdit, applicationName }) => {
   const { showToast } = useToastNotification();
   const [isCodeEditorOpen, setIsCodeEditorOpen] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false);
   const [currentCode, setCurrentCode] = useState('');
   const [isLoadingCode, setIsLoadingCode] = useState(false);
   
@@ -331,7 +364,13 @@ if __name__ == '__main__':
     }
   };
 
-  const handleOpenCodeEditor = () => {
+  const handleEditCode = () => {
+    setIsViewMode(false);
+    setIsCodeEditorOpen(true);
+  };
+
+  const handleViewCode = () => {
+    setIsViewMode(true);
     setIsCodeEditorOpen(true);
   };
 
@@ -342,6 +381,11 @@ if __name__ == '__main__':
     });
     setCurrentCode(code);
     setIsCodeEditorOpen(false);
+  };
+
+  const handleCodeClose = () => {
+    setIsCodeEditorOpen(false);
+    setIsViewMode(false);
   };
 
   const handleUpdateClick = async () => {
@@ -381,23 +425,23 @@ if __name__ == '__main__':
             <div className="mt-2 flex gap-2">
               <button
                 type="button"
-                onClick={handleOpenCodeEditor}
+                onClick={handleViewCode}
+                disabled={isLoadingCode}
+                className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                title="View code in read-only mode"
+              >
+                {isLoadingCode ? '🔄 Loading...' : '👁️ View Code'}
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleEditCode}
                 disabled={isLoadingCode}
                 className="bg-purple-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-purple-700 disabled:opacity-50"
+                title="Edit code with AI assistance"
               >
                 {isLoadingCode ? '🔄 Loading...' : '✏️ Edit Code'}
               </button>
-              
-              {/* Show code preview */}
-              {currentCode && !isLoadingCode && (
-                <button
-                  type="button"
-                  onClick={handleOpenCodeEditor}
-                  className="bg-green-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-green-700"
-                >
-                  📄 View Code ({currentCode.split('\n').length} lines)
-                </button>
-              )}
             </div>
             
             {isLoadingCode && (
@@ -453,13 +497,17 @@ if __name__ == '__main__':
         </div>
       </div>
 
-      <CodeEditor
-        initialCode={currentCode}
-        onSave={handleCodeSave}
-        onClose={() => setIsCodeEditorOpen(false)}
-        fileName={`${formData.name}.py`}
-        isOpen={isCodeEditorOpen}
-      />
+      {/* use CodeEditor with isReadOnly prop */}
+      {isCodeEditorOpen && (
+        <CodeEditor
+          initialCode={currentCode}
+          onSave={isViewMode ? undefined : handleCodeSave}
+          onClose={handleCodeClose}
+          fileName={`${formData.name}.py`}
+          isOpen={isCodeEditorOpen}
+          isReadOnly={isViewMode}  // This is the key prop
+        />
+      )}
     </>
   );
 };
