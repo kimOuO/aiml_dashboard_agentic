@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { PromptBuilder } from '@/utils/promptBuilder';
+import { PromptBuilder } from '@/utils/prompts/promptBuilder';
 import { ContentAnalyzer } from '@/lib/contentAnalyzer';
 
 const renderMessageContent = (content) => {
