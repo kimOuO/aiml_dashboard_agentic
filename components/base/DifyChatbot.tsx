@@ -4,7 +4,6 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { PromptBuilder } from '@/utils/prompts/promptBuilder';
-import { ContentAnalyzer } from '@/lib/contentAnalyzer';
 
 const renderMessageContent = (content) => {
   let rendered = content;
@@ -25,50 +24,10 @@ const DifyChatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState('');
 
-  // Simplified context extraction using ContentAnalyzer
-  const getPageContext = () => {
-    try {
-      const analyzedContext = ContentAnalyzer.analyzePageContent();
-      
-      // Add debugging
-      console.log('Raw analyzed context:', {
-        pageTitle: analyzedContext.pageTitle,
-        mainHeading: analyzedContext.mainHeading,
-        entityType: analyzedContext.semanticContext.entityType,
-        entityName: analyzedContext.semanticContext.entityName,
-        action: analyzedContext.semanticContext.action,
-        section: analyzedContext.semanticContext.section,
-        primaryActions: analyzedContext.primaryActions,
-        navigationContext: analyzedContext.navigationContext.slice(0, 3) // First 3 for debugging
-      });
-      
-      return {
-        pageType: `${analyzedContext.semanticContext.entityType}-${analyzedContext.semanticContext.action}`,
-        contextInfo: `User is on ${analyzedContext.pageTitle}${analyzedContext.semanticContext.entityName ? ` for ${analyzedContext.semanticContext.entityName}` : ''}`,
-        capabilities: analyzedContext.semanticContext.capabilities,
-        navigationLinks: analyzedContext.navigationContext,
-        primaryActions: analyzedContext.primaryActions,
-        formContext: analyzedContext.formContext,
-        dataContext: analyzedContext.dataContext
-      };
-    } catch (error) {
-      console.warn('Context analysis failed, using fallback:', error);
-      return {
-        pageType: 'unknown',
-        contextInfo: 'User is on an unknown page',
-        capabilities: [],
-        navigationLinks: [],
-        primaryActions: [],
-        formContext: [],
-        dataContext: { tables: [], lists: [], cards: [], pagination: null }
-      };
-    }
-  };
-
   const sendMessage = async (userMessage) => {
     if (!userMessage.trim()) return;
 
-    // Use the intelligent prompt builder
+    // Use the simplified prompt builder
     const optimizedPrompt = PromptBuilder.buildIntelligentPrompt(userMessage);
 
     // Log for monitoring
@@ -145,12 +104,11 @@ const DifyChatbot = () => {
 
   useEffect(() => {
     setConversationId('');
-    console.log('Page context updated:', getPageContext());
+    console.log('Page changed to:', pathname + (searchParams.toString() ? '?' + searchParams.toString() : ''));
   }, [pathname, searchParams]);
 
   return (
     <>
-      {/* Your existing UI remains the same */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         style={{
@@ -203,16 +161,6 @@ const DifyChatbot = () => {
             <button onClick={() => setIsOpen(false)} style={{
               background: 'none', border: 'none', color: 'white', fontSize: '20px', cursor: 'pointer'
             }}>×</button>
-          </div>
-
-          <div style={{
-            padding: '8px 16px',
-            backgroundColor: '#f3f4f6',
-            fontSize: '12px',
-            color: '#6b7280',
-            borderBottom: '1px solid #e5e7eb'
-          }}>
-            📍 {getPageContext().contextInfo}
           </div>
 
           <div style={{
