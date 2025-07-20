@@ -4,6 +4,26 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { PromptBuilder } from '@/utils/prompts/promptBuilder';
+import StepProgressBar from './StepProgressBar';
+
+interface Step {
+  type: string;
+  label: string;
+  description: string;
+  wait_for_user_action: boolean;
+}
+
+interface Message {
+  type: 'user' | 'bot';
+  content: string;
+  timestamp: Date;
+  steps?: Step[];
+  hasActiveSteps?: boolean;
+  stepsCompleted?: boolean;
+  stepsSkipped?: boolean;
+  currentStepIndex?: number; // Add this to track current step
+  completedStepIndices?: number[]; // Add this to track completed steps
+}
 
 const renderMessageContent = (content) => {
   let rendered = content;
@@ -15,14 +35,64 @@ const renderMessageContent = (content) => {
   return rendered;
 };
 
+const isValidStepsArray = (data: any): data is Step[] => {
+  return Array.isArray(data) && 
+         data.length > 0 && 
+         data.every(item => 
+           typeof item === 'object' &&
+           item.type === 'instruction' &&
+           typeof item.label === 'string' &&
+           typeof item.description === 'string' &&
+           typeof item.wait_for_user_action === 'boolean'
+         );
+};
+
+const extractJsonFromText = (text: string): { json: any | null; cleanText: string } => {
+  try {
+    // First try to parse the entire text as JSON
+    const parsed = JSON.parse(text);
+    return { json: parsed, cleanText: '' };
+  } catch (e) {
+    // Try to find and extract JSON array with more comprehensive matching
+    const jsonMatch = text.match(/```json\s*(\[\s*\{[\s\S]*?\}\s*\])\s*```|(\[\s*\{[\s\S]*?\}\s*\])/);
+    
+    if (jsonMatch) {
+      try {
+        // Use the captured group (either from code block or standalone)
+        const jsonString = jsonMatch[1] || jsonMatch[2];
+        const parsed = JSON.parse(jsonString);
+        
+        // More aggressive cleanup - remove the entire match and surrounding whitespace
+        let cleanText = text.replace(jsonMatch[0], '').trim();
+        
+        // Remove common artifacts
+        cleanText = cleanText
+          .replace(/\bjson\b/gi, '') // Remove "json" keyword
+          .replace(/```/g, '') // Remove any remaining code blocks
+          .replace(/^\s*\n+/gm, '') // Remove empty lines at start
+          .replace(/\n+\s*$/gm, '') // Remove empty lines at end
+          .replace(/\n{3,}/g, '\n\n') // Replace multiple newlines with double newline
+          .trim();
+        
+        return { json: parsed, cleanText };
+      } catch (parseError) {
+        return { json: null, cleanText: text };
+      }
+    }
+    
+    return { json: null, cleanText: text };
+  }
+};
+
 const DifyChatbot = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState('');
+  const [activeStepsMessageIndex, setActiveStepsMessageIndex] = useState<number | null>(null);
 
   const sendMessage = async (userMessage) => {
     if (!userMessage.trim()) return;
@@ -35,7 +105,7 @@ const DifyChatbot = () => {
     console.log(`Intelligent prompt (${estimatedTokens} tokens):`);
     console.log(optimizedPrompt);
 
-    const userMsg = { type: 'user', content: userMessage, timestamp: new Date() };
+    const userMsg: Message = { type: 'user', content: userMessage, timestamp: new Date() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
@@ -73,16 +143,53 @@ const DifyChatbot = () => {
         setConversationId(data.conversation_id);
       }
 
-      const botMsg = { 
+      const botResponse = data.answer || 'Sorry, I encountered an error.';
+      
+      // Try to extract JSON from the response text
+      let steps: Step[] | null = null;
+      let displayContent = botResponse;
+      
+      console.log('Bot response:', botResponse);
+      
+      const { json: extractedJson, cleanText: textWithoutJson } = extractJsonFromText(botResponse);
+      if (extractedJson && isValidStepsArray(extractedJson)) {
+        steps = extractedJson;
+        
+        // If there's meaningful text left, use it; otherwise use a default message
+        if (textWithoutJson && textWithoutJson.length > 10) {
+          displayContent = textWithoutJson;
+        } else {
+          displayContent = `I've prepared a step-by-step guide to help you with this task. You can follow the interactive steps below:`;
+        }
+        
+        console.log('Extracted steps:', steps);
+        console.log('Display content:', displayContent);
+      } else {
+        console.log('No valid steps found in response');
+      }
+
+      const botMsg: Message = { 
         type: 'bot', 
-        content: data.answer || 'Sorry, I encountered an error.',
-        timestamp: new Date()
+        content: displayContent,
+        timestamp: new Date(),
+        steps: steps || undefined,
+        hasActiveSteps: steps ? true : false,
+        currentStepIndex: 0, // Initialize current step
+        completedStepIndices: [] // Initialize completed steps
       };
-      setMessages(prev => [...prev, botMsg]);
+
+      setMessages(prev => {
+        const newMessages = [...prev, botMsg];
+        if (steps) {
+          // Set this message as having active steps
+          setActiveStepsMessageIndex(newMessages.length - 1);
+        }
+        return newMessages;
+      });
 
     } catch (error) {
       console.error('API error:', error);
-      const errorMsg = { 
+      const errorMsg: Message = { 
         type: 'bot', 
         content: `Sorry, I encountered an error: ${error.message}`,
         timestamp: new Date()
@@ -93,6 +200,55 @@ const DifyChatbot = () => {
     }
   };
 
+  const handleStepsComplete = () => {
+    // Update the message to mark steps as completed
+    setMessages(prev => prev.map((msg, idx) => 
+      idx === activeStepsMessageIndex 
+        ? { ...msg, stepsCompleted: true }
+        : msg
+    ));
+    setActiveStepsMessageIndex(null);
+    
+    // Add a completion message
+    const completionMsg: Message = {
+      type: 'bot',
+      content: '✅ Great! You\'ve completed all the steps. Is there anything else I can help you with?',
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, completionMsg]);
+  };
+
+  const handleStepsSkip = () => {
+    // Update the message to mark steps as skipped
+    setMessages(prev => prev.map((msg, idx) => 
+      idx === activeStepsMessageIndex 
+        ? { ...msg, stepsSkipped: true }
+        : msg
+    ));
+    setActiveStepsMessageIndex(null);
+    
+    // Add a skip message
+    const skipMsg: Message = {
+      type: 'bot',
+      content: '⏭️ Steps skipped. Feel free to ask if you need help with anything else!',
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, skipMsg]);
+  };
+
+  const handleStepProgress = (messageIndex: number, currentStep: number, completedSteps: number[]) => {
+    // Update the message with current step progress
+    setMessages(prev => prev.map((msg, idx) => 
+      idx === messageIndex 
+        ? { 
+            ...msg, 
+            currentStepIndex: currentStep,
+            completedStepIndices: completedSteps
+          }
+        : msg
+    ));
+  };
+
   const handleSend = () => sendMessage(input);
   
   const handleKeyDown = (e) => {
@@ -101,11 +257,6 @@ const DifyChatbot = () => {
       handleSend();
     }
   };
-
-  useEffect(() => {
-    setConversationId('');
-    console.log('Page changed to:', pathname + (searchParams.toString() ? '?' + searchParams.toString() : ''));
-  }, [pathname, searchParams]);
 
   return (
     <>
@@ -136,8 +287,8 @@ const DifyChatbot = () => {
           position: 'fixed',
           bottom: '90px',
           right: '20px',
-          width: '400px',
-          height: '600px',
+          width: '450px',
+          height: '650px',
           backgroundColor: 'white',
           borderRadius: '12px',
           boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
@@ -183,22 +334,50 @@ const DifyChatbot = () => {
             )}
             
             {messages.map((msg, idx) => (
-              <div key={idx} style={{
-                alignSelf: msg.type === 'user' ? 'flex-end' : 'flex-start',
-                maxWidth: '80%',
-                padding: '12px',
-                backgroundColor: msg.type === 'user' ? '#1C64F2' : '#f3f4f6',
-                color: msg.type === 'user' ? 'white' : '#374151',
-                borderRadius: '12px',
-                fontSize: '14px',
-                lineHeight: '1.4'
-              }}>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: renderMessageContent(msg.content)
-                  }}
-                  style={{ wordBreak: 'break-word' }}
-                />
+              <div key={idx}>
+                <div style={{
+                  alignSelf: msg.type === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: msg.type === 'user' ? 'fit-content' : '85%',
+                  padding: '12px',
+                  backgroundColor: msg.type === 'user' ? '#1C64F2' : '#f3f4f6',
+                  color: msg.type === 'user' ? 'white' : '#374151',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  lineHeight: '1.4',
+                  marginLeft: msg.type === 'user' ? 'auto' : '0',
+                  marginRight: msg.type === 'user' ? '0' : 'auto'
+                }}>
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: renderMessageContent(msg.content)
+                    }}
+                    style={{ wordBreak: 'break-word' }}
+                  />
+                </div>
+                
+                {/* Render step progress bar if this message has steps and they're still active */}
+                {msg.steps && msg.hasActiveSteps !== false && (
+                  <StepProgressBar
+                    steps={msg.steps}
+                    onComplete={handleStepsComplete}
+                    onSkip={handleStepsSkip}
+                    onReactivate={() => {
+                      // Set the current message as active when reactivating
+                      setActiveStepsMessageIndex(idx);
+                      // Reset completion states for this specific message
+                      setMessages(prev => prev.map((m, i) => 
+                        i === idx 
+                          ? { ...m, stepsCompleted: false, stepsSkipped: false, hasActiveSteps: true }
+                          : m
+                      ));
+                    }}
+                    onStepProgress={(currentStep, completedSteps) => handleStepProgress(idx, currentStep, completedSteps)}
+                    isCompleted={msg.stepsCompleted || false}
+                    isSkipped={msg.stepsSkipped || false}
+                    initialCurrentStep={msg.currentStepIndex || 0}
+                    initialCompletedSteps={msg.completedStepIndices || []}
+                  />
+                )}
               </div>
             ))}
             
