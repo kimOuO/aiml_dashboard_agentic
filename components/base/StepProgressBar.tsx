@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface Step {
   type: string;
@@ -14,11 +14,11 @@ interface StepProgressBarProps {
   onComplete: () => void;
   onSkip: () => void;
   onReactivate?: () => void;
-  onStepProgress?: (currentStep: number, completedSteps: number[]) => void; // Add this callback
+  onStepProgress?: (currentStep: number, completedSteps: number[]) => void;
   isCompleted?: boolean;
   isSkipped?: boolean;
-  initialCurrentStep?: number; // Add this prop
-  initialCompletedSteps?: number[]; // Add this prop
+  initialCurrentStep?: number;
+  initialCompletedSteps?: number[];
 }
 
 const StepProgressBar = ({ 
@@ -38,12 +38,15 @@ const StepProgressBar = ({
   const [localCompleted, setLocalCompleted] = useState(false);
   const [localSkipped, setLocalSkipped] = useState(false);
 
+  // Memoize the onStepProgress callback to prevent unnecessary re-renders
+  const memoizedOnStepProgress = useCallback(onStepProgress, []);
+
   // Update parent component when step progress changes
   useEffect(() => {
-    if (onStepProgress) {
-      onStepProgress(currentStep, completedSteps);
+    if (memoizedOnStepProgress) {
+      memoizedOnStepProgress(currentStep, completedSteps);
     }
-  }, [currentStep, completedSteps, onStepProgress]);
+  }, [currentStep, completedSteps, memoizedOnStepProgress]);
 
   // Restore state from props when they change
   useEffect(() => {
@@ -58,7 +61,7 @@ const StepProgressBar = ({
     }
   }, [isCompleted, isSkipped, localCompleted, localSkipped]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     const newCompletedSteps = [...completedSteps, currentStep];
     setCompletedSteps(newCompletedSteps);
     
@@ -69,18 +72,18 @@ const StepProgressBar = ({
       setLocalCompleted(true);
       onComplete();
     }
-  };
+  }, [completedSteps, currentStep, steps.length, onComplete]);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     if (currentStep > 0) {
       const newCurrentStep = currentStep - 1;
       const newCompletedSteps = completedSteps.filter(step => step !== newCurrentStep);
       setCurrentStep(newCurrentStep);
       setCompletedSteps(newCompletedSteps);
     }
-  };
+  }, [currentStep, completedSteps]);
 
-  const handleSkipStep = () => {
+  const handleSkipStep = useCallback(() => {
     const newCompletedSteps = [...completedSteps, currentStep];
     setCompletedSteps(newCompletedSteps);
     
@@ -91,14 +94,14 @@ const StepProgressBar = ({
       setLocalCompleted(true);
       onComplete();
     }
-  };
+  }, [completedSteps, currentStep, steps.length, onComplete]);
 
-  const handleSkipAll = () => {
+  const handleSkipAll = useCallback(() => {
     setLocalSkipped(true);
     onSkip();
-  };
+  }, [onSkip]);
 
-  const handleGoToStep = (stepIndex: number) => {
+  const handleGoToStep = useCallback((stepIndex: number) => {
     const newCurrentStep = stepIndex;
     const newCompletedSteps = completedSteps.filter(step => step < stepIndex);
     
@@ -114,7 +117,7 @@ const StepProgressBar = ({
     if (onReactivate) {
       onReactivate();
     }
-  };
+  }, [completedSteps, onReactivate]);
 
   const progressPercentage = (isCompleted || localCompleted) ? 100 : ((completedSteps.length) / steps.length) * 100;
 
@@ -134,15 +137,26 @@ const StepProgressBar = ({
   const isInCompletedState = (localCompleted || localSkipped) || 
                             ((isCompleted || isSkipped) && !localCompleted && !localSkipped);
 
+  // Prevent event bubbling to background elements
+  const handleContainerClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
   return (
-    <div style={{
-      backgroundColor: '#f8fafc',
-      border: '1px solid #e2e8f0',
-      borderRadius: '12px',
-      margin: '12px 0',
-      overflow: 'hidden',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-    }}>
+    <div 
+      style={{
+        backgroundColor: '#f8fafc',
+        border: '1px solid #e2e8f0',
+        borderRadius: '12px',
+        margin: '12px 0',
+        overflow: 'hidden',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        position: 'relative',
+        zIndex: 1,
+        pointerEvents: 'auto'
+      }}
+      onClick={handleContainerClick}
+    >
       {/* Header */}
       <div style={{
         backgroundColor: getHeaderColor(),
@@ -158,7 +172,10 @@ const StepProgressBar = ({
           </span>
         </div>
         <button
-          onClick={() => setIsExpanded(!isExpanded)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
           style={{
             background: 'rgba(255,255,255,0.2)',
             border: 'none',
@@ -268,7 +285,10 @@ const StepProgressBar = ({
                     borderRadius: '4px',
                     transition: 'background-color 0.2s ease'
                   }}
-                  onClick={() => handleGoToStep(index)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleGoToStep(index);
+                  }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = '#f3f4f6';
                   }}
@@ -309,7 +329,10 @@ const StepProgressBar = ({
           }}>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
-                onClick={handlePrevious}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrevious();
+                }}
                 disabled={currentStep === 0}
                 style={{
                   backgroundColor: currentStep === 0 ? '#e5e7eb' : '#6b7280',
@@ -326,7 +349,10 @@ const StepProgressBar = ({
                 ← Previous
               </button>
               <button
-                onClick={handleSkipStep}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSkipStep();
+                }}
                 style={{
                   backgroundColor: '#f59e0b',
                   color: 'white',
@@ -343,7 +369,10 @@ const StepProgressBar = ({
               </button>
             </div>
             <button
-              onClick={handleNext}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNext();
+              }}
               style={{
                 backgroundColor: '#10b981',
                 color: 'white',
@@ -392,7 +421,10 @@ const StepProgressBar = ({
               {steps.map((step, index) => (
                 <button
                   key={index}
-                  onClick={() => handleGoToStep(index)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleGoToStep(index);
+                  }}
                   style={{
                     backgroundColor: '#f3f4f6',
                     border: '1px solid #d1d5db',
