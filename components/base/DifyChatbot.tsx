@@ -40,7 +40,8 @@ const isValidStepsArray = (data: any): data is Step[] => {
          data.length > 0 && 
          data.every(item => 
            typeof item === 'object' &&
-           item.type === 'instruction' &&
+           // Accept all valid step types, not just 'instruction'
+           ['navigate', 'action', 'wait', 'instruction'].includes(item.type) &&
            typeof item.label === 'string' &&
            typeof item.description === 'string' &&
            typeof item.wait_for_user_action === 'boolean'
@@ -174,8 +175,7 @@ const DifyChatbot = () => {
         timestamp: new Date(),
         steps: steps || undefined,
         hasActiveSteps: steps ? true : false,
-        currentStepIndex: 0, // Initialize current step
-        completedStepIndices: [] // Initialize completed steps
+        currentStepIndex: 0 // Initialize current step
       };
 
       setMessages(prev => {
