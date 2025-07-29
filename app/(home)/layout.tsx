@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/components/base/AuthProvider";
 import DifyChatbot from "@/components/base/DifyChatbot";
+import GlobalStepAssistant from '@/components/base/GlobalStepAssistant';
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -34,6 +35,7 @@ export default function RootLayout({
 
         <Toaster />
         <DifyChatbot />
+        <GlobalStepAssistant />
       </body>
     </html>
   );

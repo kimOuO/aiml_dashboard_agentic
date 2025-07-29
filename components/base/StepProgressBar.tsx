@@ -19,6 +19,7 @@ interface StepProgressBarProps {
   isSkipped?: boolean;
   initialCurrentStep?: number;
   initialCompletedSteps?: number[];
+  layout?: 'vertical' | 'horizontal'; // New prop for layout
 }
 
 const StepProgressBar = ({ 
@@ -30,7 +31,8 @@ const StepProgressBar = ({
   isCompleted = false, 
   isSkipped = false,
   initialCurrentStep = 0,
-  initialCompletedSteps = []
+  initialCompletedSteps = [],
+  layout = 'vertical' // Default to vertical
 }: StepProgressBarProps) => {
   const [currentStep, setCurrentStep] = useState(initialCurrentStep);
   const [completedSteps, setCompletedSteps] = useState<number[]>(initialCompletedSteps);
@@ -122,9 +124,9 @@ const StepProgressBar = ({
   const progressPercentage = (isCompleted || localCompleted) ? 100 : ((completedSteps.length) / steps.length) * 100;
 
   const getHeaderColor = () => {
-    if (isCompleted || localCompleted) return '#10b981'; // green
-    if (isSkipped || localSkipped) return '#6b7280'; // gray
-    return '#4f46e5'; // blue (active)
+    if (isCompleted || localCompleted) return '#10b981';
+    if (isSkipped || localSkipped) return '#6b7280';
+    return '#4f46e5';
   };
 
   const getHeaderText = () => {
@@ -141,6 +143,219 @@ const StepProgressBar = ({
   const handleContainerClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
   }, []);
+
+  // Horizontal Layout
+  if (layout === 'horizontal') {
+    return (
+      <div style={{ padding: '16px' }} onClick={handleContainerClick}>
+        {/* Horizontal Progress Line with Step Indicators */}
+        <div style={{
+          position: 'relative',
+          marginBottom: '16px'
+        }}>
+          {/* Progress Line */}
+          <div style={{
+            width: '100%',
+            height: '4px',
+            backgroundColor: '#e5e7eb',
+            borderRadius: '2px',
+            position: 'relative'
+          }}>
+            <div style={{
+              width: `${progressPercentage}%`,
+              height: '100%',
+              backgroundColor: getHeaderColor(),
+              borderRadius: '2px',
+              transition: 'width 0.3s ease'
+            }} />
+          </div>
+
+          {/* Step Indicators */}
+          <div style={{
+            position: 'absolute',
+            top: '-8px',
+            left: 0,
+            right: 0,
+            display: 'flex',
+            justifyContent: 'space-between'
+          }}>
+            {steps.map((step, index) => (
+              <div
+                key={index}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  cursor: 'pointer'
+                }}
+                onClick={() => handleGoToStep(index)}
+              >
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  backgroundColor: completedSteps.includes(index) ? '#10b981' : 
+                                 index === currentStep ? '#4f46e5' : '#e5e7eb',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  marginBottom: '4px',
+                  border: index === currentStep ? '2px solid #c7d2fe' : 'none'
+                }}>
+                  {completedSteps.includes(index) ? '✓' : index + 1}
+                </div>
+                <span style={{
+                  fontSize: '10px',
+                  color: completedSteps.includes(index) ? '#10b981' : 
+                         index === currentStep ? '#4f46e5' : '#9ca3af',
+                  maxWidth: '60px',
+                  textAlign: 'center',
+                  lineHeight: '1.2'
+                }}>
+                  {step.label.length > 8 ? step.label.substring(0, 8) + '...' : step.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Current Step Info - Compact Horizontal */}
+        {!isInCompletedState && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            backgroundColor: '#f8fafc',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '12px'
+          }}>
+            {/* Step Info */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{
+                fontSize: '13px',
+                fontWeight: 'bold',
+                color: '#1f2937',
+                marginBottom: '4px'
+              }}>
+                Step {currentStep + 1}: {steps[currentStep]?.label}
+              </div>
+              <div style={{
+                fontSize: '12px',
+                color: '#6b7280',
+                lineHeight: '1.3'
+              }}>
+                {steps[currentStep]?.description}
+              </div>
+            </div>
+
+            {/* Action Buttons - Horizontal */}
+            <div style={{
+              display: 'flex',
+              gap: '6px',
+              alignItems: 'center',
+              flexShrink: 0
+            }}>
+              <button
+                onClick={handlePrevious}
+                disabled={currentStep === 0}
+                style={{
+                  backgroundColor: currentStep === 0 ? '#e5e7eb' : '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '6px 10px',
+                  fontSize: '11px',
+                  cursor: currentStep === 0 ? 'not-allowed' : 'pointer'
+                }}
+              >
+                ← Prev
+              </button>
+              <button
+                onClick={handleSkipStep}
+                style={{
+                  backgroundColor: '#f59e0b',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '6px 10px',
+                  fontSize: '11px',
+                  cursor: 'pointer'
+                }}
+              >
+                Skip
+              </button>
+              <button
+                onClick={handleNext}
+                style={{
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '6px 12px',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                {currentStep === steps.length - 1 ? 'Complete ✓' : 'Next →'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Completion State - Horizontal */}
+        {isInCompletedState && (
+          <div style={{
+            backgroundColor: '#f0fdf4',
+            border: '1px solid #dcfce7',
+            borderRadius: '8px',
+            padding: '12px',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              fontSize: '13px',
+              color: '#16a34a',
+              fontWeight: 'bold',
+              marginBottom: '8px'
+            }}>
+              {(isCompleted || localCompleted) ? 
+                '🎉 All steps completed successfully!' : 
+                '⏭️ Steps were skipped.'}
+            </div>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '6px',
+              flexWrap: 'wrap'
+            }}>
+              {steps.map((step, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleGoToStep(index)}
+                  style={{
+                    backgroundColor: '#f3f4f6',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    padding: '4px 8px',
+                    fontSize: '10px',
+                    cursor: 'pointer',
+                    color: '#4b5563'
+                  }}
+                  title={`Redo: ${step.label}`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div 

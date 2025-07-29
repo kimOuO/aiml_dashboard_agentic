@@ -1,10 +1,10 @@
 // components/base/DifyChatbot.tsx
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { PromptBuilder } from '@/utils/prompts/promptBuilder';
-import StepProgressBar from './StepProgressBar';
+import { showStepAssistant, hideStepAssistant } from './GlobalStepAssistant';
 
 interface Step {
   type: string;
@@ -21,9 +21,53 @@ interface Message {
   hasActiveSteps?: boolean;
   stepsCompleted?: boolean;
   stepsSkipped?: boolean;
-  currentStepIndex?: number; // Add this to track current step
-  completedStepIndices?: number[]; // Add this to track completed steps
+  currentStepIndex?: number;
+  completedStepIndices?: number[];
 }
+
+// Storage keys
+const STORAGE_KEYS = {
+  CHAT_HISTORY: 'dify_chat_history',
+  CONVERSATION_ID: 'dify_conversation_id',
+  SCROLL_POSITION: 'dify_chat_scroll_position' // Add scroll position storage
+};
+
+// Helper functions for localStorage
+const saveToStorage = (key: string, data: any) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.warn('Failed to save to localStorage:', error);
+  }
+};
+
+const loadFromStorage = (key: string, defaultValue: any = null) => {
+  try {
+    const stored = localStorage.getItem(key);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Convert timestamp strings back to Date objects for messages
+      if (key === STORAGE_KEYS.CHAT_HISTORY && Array.isArray(parsed)) {
+        return parsed.map(msg => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+      }
+      return parsed;
+    }
+  } catch (error) {
+    console.warn('Failed to load from localStorage:', error);
+  }
+  return defaultValue;
+};
+
+const clearStorage = (key: string) => {
+  try {
+    localStorage.removeItem(key);
+  } catch (error) {
+    console.warn('Failed to clear localStorage:', error);
+  }
+};
 
 const renderMessageContent = (content) => {
   let rendered = content;
@@ -40,7 +84,6 @@ const isValidStepsArray = (data: any): data is Step[] => {
          data.length > 0 && 
          data.every(item => 
            typeof item === 'object' &&
-           // Accept all valid step types, not just 'instruction'
            ['navigate', 'action', 'wait', 'instruction'].includes(item.type) &&
            typeof item.label === 'string' &&
            typeof item.description === 'string' &&
@@ -50,29 +93,23 @@ const isValidStepsArray = (data: any): data is Step[] => {
 
 const extractJsonFromText = (text: string): { json: any | null; cleanText: string } => {
   try {
-    // First try to parse the entire text as JSON
     const parsed = JSON.parse(text);
     return { json: parsed, cleanText: '' };
   } catch (e) {
-    // Try to find and extract JSON array with more comprehensive matching
     const jsonMatch = text.match(/```json\s*(\[\s*\{[\s\S]*?\}\s*\])\s*```|(\[\s*\{[\s\S]*?\}\s*\])/);
     
     if (jsonMatch) {
       try {
-        // Use the captured group (either from code block or standalone)
         const jsonString = jsonMatch[1] || jsonMatch[2];
         const parsed = JSON.parse(jsonString);
         
-        // More aggressive cleanup - remove the entire match and surrounding whitespace
         let cleanText = text.replace(jsonMatch[0], '').trim();
-        
-        // Remove common artifacts
         cleanText = cleanText
-          .replace(/\bjson\b/gi, '') // Remove "json" keyword
-          .replace(/```/g, '') // Remove any remaining code blocks
-          .replace(/^\s*\n+/gm, '') // Remove empty lines at start
-          .replace(/\n+\s*$/gm, '') // Remove empty lines at end
-          .replace(/\n{3,}/g, '\n\n') // Replace multiple newlines with double newline
+          .replace(/\bjson\b/gi, '')
+          .replace(/```/g, '')
+          .replace(/^\s*\n+/gm, '')
+          .replace(/\n+\s*$/gm, '')
+          .replace(/\n{3,}/g, '\n\n')
           .trim();
         
         return { json: parsed, cleanText };
@@ -89,19 +126,158 @@ const DifyChatbot = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
+  const [wasOpenBeforeSteps, setWasOpenBeforeSteps] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState('');
   const [activeStepsMessageIndex, setActiveStepsMessageIndex] = useState<number | null>(null);
+  
+  // Add refs for scroll management
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const shouldAutoScrollRef = useRef(true); // Track if we should auto-scroll
+  const savedScrollPositionRef = useRef(0); // Store scroll position when closing
+
+  // Load persisted data on component mount
+  useEffect(() => {
+    const savedMessages = loadFromStorage(STORAGE_KEYS.CHAT_HISTORY, []);
+    const savedConversationId = loadFromStorage(STORAGE_KEYS.CONVERSATION_ID, '');
+    const savedScrollPosition = loadFromStorage(STORAGE_KEYS.SCROLL_POSITION, 0);
+    
+    setMessages(savedMessages);
+    setConversationId(savedConversationId);
+    savedScrollPositionRef.current = savedScrollPosition;
+
+    // Check if there are any active steps to restore - but don't restore progress
+    const activeStepIndex = savedMessages.findIndex(msg => 
+      msg.steps && msg.hasActiveSteps !== false && !msg.stepsCompleted && !msg.stepsSkipped
+    );
+    
+    if (activeStepIndex !== -1) {
+      setActiveStepsMessageIndex(activeStepIndex);
+    }
+  }, []);
+
+  // Auto-scroll to bottom when new messages arrive or when opening chatbox
+  useEffect(() => {
+    if (isOpen && messagesContainerRef.current) {
+      if (shouldAutoScrollRef.current) {
+        // Auto-scroll to bottom for new messages
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      } else {
+        // Restore saved scroll position when reopening
+        messagesContainerRef.current.scrollTop = savedScrollPositionRef.current;
+        shouldAutoScrollRef.current = true; // Reset flag after restoring position
+      }
+    }
+  }, [messages, isOpen]);
+
+  // Handle scroll events to detect if user manually scrolled
+  const handleScroll = () => {
+    if (messagesContainerRef.current) {
+      const container = messagesContainerRef.current;
+      const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 10; // 10px threshold
+      
+      // Only auto-scroll if user is at or near the bottom
+      shouldAutoScrollRef.current = isAtBottom;
+      
+      // Save current scroll position
+      savedScrollPositionRef.current = container.scrollTop;
+      saveToStorage(STORAGE_KEYS.SCROLL_POSITION, container.scrollTop);
+    }
+  };
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      saveToStorage(STORAGE_KEYS.CHAT_HISTORY, messages);
+    }
+  }, [messages]);
+
+  // Save conversation ID to localStorage whenever it changes
+  useEffect(() => {
+    if (conversationId) {
+      saveToStorage(STORAGE_KEYS.CONVERSATION_ID, conversationId);
+    }
+  }, [conversationId]);
+
+  // Listen for step assistant events to auto-minimize/restore chatbox
+  useEffect(() => {
+    const handleStepAssistantShown = () => {
+      if (isOpen) {
+        setWasOpenBeforeSteps(true);
+        handleMinimize(); // Use minimize instead of direct setIsOpen
+      }
+    };
+
+    const handleStepAssistantCompleted = () => {
+      if (wasOpenBeforeSteps) {
+        handleReopen(); // Use reopen to restore scroll position
+        setWasOpenBeforeSteps(false);
+      }
+      handleStepsComplete();
+    };
+
+    const handleStepAssistantSkipped = () => {
+      if (wasOpenBeforeSteps) {
+        handleReopen(); // Use reopen to restore scroll position
+        setWasOpenBeforeSteps(false);
+      }
+      handleStepsSkip();
+    };
+
+    const handleStepAssistantHidden = () => {
+      if (wasOpenBeforeSteps) {
+        handleReopen(); // Use reopen to restore scroll position
+        setWasOpenBeforeSteps(false);
+      }
+    };
+
+    window.addEventListener('stepAssistantShown', handleStepAssistantShown);
+    window.addEventListener('stepAssistantCompleted', handleStepAssistantCompleted);
+    window.addEventListener('stepAssistantSkipped', handleStepAssistantSkipped);
+    window.addEventListener('hideStepAssistant', handleStepAssistantHidden);
+
+    return () => {
+      window.removeEventListener('stepAssistantShown', handleStepAssistantShown);
+      window.removeEventListener('stepAssistantCompleted', handleStepAssistantCompleted);
+      window.removeEventListener('stepAssistantSkipped', handleStepAssistantSkipped);
+      window.removeEventListener('hideStepAssistant', handleStepAssistantHidden);
+    };
+  }, [isOpen, wasOpenBeforeSteps]);
+
+  // Handle minimize - save scroll position
+  const handleMinimize = () => {
+    if (messagesContainerRef.current) {
+      savedScrollPositionRef.current = messagesContainerRef.current.scrollTop;
+      saveToStorage(STORAGE_KEYS.SCROLL_POSITION, messagesContainerRef.current.scrollTop);
+    }
+    setIsOpen(false);
+    shouldAutoScrollRef.current = false; // Don't auto-scroll when reopening
+  };
+
+  // Handle reopen - restore scroll position
+  const handleReopen = () => {
+    setIsOpen(true);
+    shouldAutoScrollRef.current = false; // Will restore saved position instead of auto-scrolling
+  };
+
+  // Toggle chatbox with proper scroll handling
+  const handleToggle = () => {
+    if (isOpen) {
+      handleMinimize();
+    } else {
+      handleReopen();
+    }
+  };
 
   const sendMessage = async (userMessage) => {
     if (!userMessage.trim()) return;
 
-    // Use the simplified prompt builder
-    const optimizedPrompt = PromptBuilder.buildIntelligentPrompt(userMessage);
+    // Ensure auto-scroll for new messages
+    shouldAutoScrollRef.current = true;
 
-    // Log for monitoring
+    const optimizedPrompt = PromptBuilder.buildIntelligentPrompt(userMessage);
     const estimatedTokens = PromptBuilder.estimateTokens(optimizedPrompt);
     console.log(`Intelligent prompt (${estimatedTokens} tokens):`);
     console.log(optimizedPrompt);
@@ -145,8 +321,6 @@ const DifyChatbot = () => {
       }
 
       const botResponse = data.answer || 'Sorry, I encountered an error.';
-      
-      // Try to extract JSON from the response text
       let steps: Step[] | null = null;
       let displayContent = botResponse;
       
@@ -156,7 +330,6 @@ const DifyChatbot = () => {
       if (extractedJson && isValidStepsArray(extractedJson)) {
         steps = extractedJson;
         
-        // If there's meaningful text left, use it; otherwise use a default message
         if (textWithoutJson && textWithoutJson.length > 10) {
           displayContent = textWithoutJson;
         } else {
@@ -175,14 +348,17 @@ const DifyChatbot = () => {
         timestamp: new Date(),
         steps: steps || undefined,
         hasActiveSteps: steps ? true : false,
-        currentStepIndex: 0 // Initialize current step
+        currentStepIndex: 0
       };
+
+      // Ensure auto-scroll for bot response
+      shouldAutoScrollRef.current = true;
 
       setMessages(prev => {
         const newMessages = [...prev, botMsg];
         if (steps) {
-          // Set this message as having active steps
           setActiveStepsMessageIndex(newMessages.length - 1);
+          showStepAssistant(steps, 'Step-by-Step Guide');
         }
         return newMessages;
       });
@@ -194,6 +370,9 @@ const DifyChatbot = () => {
         content: `Sorry, I encountered an error: ${error.message}`,
         timestamp: new Date()
       };
+      
+      // Ensure auto-scroll for error message
+      shouldAutoScrollRef.current = true;
       setMessages(prev => [...prev, errorMsg]);
     } finally {
       setIsLoading(false);
@@ -201,7 +380,6 @@ const DifyChatbot = () => {
   };
 
   const handleStepsComplete = () => {
-    // Update the message to mark steps as completed
     setMessages(prev => prev.map((msg, idx) => 
       idx === activeStepsMessageIndex 
         ? { ...msg, stepsCompleted: true }
@@ -209,17 +387,18 @@ const DifyChatbot = () => {
     ));
     setActiveStepsMessageIndex(null);
     
-    // Add a completion message
     const completionMsg: Message = {
       type: 'bot',
       content: '✅ Great! You\'ve completed all the steps. Is there anything else I can help you with?',
       timestamp: new Date()
     };
+    
+    // Ensure auto-scroll for completion message
+    shouldAutoScrollRef.current = true;
     setMessages(prev => [...prev, completionMsg]);
   };
 
   const handleStepsSkip = () => {
-    // Update the message to mark steps as skipped
     setMessages(prev => prev.map((msg, idx) => 
       idx === activeStepsMessageIndex 
         ? { ...msg, stepsSkipped: true }
@@ -227,26 +406,41 @@ const DifyChatbot = () => {
     ));
     setActiveStepsMessageIndex(null);
     
-    // Add a skip message
     const skipMsg: Message = {
       type: 'bot',
       content: '⏭️ Steps skipped. Feel free to ask if you need help with anything else!',
       timestamp: new Date()
     };
+    
+    // Ensure auto-scroll for skip message
+    shouldAutoScrollRef.current = true;
     setMessages(prev => [...prev, skipMsg]);
   };
 
-  const handleStepProgress = (messageIndex: number, currentStep: number, completedSteps: number[]) => {
-    // Update the message with current step progress
-    setMessages(prev => prev.map((msg, idx) => 
-      idx === messageIndex 
-        ? { 
-            ...msg, 
-            currentStepIndex: currentStep,
-            completedStepIndices: completedSteps
-          }
-        : msg
-    ));
+  // Add function to reopen steps
+  const reopenSteps = (messageIndex: number) => {
+    const message = messages[messageIndex];
+    if (message && message.steps) {
+      setActiveStepsMessageIndex(messageIndex);
+      showStepAssistant(message.steps, 'Step-by-Step Guide');
+    }
+  };
+
+  // Clear chat history function
+  const clearChatHistory = () => {
+    setMessages([]);
+    setConversationId('');
+    setActiveStepsMessageIndex(null);
+    clearStorage(STORAGE_KEYS.CHAT_HISTORY);
+    clearStorage(STORAGE_KEYS.CONVERSATION_ID);
+    clearStorage(STORAGE_KEYS.SCROLL_POSITION); // Clear saved scroll position
+    
+    // Reset scroll refs
+    savedScrollPositionRef.current = 0;
+    shouldAutoScrollRef.current = true;
+    
+    // Hide any active step assistant
+    hideStepAssistant();
   };
 
   const handleSend = () => sendMessage(input);
@@ -261,7 +455,7 @@ const DifyChatbot = () => {
   return (
     <>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
         style={{
           position: 'fixed',
           bottom: '20px',
@@ -298,6 +492,7 @@ const DifyChatbot = () => {
           overflow: 'hidden',
           border: '1px solid #e5e7eb'
         }}>
+          {/* Header with Clear History Button */}
           <div style={{
             padding: '16px',
             backgroundColor: '#1C64F2',
@@ -309,19 +504,58 @@ const DifyChatbot = () => {
             alignItems: 'center'
           }}>
             <span>AI Assistant</span>
-            <button onClick={() => setIsOpen(false)} style={{
-              background: 'none', border: 'none', color: 'white', fontSize: '20px', cursor: 'pointer'
-            }}>×</button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {/* Clear History Button */}
+              <button 
+                onClick={clearChatHistory}
+                style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  border: 'none',
+                  color: 'white',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  transition: 'background 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.3)'}
+                onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
+                title="Clear chat history"
+              >
+                🗑️ Clear
+              </button>
+              {/* Minimize Button (changed from Close) */}
+              <button 
+                onClick={handleMinimize}
+                style={{
+                  background: 'none', 
+                  border: 'none', 
+                  color: 'white', 
+                  fontSize: '16px', 
+                  cursor: 'pointer',
+                  padding: '2px 6px'
+                }}
+                title="Minimize chat"
+              >
+                −
+              </button>
+            </div>
           </div>
 
-          <div style={{
-            flex: 1,
-            padding: '16px',
-            overflowY: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}>
+          {/* Messages Container with scroll handling */}
+          <div 
+            ref={messagesContainerRef}
+            onScroll={handleScroll}
+            style={{
+              flex: 1,
+              padding: '16px',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              scrollBehavior: 'smooth' // Smooth scrolling
+            }}
+          >
             {messages.length === 0 && (
               <div style={{
                 textAlign: 'center',
@@ -353,30 +587,57 @@ const DifyChatbot = () => {
                     }}
                     style={{ wordBreak: 'break-word' }}
                   />
+                  {/* Show timestamp for better context */}
+                  <div style={{
+                    fontSize: '10px',
+                    opacity: 0.7,
+                    marginTop: '4px',
+                    textAlign: msg.type === 'user' ? 'right' : 'left'
+                  }}>
+                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
                 
-                {/* Render step progress bar if this message has steps and they're still active */}
-                {msg.steps && msg.hasActiveSteps !== false && (
-                  <StepProgressBar
-                    steps={msg.steps}
-                    onComplete={handleStepsComplete}
-                    onSkip={handleStepsSkip}
-                    onReactivate={() => {
-                      // Set the current message as active when reactivating
-                      setActiveStepsMessageIndex(idx);
-                      // Reset completion states for this specific message
-                      setMessages(prev => prev.map((m, i) => 
-                        i === idx 
-                          ? { ...m, stepsCompleted: false, stepsSkipped: false, hasActiveSteps: true }
-                          : m
-                      ));
-                    }}
-                    onStepProgress={(currentStep, completedSteps) => handleStepProgress(idx, currentStep, completedSteps)}
-                    isCompleted={msg.stepsCompleted || false}
-                    isSkipped={msg.stepsSkipped || false}
-                    initialCurrentStep={msg.currentStepIndex || 0}
-                    initialCompletedSteps={msg.completedStepIndices || []}
-                  />
+                {/* Render step progress indicator - Updated with reopen functionality */}
+                {msg.steps && (
+                  <div style={{
+                    backgroundColor: msg.stepsCompleted ? '#dcfce7' : msg.stepsSkipped ? '#fef3c7' : '#e0f2fe',
+                    border: `1px solid ${msg.stepsCompleted ? '#16a34a' : msg.stepsSkipped ? '#f59e0b' : '#0369a1'}`,
+                    borderRadius: '8px',
+                    padding: '12px',
+                    margin: '8px 0',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ 
+                      fontSize: '14px', 
+                      color: msg.stepsCompleted ? '#16a34a' : msg.stepsSkipped ? '#f59e0b' : '#0369a1', 
+                      fontWeight: 'bold' 
+                    }}>
+                      {msg.stepsCompleted ? '✅ Steps completed' : 
+                       msg.stepsSkipped ? '⏭️ Steps skipped' : 
+                       '📋 Step-by-step guide is available at the bottom of your screen'}
+                    </div>
+                    
+                    {/* Always show button - whether completed, skipped, or active */}
+                    <button
+                      onClick={() => reopenSteps(idx)}
+                      style={{
+                        backgroundColor: msg.stepsCompleted ? '#16a34a' : 
+                                       msg.stepsSkipped ? '#f59e0b' : '#0369a1',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        marginTop: '8px'
+                      }}
+                    >
+                      {msg.stepsCompleted ? 'Reopen Steps' : 
+                       msg.stepsSkipped ? 'Reopen Steps' : 
+                       'Show Steps Again'}
+                    </button>
+                  </div>
                 )}
               </div>
             ))}
