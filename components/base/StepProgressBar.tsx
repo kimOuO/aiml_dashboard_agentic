@@ -121,7 +121,9 @@ const StepProgressBar = ({
     }
   }, [completedSteps, onReactivate]);
 
-  const progressPercentage = (isCompleted || localCompleted) ? 100 : ((completedSteps.length) / steps.length) * 100;
+  // Fix progress calculation to use current step position instead of completed steps count
+  const progressPercentage = (isCompleted || localCompleted) ? 100 : 
+    ((currentStep + 1) / steps.length) * 100;
 
   const getHeaderColor = () => {
     if (isCompleted || localCompleted) return '#10b981';

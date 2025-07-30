@@ -21,6 +21,7 @@ interface Message {
   hasActiveSteps?: boolean;
   stepsCompleted?: boolean;
   stepsSkipped?: boolean;
+  awaitingStepConfirmation?: boolean; // Add this new flag
   currentStepIndex?: number;
   completedStepIndices?: number[];
 }
@@ -287,6 +288,16 @@ const DifyChatbot = () => {
     setInput('');
     setIsLoading(true);
 
+    // Add placeholder bot message for streaming
+    const botMsgIndex = messages.length + 1; // Index where bot message will be
+    const placeholderBotMsg: Message = { 
+      type: 'bot', 
+      content: '',
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, placeholderBotMsg]);
+
     try {
       const baseUrl = process.env.NEXT_PUBLIC_DIFY_BASE_URL;
       const apiKey = process.env.NEXT_PUBLIC_DIFY_API_KEY;
@@ -304,7 +315,7 @@ const DifyChatbot = () => {
         body: JSON.stringify({
           inputs: {},
           query: optimizedPrompt,
-          response_mode: 'blocking',
+          response_mode: 'streaming', // Changed from 'blocking' to 'streaming'
           conversation_id: conversationId || '',
           user: 'dashboard-user'
         })
@@ -314,19 +325,72 @@ const DifyChatbot = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      
-      if (data.conversation_id) {
-        setConversationId(data.conversation_id);
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedContent = '';
+      let finalConversationId = '';
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6); // Remove 'data: ' prefix
+              
+              if (data === '[DONE]') {
+                break;
+              }
+
+              try {
+                const parsedData = JSON.parse(data);
+                
+                // Handle different event types
+                if (parsedData.event === 'message') {
+                  accumulatedContent += parsedData.answer || '';
+                  
+                  // Update the bot message in real-time
+                  setMessages(prev => prev.map((msg, idx) => 
+                    idx === botMsgIndex ? { 
+                      ...msg, 
+                      content: accumulatedContent 
+                    } : msg
+                  ));
+
+                  // Ensure auto-scroll during streaming
+                  shouldAutoScrollRef.current = true;
+                }
+                
+                // Capture conversation ID
+                if (parsedData.conversation_id) {
+                  finalConversationId = parsedData.conversation_id;
+                }
+
+              } catch (parseError) {
+                console.warn('Failed to parse SSE data:', data);
+              }
+            }
+          }
+        }
       }
 
-      const botResponse = data.answer || 'Sorry, I encountered an error.';
+      // Set conversation ID after streaming is complete
+      if (finalConversationId) {
+        setConversationId(finalConversationId);
+      }
+
+      // Process the complete response for steps extraction
       let steps: Step[] | null = null;
-      let displayContent = botResponse;
+      let displayContent = accumulatedContent;
       
-      console.log('Bot response:', botResponse);
+      console.log('Complete bot response:', accumulatedContent);
       
-      const { json: extractedJson, cleanText: textWithoutJson } = extractJsonFromText(botResponse);
+      const { json: extractedJson, cleanText: textWithoutJson } = extractJsonFromText(accumulatedContent);
       if (extractedJson && isValidStepsArray(extractedJson)) {
         steps = extractedJson;
         
@@ -338,42 +402,46 @@ const DifyChatbot = () => {
         
         console.log('Extracted steps:', steps);
         console.log('Display content:', displayContent);
-      } else {
-        console.log('No valid steps found in response');
       }
 
-      const botMsg: Message = { 
-        type: 'bot', 
-        content: displayContent,
-        timestamp: new Date(),
-        steps: steps || undefined,
-        hasActiveSteps: steps ? true : false,
-        currentStepIndex: 0
-      };
+      // Update the final message with steps and clean content
+      setMessages(prev => prev.map((msg, idx) => 
+        idx === botMsgIndex ? { 
+          ...msg, 
+          content: displayContent,
+          steps: steps || undefined,
+          hasActiveSteps: steps ? true : false,
+          currentStepIndex: 0
+        } : msg
+      ));
 
-      // Ensure auto-scroll for bot response
-      shouldAutoScrollRef.current = true;
-
-      setMessages(prev => {
-        const newMessages = [...prev, botMsg];
-        if (steps) {
-          setActiveStepsMessageIndex(newMessages.length - 1);
-          showStepAssistant(steps, 'Step-by-Step Guide');
-        }
-        return newMessages;
-      });
+      // Show step assistant if steps were extracted - but ask user first
+      if (steps) {
+        setActiveStepsMessageIndex(botMsgIndex);
+        
+        // Update message to show step availability with user choice
+        setMessages(prev => prev.map((msg, idx) => 
+          idx === botMsgIndex ? { 
+            ...msg, 
+            content: displayContent,
+            steps: steps,
+            hasActiveSteps: true,
+            awaitingStepConfirmation: true, // New flag to show confirmation
+            currentStepIndex: 0
+          } : msg
+        ));
+      }
 
     } catch (error) {
       console.error('API error:', error);
-      const errorMsg: Message = { 
-        type: 'bot', 
-        content: `Sorry, I encountered an error: ${error.message}`,
-        timestamp: new Date()
-      };
       
-      // Ensure auto-scroll for error message
-      shouldAutoScrollRef.current = true;
-      setMessages(prev => [...prev, errorMsg]);
+      // Update the placeholder message with error
+      setMessages(prev => prev.map((msg, idx) => 
+        idx === botMsgIndex ? { 
+          ...msg, 
+          content: `Sorry, I encountered an error: ${error.message}`
+        } : msg
+      ));
     } finally {
       setIsLoading(false);
     }
@@ -423,6 +491,36 @@ const DifyChatbot = () => {
     if (message && message.steps) {
       setActiveStepsMessageIndex(messageIndex);
       showStepAssistant(message.steps, 'Step-by-Step Guide');
+    }
+  };
+
+  // Add function to handle user's step confirmation
+  const handleStepConfirmation = (messageIndex: number, confirmed: boolean) => {
+    const message = messages[messageIndex];
+    if (message && message.steps) {
+      if (confirmed) {
+        // User wants to see steps - show the assistant
+        setActiveStepsMessageIndex(messageIndex);
+        showStepAssistant(message.steps, 'Step-by-Step Guide');
+        
+        // Update message to remove confirmation and mark as active
+        setMessages(prev => prev.map((msg, idx) => 
+          idx === messageIndex ? { 
+            ...msg, 
+            awaitingStepConfirmation: false,
+            hasActiveSteps: true
+          } : msg
+        ));
+      } else {
+        // User declined - just remove the confirmation
+        setMessages(prev => prev.map((msg, idx) => 
+          idx === messageIndex ? { 
+            ...msg, 
+            awaitingStepConfirmation: false,
+            hasActiveSteps: false
+          } : msg
+        ));
+      }
     }
   };
 
@@ -598,11 +696,15 @@ const DifyChatbot = () => {
                   </div>
                 </div>
                 
-                {/* Render step progress indicator - Updated with reopen functionality */}
+                {/* Render step progress indicator - Updated with confirmation flow */}
                 {msg.steps && (
                   <div style={{
-                    backgroundColor: msg.stepsCompleted ? '#dcfce7' : msg.stepsSkipped ? '#fef3c7' : '#e0f2fe',
-                    border: `1px solid ${msg.stepsCompleted ? '#16a34a' : msg.stepsSkipped ? '#f59e0b' : '#0369a1'}`,
+                    backgroundColor: msg.stepsCompleted ? '#dcfce7' : 
+                                   msg.stepsSkipped ? '#fef3c7' : 
+                                   msg.awaitingStepConfirmation ? '#f0f9ff' : '#e0f2fe',
+                    border: `1px solid ${msg.stepsCompleted ? '#16a34a' : 
+                                        msg.stepsSkipped ? '#f59e0b' : 
+                                        msg.awaitingStepConfirmation ? '#0ea5e9' : '#0369a1'}`,
                     borderRadius: '8px',
                     padding: '12px',
                     margin: '8px 0',
@@ -610,50 +712,78 @@ const DifyChatbot = () => {
                   }}>
                     <div style={{ 
                       fontSize: '14px', 
-                      color: msg.stepsCompleted ? '#16a34a' : msg.stepsSkipped ? '#f59e0b' : '#0369a1', 
+                      color: msg.stepsCompleted ? '#16a34a' : 
+                             msg.stepsSkipped ? '#f59e0b' : 
+                             msg.awaitingStepConfirmation ? '#0ea5e9' : '#0369a1', 
                       fontWeight: 'bold' 
                     }}>
                       {msg.stepsCompleted ? '✅ Steps completed' : 
                        msg.stepsSkipped ? '⏭️ Steps skipped' : 
+                       msg.awaitingStepConfirmation ? '🎯 Would you like me to guide you through this step-by-step?' :
                        '📋 Step-by-step guide is available at the bottom of your screen'}
                     </div>
                     
-                    {/* Always show button - whether completed, skipped, or active */}
-                    <button
-                      onClick={() => reopenSteps(idx)}
-                      style={{
-                        backgroundColor: msg.stepsCompleted ? '#16a34a' : 
-                                       msg.stepsSkipped ? '#f59e0b' : '#0369a1',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        padding: '6px 12px',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                        marginTop: '8px'
-                      }}
-                    >
-                      {msg.stepsCompleted ? 'Reopen Steps' : 
-                       msg.stepsSkipped ? 'Reopen Steps' : 
-                       'Show Steps Again'}
-                    </button>
+                    {/* Show confirmation buttons or reopen button */}
+                    {msg.awaitingStepConfirmation ? (
+                      <div style={{ 
+                        display: 'flex', 
+                        gap: '8px', 
+                        justifyContent: 'center', 
+                        marginTop: '8px' 
+                      }}>
+                        <button
+                          onClick={() => handleStepConfirmation(idx, true)}
+                          style={{
+                            backgroundColor: '#0ea5e9',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '6px 12px',
+                            fontSize: '12px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Yes, guide me
+                        </button>
+                        <button
+                          onClick={() => handleStepConfirmation(idx, false)}
+                          style={{
+                            backgroundColor: '#6b7280',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '6px 12px',
+                            fontSize: '12px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          No, thanks
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => reopenSteps(idx)}
+                        style={{
+                          backgroundColor: msg.stepsCompleted ? '#16a34a' : 
+                                         msg.stepsSkipped ? '#f59e0b' : '#0369a1',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          marginTop: '8px'
+                        }}
+                      >
+                        {msg.stepsCompleted ? 'Reopen Steps' : 
+                         msg.stepsSkipped ? 'Reopen Steps' : 
+                         'Show Steps Again'}
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
             ))}
-            
-            {isLoading && (
-              <div style={{
-                alignSelf: 'flex-start',
-                padding: '12px',
-                backgroundColor: '#f3f4f6',
-                borderRadius: '12px',
-                fontSize: '14px',
-                color: '#6b7280'
-              }}>
-                Thinking...
-              </div>
-            )}
           </div>
           
           <div style={{

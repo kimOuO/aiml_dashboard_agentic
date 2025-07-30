@@ -142,8 +142,8 @@ const GlobalStepAssistant = () => {
     // Remove: No localStorage saving
   };
 
-  // Calculate progress percentage - using actual state
-  const progressPercentage = steps.length > 0 ? (completedSteps.length / steps.length) * 100 : 0;
+  // Calculate progress percentage - using current step position instead of completed steps count
+  const progressPercentage = steps.length > 0 ? ((currentStep + 1) / steps.length) * 100 : 0;
 
   if (!isVisible || steps.length === 0) {
     return null;
