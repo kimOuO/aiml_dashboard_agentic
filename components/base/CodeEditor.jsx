@@ -228,7 +228,7 @@ const CodeEditor = ({
     showToast(true, 'Code saved successfully');
   };
 
-  // Enhanced AI chat function with pipeline context
+  // Enhanced AI chat function with pipeline context and streaming
   const handleAiChat = async () => {
     if (isReadOnly) return;
     if (!aiPrompt.trim()) {
@@ -247,6 +247,17 @@ const CodeEditor = ({
     
     const currentPrompt = aiPrompt;
     setAiPrompt('');
+
+    // Add placeholder assistant message for streaming
+    const assistantMsgIndex = chatMessages.length + 1;
+    const placeholderMessage = {
+      type: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      codeBlocks: []
+    };
+
+    setChatMessages(prev => [...prev, placeholderMessage]);
 
     try {
       // Enhanced prompt with pipeline context
@@ -269,28 +280,70 @@ const CodeEditor = ({
         body: JSON.stringify({
           inputs: {},
           query: enhancedPrompt,
-          response_mode: 'blocking',
+          response_mode: 'streaming', // Changed from 'blocking' to 'streaming'
           user: userId // Pipeline-specific user identification
         })
       });
 
       if (!response.ok) throw new Error('AI request failed');
-      
-      const result = await response.json();
-      const aiResponse = result.answer || 'Sorry, I encountered an error.';
 
-      // Parse response for code suggestions
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedContent = '';
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6); // Remove 'data: ' prefix
+              
+              if (data === '[DONE]') {
+                break;
+              }
+
+              try {
+                const parsedData = JSON.parse(data);
+                
+                // Handle different event types
+                if (parsedData.event === 'message') {
+                  accumulatedContent += parsedData.answer || '';
+                  
+                  // Update the assistant message in real-time
+                  setChatMessages(prev => prev.map((msg, idx) => 
+                    idx === assistantMsgIndex ? { 
+                      ...msg, 
+                      content: accumulatedContent 
+                    } : msg
+                  ));
+                }
+
+              } catch (parseError) {
+                console.warn('Failed to parse SSE data:', data);
+              }
+            }
+          }
+        }
+      }
+
+      // Process the complete response for code suggestions
       const codeBlockRegex = /```(?:python)?\s*([\s\S]*?)```/g;
-      const codeMatches = [...aiResponse.matchAll(codeBlockRegex)];
+      const codeMatches = [...accumulatedContent.matchAll(codeBlockRegex)];
       
-      const assistantMessage = {
-        type: 'assistant',
-        content: aiResponse,
-        timestamp: new Date(),
-        codeBlocks: codeMatches.map(match => match[1].trim())
-      };
-
-      setChatMessages(prev => [...prev, assistantMessage]);
+      // Update the final message with code blocks
+      setChatMessages(prev => prev.map((msg, idx) => 
+        idx === assistantMsgIndex ? { 
+          ...msg, 
+          content: accumulatedContent,
+          codeBlocks: codeMatches.map(match => match[1].trim())
+        } : msg
+      ));
 
       // If there's code in the response, offer to apply it
       if (codeMatches.length > 0) {
@@ -304,7 +357,11 @@ const CodeEditor = ({
         content: `Sorry, I encountered an error: ${error.message}`,
         timestamp: new Date()
       };
-      setChatMessages(prev => [...prev, errorMessage]);
+      
+      // Replace the placeholder message with error message
+      setChatMessages(prev => prev.map((msg, idx) => 
+        idx === assistantMsgIndex ? errorMessage : msg
+      ));
     } finally {
       setIsGenerating(false);
     }
@@ -660,17 +717,6 @@ if __name__ == '__main__':
                     </div>
                   </div>
                 ))}
-                
-                {isGenerating && (
-                  <div className="flex justify-start">
-                    <div className="bg-white text-gray-800 border border-gray-200 rounded-lg p-3">
-                      <div className="flex items-center gap-2">
-                        <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-                        <span>AI is thinking...</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
                 
                 <div ref={chatEndRef} />
               </div>
