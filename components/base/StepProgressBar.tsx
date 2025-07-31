@@ -1,12 +1,22 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { uiInteractionService } from '@/services/uiInteractionService';
 
 interface Step {
-  type: string;
+  type: 'navigate' | 'wait' | 'action' | 'instruction';
   label: string;
   description: string;
   wait_for_user_action: boolean;
+  target_url?: string;
+  target_element?: string;
+  action?: string;
+  confirmation?: string;
+  selection_required?: boolean;
+  entity_type?: string;
+  timeout?: number;
+  validation_selector?: string;
 }
 
 interface StepProgressBarProps {
@@ -19,7 +29,7 @@ interface StepProgressBarProps {
   isSkipped?: boolean;
   initialCurrentStep?: number;
   initialCompletedSteps?: number[];
-  layout?: 'vertical' | 'horizontal'; // New prop for layout
+  layout?: 'vertical' | 'horizontal';
 }
 
 const StepProgressBar = ({ 
@@ -32,13 +42,21 @@ const StepProgressBar = ({
   isSkipped = false,
   initialCurrentStep = 0,
   initialCompletedSteps = [],
-  layout = 'vertical' // Default to vertical
+  layout = 'vertical'
 }: StepProgressBarProps) => {
   const [currentStep, setCurrentStep] = useState(initialCurrentStep);
   const [completedSteps, setCompletedSteps] = useState<number[]>(initialCompletedSteps);
   const [isExpanded, setIsExpanded] = useState(true);
   const [localCompleted, setLocalCompleted] = useState(false);
   const [localSkipped, setLocalSkipped] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionStatus, setExecutionStatus] = useState<string>('');
+  const [highlightedElement, setHighlightedElement] = useState<Element | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const [pendingNavigation, setPendingNavigation] = useState(false);
+  const prevPathRef = useRef(pathname);
+  const [hasNavigated, setHasNavigated] = useState(false);
 
   // Memoize the onStepProgress callback to prevent unnecessary re-renders
   const memoizedOnStepProgress = useCallback(onStepProgress, []);
@@ -63,47 +81,312 @@ const StepProgressBar = ({
     }
   }, [isCompleted, isSkipped, localCompleted, localSkipped]);
 
+  // Fixed highlightElement function
+  const highlightElement = useCallback((selector: string): Element | null => {
+    try {
+      // Use the service to find the element with smart fallbacks
+      const element = uiInteractionService.findElement(selector);
+      if (element) {
+        // Remove existing highlights
+        document.querySelectorAll('.step-highlight').forEach(el => {
+          el.classList.remove('step-highlight');
+          // Remove temp attributes
+          if (el.hasAttribute('data-temp-highlight')) {
+            el.removeAttribute('data-temp-highlight');
+          }
+        });
+
+        // Add highlight style
+        element.classList.add('step-highlight');
+        
+        // Scroll into view
+        element.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+
+        // Add CSS for highlighting if not exists
+        if (!document.querySelector('#step-highlight-style')) {
+          const style = document.createElement('style');
+          style.id = 'step-highlight-style';
+          style.textContent = `
+            .step-highlight {
+              outline: 3px solid #4f46e5 !important;
+              outline-offset: 2px !important;
+              box-shadow: 0 0 10px rgba(79, 70, 229, 0.5) !important;
+              animation: pulse-highlight 2s infinite !important;
+              position: relative !important;
+              z-index: 9999 !important;
+            }
+            
+            @keyframes pulse-highlight {
+              0% { box-shadow: 0 0 10px rgba(79, 70, 229, 0.5); }
+              50% { box-shadow: 0 0 20px rgba(79, 70, 229, 0.8); }
+              100% { box-shadow: 0 0 10px rgba(79, 70, 229, 0.5); }
+            }
+            
+            .step-highlight::before {
+              content: '👆 Click here';
+              position: absolute;
+              top: -35px;
+              left: 50%;
+              transform: translateX(-50%);
+              background: #4f46e5;
+              color: white;
+              padding: 4px 8px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: bold;
+              z-index: 10000;
+              pointer-events: none;
+              white-space: nowrap;
+            }
+          `;
+          document.head.appendChild(style);
+        }
+
+        return element;
+      }
+    } catch (error) {
+      console.error('Error highlighting element:', error);
+    }
+    return null;
+  }, []);
+
+  // Fixed navigation function using Next.js router
+  const executeNavigationStep = useCallback(async (step: Step): Promise<boolean> => {
+    if (!step.target_url) return false;
+
+    try {
+      setExecutionStatus('Navigating...');
+      
+      // Use Next.js router for proper navigation
+      router.push(step.target_url);
+      
+      // Wait for navigation to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setExecutionStatus('Navigation completed');
+      return true;
+    } catch (error) {
+      setExecutionStatus('Navigation failed');
+      return false;
+    }
+  }, [router]);
+
+  const executeActionStep = useCallback(async (step: Step): Promise<boolean> => {
+    if (!step.target_element) return false;
+
+    try {
+      setExecutionStatus('Looking for element...');
+      
+      const success = await uiInteractionService.interactWithElement(
+        step.target_element,
+        (step.action as 'click' | 'hover' | 'focus') || 'click',
+        {
+          waitTimeout: 3000,
+          retryCount: 1, // Only retry once
+          scrollIntoView: true
+        }
+      );
+
+      if (success) {
+        setExecutionStatus('Action completed successfully');
+        removeHighlight();
+        return true;
+      } else {
+        setExecutionStatus('Element not found - please proceed manually');
+        return true; // Return true to prevent loop
+      }
+    } catch (error) {
+      setExecutionStatus('Action failed - please proceed manually');
+      removeHighlight();
+      return true; // Return true to prevent loop
+    }
+  }, []);
+
+  // Highlight multiple elements and attach click handler for auto-advance
+  const highlightMultipleElements = useCallback((elements: Element[]) => {
+    document.querySelectorAll('.step-highlight').forEach(el => {
+      el.classList.remove('step-highlight');
+    });
+
+    if (!document.querySelector('#step-highlight-style')) {
+      const style = document.createElement('style');
+      style.id = 'step-highlight-style';
+      style.textContent = `
+        .step-highlight {
+          outline: 3px solid #4f46e5 !important;
+          outline-offset: 2px !important;
+          box-shadow: 0 0 10px rgba(79, 70, 229, 0.5) !important;
+          animation: pulse-highlight 2s infinite !important;
+          position: relative !important;
+          z-index: 9999 !important;
+        }
+        @keyframes pulse-highlight {
+          0% { box-shadow: 0 0 10px rgba(79, 70, 229, 0.5); }
+          50% { box-shadow: 0 0 20px rgba(79, 70, 229, 0.8); }
+          100% { box-shadow: 0 0 10px rgba(79, 70, 229, 0.5); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    elements.forEach(element => {
+      element.classList.add('step-highlight');
+      // Attach click handler for auto-advance
+      element.addEventListener('click', () => {
+        setPendingNavigation(true);
+      }, { once: true });
+    });
+
+    if (elements.length > 0) {
+      elements[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, []);
+
+  // Enhanced removeHighlight function
+  const removeHighlight = useCallback(() => {
+    document.querySelectorAll('.step-highlight').forEach(el => {
+      el.classList.remove('step-highlight');
+      // Clean up temp attributes
+      if (el.hasAttribute('data-temp-highlight')) {
+        el.removeAttribute('data-temp-highlight');
+      }
+    });
+    setHighlightedElement(null);
+  }, []);
+
   const handleNext = useCallback(() => {
+    removeHighlight();
     const newCompletedSteps = [...completedSteps, currentStep];
     setCompletedSteps(newCompletedSteps);
     
     if (currentStep < steps.length - 1) {
       const newCurrentStep = currentStep + 1;
       setCurrentStep(newCurrentStep);
+      setExecutionStatus('');
     } else {
       setLocalCompleted(true);
       onComplete();
     }
-  }, [completedSteps, currentStep, steps.length, onComplete]);
+  }, [completedSteps, currentStep, steps.length, onComplete, removeHighlight]);
+
+  // Listen for route change and auto-advance if pendingNavigation is true
+  useEffect(() => {
+    if (pendingNavigation && prevPathRef.current !== pathname) {
+      setPendingNavigation(false);
+      handleNext();
+    }
+    prevPathRef.current = pathname;
+  }, [pathname, pendingNavigation, handleNext]);
+
+  // Enhanced executeWaitStep with better element detection
+  const executeWaitStep = useCallback(async (step: Step): Promise<boolean> => {
+    try {
+      setExecutionStatus('Looking for elements...');
+      
+      // Use the simplified service to find elements based on description
+      const elements = uiInteractionService.findElementsByDescription(step.description);
+      
+      if (elements.length > 0) {
+        // Highlight ALL found elements
+        highlightMultipleElements(elements);
+        setExecutionStatus(`Found ${elements.length} element(s) - waiting for user action`);
+        return true;
+      } else {
+        setExecutionStatus('Waiting for user action...');
+        return true;
+      }
+    } catch (error) {
+      console.error('Wait step failed:', error);
+      setExecutionStatus('Wait step failed');
+      return false;
+    }
+  }, [highlightMultipleElements]);
+
+  // Enhanced executeCurrentStep with better error handling
+  const executeCurrentStep = useCallback(async () => {
+    const step = steps[currentStep];
+    if (!step || isExecuting) return;
+
+    // Prevent double navigation for 'navigate' steps
+    if (step.type === 'navigate' && hasNavigated) return;
+
+    setIsExecuting(true);
+    setExecutionStatus('');
+
+    try {
+      let success = false;
+
+      switch (step.type) {
+        case 'navigate':
+          setHasNavigated(true); // Mark navigation as triggered
+          success = await executeNavigationStep(step);
+          break;
+        case 'action':
+          success = await executeActionStep(step);
+          break;
+        case 'wait':
+          success = await executeWaitStep(step);
+          break;
+        case 'instruction':
+          setExecutionStatus('Please follow the instruction');
+          success = true;
+          break;
+        default:
+          setExecutionStatus('Unknown step type');
+          success = true; // Don't loop on unknown types
+      }
+
+      // Auto-advance only for navigate and instruction types
+      if (success && (step.type === 'navigate' || step.type === 'instruction')) {
+        setTimeout(() => {
+          handleNext();
+        }, 1500);
+      }
+    } catch (error) {
+      setExecutionStatus('Step execution failed');
+    } finally {
+      setIsExecuting(false);
+    }
+  }, [currentStep, steps, isExecuting, executeNavigationStep, executeActionStep, executeWaitStep, hasNavigated]);
 
   const handlePrevious = useCallback(() => {
+    removeHighlight();
+    setExecutionStatus('');
     if (currentStep > 0) {
       const newCurrentStep = currentStep - 1;
       const newCompletedSteps = completedSteps.filter(step => step !== newCurrentStep);
       setCurrentStep(newCurrentStep);
       setCompletedSteps(newCompletedSteps);
     }
-  }, [currentStep, completedSteps]);
+  }, [currentStep, completedSteps, removeHighlight]);
 
   const handleSkipStep = useCallback(() => {
+    removeHighlight();
     const newCompletedSteps = [...completedSteps, currentStep];
     setCompletedSteps(newCompletedSteps);
     
     if (currentStep < steps.length - 1) {
       const newCurrentStep = currentStep + 1;
       setCurrentStep(newCurrentStep);
+      setExecutionStatus('');
     } else {
       setLocalCompleted(true);
       onComplete();
     }
-  }, [completedSteps, currentStep, steps.length, onComplete]);
+  }, [completedSteps, currentStep, steps.length, onComplete, removeHighlight]);
 
   const handleSkipAll = useCallback(() => {
+    removeHighlight();
     setLocalSkipped(true);
     onSkip();
-  }, [onSkip]);
+  }, [onSkip, removeHighlight]);
 
   const handleGoToStep = useCallback((stepIndex: number) => {
+    removeHighlight();
+    setExecutionStatus('');
     const newCurrentStep = stepIndex;
     const newCompletedSteps = completedSteps.filter(step => step < stepIndex);
     
@@ -119,7 +402,53 @@ const StepProgressBar = ({
     if (onReactivate) {
       onReactivate();
     }
-  }, [completedSteps, onReactivate]);
+  }, [completedSteps, onReactivate, removeHighlight]);
+
+  // Auto-execute non-wait steps when they become active
+  useEffect(() => {
+    const step = steps[currentStep];
+    if (step && !isExecuting && !localCompleted && !localSkipped) {
+      if (step.type === 'navigate' || step.type === 'instruction' || step.type === 'wait') {
+        const timer = setTimeout(() => {
+          executeCurrentStep();
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+      // Don't auto-execute action steps
+    }
+  }, [currentStep, steps, isExecuting, localCompleted, localSkipped]); // Removed executeCurrentStep dependency
+
+  // Cleanup highlights when component unmounts
+  useEffect(() => {
+    return () => {
+      removeHighlight();
+    };
+  }, [removeHighlight]);
+
+  // Highlight elements only after render is complete and step is a wait step
+  useEffect(() => {
+    const step = steps[currentStep];
+    if (
+      step &&
+      step.type === 'wait' &&
+      !isExecuting &&
+      !localCompleted &&
+      !localSkipped
+    ) {
+      // Find and highlight after render
+      const elements = uiInteractionService.findElementsByDescription(step.description);
+      if (elements.length > 0) {
+        highlightMultipleElements(elements);
+        setExecutionStatus(`Found ${elements.length} element(s) - waiting for user action`);
+      } else {
+        setExecutionStatus('Waiting for user action...');
+      }
+    }
+    // Remove highlight when leaving wait step
+    return () => {
+      removeHighlight();
+    };
+  }, [currentStep, isExecuting, localCompleted, localSkipped, steps, highlightMultipleElements, removeHighlight]);
 
   // Fix progress calculation to use current step position instead of completed steps count
   const progressPercentage = (isCompleted || localCompleted) ? 100 : 
@@ -146,7 +475,22 @@ const StepProgressBar = ({
     e.stopPropagation();
   }, []);
 
-  // Horizontal Layout
+  const getCurrentStepStatus = () => {
+    const step = steps[currentStep];
+    if (!step) return '';
+    
+    if (isExecuting) {
+      return executionStatus || 'Executing...';
+    }
+    
+    if (step.type === 'wait') {
+      return executionStatus || 'Waiting for your action...';
+    }
+    
+    return executionStatus;
+  };
+
+  // Horizontal Layout (updated with execution status)
   if (layout === 'horizontal') {
     return (
       <div style={{ padding: '16px' }} onClick={handleContainerClick}>
@@ -197,7 +541,7 @@ const StepProgressBar = ({
                   height: '20px',
                   borderRadius: '50%',
                   backgroundColor: completedSteps.includes(index) ? '#10b981' : 
-                                 index === currentStep ? '#4f46e5' : '#e5e7eb',
+                                 index === currentStep ? (isExecuting ? '#f59e0b' : '#4f46e5') : '#e5e7eb',
                   color: 'white',
                   display: 'flex',
                   alignItems: 'center',
@@ -205,9 +549,12 @@ const StepProgressBar = ({
                   fontSize: '10px',
                   fontWeight: 'bold',
                   marginBottom: '4px',
-                  border: index === currentStep ? '2px solid #c7d2fe' : 'none'
+                  border: index === currentStep ? '2px solid #c7d2fe' : 'none',
+                  animation: index === currentStep && isExecuting ? 'pulse 2s infinite' : 'none'
                 }}>
-                  {completedSteps.includes(index) ? '✓' : index + 1}
+                  {completedSteps.includes(index) ? '✓' : 
+                   index === currentStep && isExecuting ? '⟳' : 
+                   index + 1}
                 </div>
                 <span style={{
                   fontSize: '10px',
@@ -224,7 +571,7 @@ const StepProgressBar = ({
           </div>
         </div>
 
-        {/* Current Step Info - Compact Horizontal */}
+        {/* Current Step Info - Compact Horizontal with Execution Status */}
         {!isInCompletedState && (
           <div style={{
             display: 'flex',
@@ -248,13 +595,29 @@ const StepProgressBar = ({
               <div style={{
                 fontSize: '12px',
                 color: '#6b7280',
-                lineHeight: '1.3'
+                lineHeight: '1.3',
+                marginBottom: '4px'
               }}>
                 {steps[currentStep]?.description}
               </div>
+              
+              {/* Execution Status */}
+              {getCurrentStepStatus() && (
+                <div style={{
+                  fontSize: '11px',
+                  color: isExecuting ? '#f59e0b' : '#4f46e5',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  {isExecuting && <span className="spinner">⟳</span>}
+                  {getCurrentStepStatus()}
+                </div>
+              )}
             </div>
 
-            {/* Action Buttons - Horizontal */}
+            {/* Action Buttons - Updated with Execute button for wait steps */}
             <div style={{
               display: 'flex',
               gap: '6px',
@@ -276,6 +639,25 @@ const StepProgressBar = ({
               >
                 ← Prev
               </button>
+              
+              {/* Execute button for manual steps */}
+              {steps[currentStep]?.type === 'wait' && !isExecuting && (
+                <button
+                  onClick={executeCurrentStep}
+                  style={{
+                    backgroundColor: '#4f46e5',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '6px 10px',
+                    fontSize: '11px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🎯 Show
+                </button>
+              )}
+              
               <button
                 onClick={handleSkipStep}
                 style={{
@@ -292,14 +674,15 @@ const StepProgressBar = ({
               </button>
               <button
                 onClick={handleNext}
+                disabled={isExecuting}
                 style={{
-                  backgroundColor: '#10b981',
+                  backgroundColor: isExecuting ? '#e5e7eb' : '#10b981',
                   color: 'white',
                   border: 'none',
                   borderRadius: '4px',
                   padding: '6px 12px',
                   fontSize: '11px',
-                  cursor: 'pointer',
+                  cursor: isExecuting ? 'not-allowed' : 'pointer',
                   fontWeight: 'bold'
                 }}
               >
@@ -308,6 +691,24 @@ const StepProgressBar = ({
             </div>
           </div>
         )}
+
+        {/* Add CSS for spinner animation */}
+        <style jsx>{`
+          @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+          }
+          
+          .spinner {
+            animation: spin 1s linear infinite;
+          }
+          
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
 
         {/* Completion State - Horizontal */}
         {isInCompletedState && (

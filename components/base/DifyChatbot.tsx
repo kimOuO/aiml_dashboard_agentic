@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { PromptBuilder } from '@/utils/prompts/promptBuilder';
 import { showStepAssistant, hideStepAssistant } from './GlobalStepAssistant';
+import { navigationService, NavigationStep, NavigationTarget } from '@/services/navigationRoutingService';
 
 interface Step {
   type: string;
@@ -18,10 +19,12 @@ interface Message {
   content: string;
   timestamp: Date;
   steps?: Step[];
+  navigationTarget?: NavigationTarget;
   hasActiveSteps?: boolean;
   stepsCompleted?: boolean;
   stepsSkipped?: boolean;
-  awaitingStepConfirmation?: boolean; // Add this new flag
+  stepsRejected?: boolean;
+  awaitingStepConfirmation?: boolean;
   currentStepIndex?: number;
   completedStepIndices?: number[];
 }
@@ -92,12 +95,20 @@ const isValidStepsArray = (data: any): data is Step[] => {
          );
 };
 
+const isValidNavigationTarget = (data: any): data is NavigationTarget => {
+  return typeof data === 'object' &&
+         data !== null &&
+         typeof data.destination === 'string' &&
+         (data.action === undefined || typeof data.action === 'string') &&
+         (data.entity_ids === undefined || typeof data.entity_ids === 'object');
+};
+
 const extractJsonFromText = (text: string): { json: any | null; cleanText: string } => {
   try {
     const parsed = JSON.parse(text);
     return { json: parsed, cleanText: '' };
   } catch (e) {
-    const jsonMatch = text.match(/```json\s*(\[\s*\{[\s\S]*?\}\s*\])\s*```|(\[\s*\{[\s\S]*?\}\s*\])/);
+    const jsonMatch = text.match(/```json\s*(\{[\s\S]*?\}|\[\s*\{[\s\S]*?\}\s*\])\s*```|(\{[\s\S]*?\}|\[\s*\{[\s\S]*?\}\s*\])/);
     
     if (jsonMatch) {
       try {
@@ -386,37 +397,51 @@ const DifyChatbot = () => {
 
       // Process the complete response for steps extraction
       let steps: Step[] | null = null;
+      let navigationTarget: NavigationTarget | null = null;
       let displayContent = accumulatedContent;
       
-      console.log('Complete bot response:', accumulatedContent);
-      
       const { json: extractedJson, cleanText: textWithoutJson } = extractJsonFromText(accumulatedContent);
-      if (extractedJson && isValidStepsArray(extractedJson)) {
-        steps = extractedJson;
-        
-        if (textWithoutJson && textWithoutJson.length > 10) {
-          displayContent = textWithoutJson;
-        } else {
-          displayContent = `I've prepared a step-by-step guide to help you with this task. You can follow the interactive steps below:`;
+      
+      if (extractedJson) {
+        if (isValidStepsArray(extractedJson)) {
+          // Original step array format
+          steps = extractedJson;
+          
+          if (textWithoutJson && textWithoutJson.length > 10) {
+            displayContent = textWithoutJson;
+          } else {
+            displayContent = `I've prepared a step-by-step guide to help you with this task. You can follow the interactive steps below:`;
+          }
+          
+          console.log('Extracted steps:', steps);
+        } else if (isValidNavigationTarget(extractedJson)) {
+          // New navigation target format
+          navigationTarget = extractedJson;
+          
+          if (textWithoutJson && textWithoutJson.length > 10) {
+            displayContent = textWithoutJson;
+          } else {
+            displayContent = `I can help you navigate to that location. Would you like me to guide you step-by-step?`;
+          }
+          
+          console.log('Extracted navigation target:', navigationTarget);
         }
-        
-        console.log('Extracted steps:', steps);
-        console.log('Display content:', displayContent);
       }
 
-      // Update the final message with steps and clean content
+      // Update the final message with steps/navigation target and clean content
       setMessages(prev => prev.map((msg, idx) => 
         idx === botMsgIndex ? { 
           ...msg, 
           content: displayContent,
           steps: steps || undefined,
-          hasActiveSteps: steps ? true : false,
+          navigationTarget: navigationTarget || undefined,
+          hasActiveSteps: (steps || navigationTarget) ? true : false,
           currentStepIndex: 0
         } : msg
       ));
 
-      // Show step assistant if steps were extracted - but ask user first
-      if (steps) {
+      // Show step assistant if steps were extracted or navigation target found - but ask user first
+      if (steps || navigationTarget) {
         setActiveStepsMessageIndex(botMsgIndex);
         
         // Update message to show step availability with user choice
@@ -425,8 +450,9 @@ const DifyChatbot = () => {
             ...msg, 
             content: displayContent,
             steps: steps,
+            navigationTarget: navigationTarget,
             hasActiveSteps: true,
-            awaitingStepConfirmation: true, // New flag to show confirmation
+            awaitingStepConfirmation: true,
             currentStepIndex: 0
           } : msg
         ));
@@ -491,37 +517,110 @@ const DifyChatbot = () => {
     if (message && message.steps) {
       setActiveStepsMessageIndex(messageIndex);
       showStepAssistant(message.steps, 'Step-by-Step Guide');
+    } else if (message && message.navigationTarget) {
+      // Re-trigger the confirmation flow for navigation targets
+      setMessages(prev => prev.map((msg, idx) => 
+        idx === messageIndex 
+          ? { ...msg, awaitingStepConfirmation: true, stepsRejected: false }
+          : msg
+      ));
     }
   };
 
   // Add function to handle user's step confirmation
-  const handleStepConfirmation = (messageIndex: number, confirmed: boolean) => {
-    const message = messages[messageIndex];
-    if (message && message.steps) {
-      if (confirmed) {
-        // User wants to see steps - show the assistant
-        setActiveStepsMessageIndex(messageIndex);
-        showStepAssistant(message.steps, 'Step-by-Step Guide');
-        
-        // Update message to remove confirmation and mark as active
-        setMessages(prev => prev.map((msg, idx) => 
-          idx === messageIndex ? { 
-            ...msg, 
-            awaitingStepConfirmation: false,
-            hasActiveSteps: true
-          } : msg
-        ));
-      } else {
-        // User declined - just remove the confirmation
-        setMessages(prev => prev.map((msg, idx) => 
-          idx === messageIndex ? { 
-            ...msg, 
-            awaitingStepConfirmation: false,
-            hasActiveSteps: false
-          } : msg
-        ));
-      }
+  const handleStepConfirmation = async (messageIndex: number, confirmed: boolean) => {
+    if (!confirmed) {
+      // Handle rejection
+      setMessages(prev => prev.map((msg, idx) => 
+        idx === messageIndex 
+          ? { ...msg, awaitingStepConfirmation: false, stepsRejected: true }
+          : msg
+      ));
+      
+      const rejectionMsg: Message = {
+        type: 'bot',
+        content: '👍 No problem! Feel free to ask if you need help with anything else.',
+        timestamp: new Date()
+      };
+      
+      shouldAutoScrollRef.current = true;
+      setMessages(prev => [...prev, rejectionMsg]);
+      return;
     }
+
+    const message = messages[messageIndex];
+    
+    // Handle existing step arrays (original format)
+    if (message.steps) {
+      // Update message to show confirmed steps
+      setMessages(prev => prev.map((msg, idx) => 
+        idx === messageIndex 
+          ? { ...msg, awaitingStepConfirmation: false }
+          : msg
+      ));
+
+      setActiveStepsMessageIndex(messageIndex);
+      showStepAssistant(message.steps, 'Step-by-Step Guide');
+      return;
+    }
+
+    // Handle navigation targets (new format)
+    if (message.navigationTarget) {
+      try {
+        // Generate steps using routing service
+        const currentPath = window.location.pathname;
+        const currentParams = Object.fromEntries(new URLSearchParams(window.location.search));
+        
+        const generatedSteps = navigationService.generateNavigationSteps(
+          currentPath,
+          currentParams,
+          message.navigationTarget
+        );
+
+        console.log('Generated steps:', generatedSteps);
+
+        // Update message with generated steps
+        setMessages(prev => prev.map((msg, idx) => 
+          idx === messageIndex 
+            ? { 
+                ...msg, 
+                awaitingStepConfirmation: false, 
+                steps: generatedSteps,
+                navigationTarget: undefined // Clear navigation target after converting to steps
+              }
+            : msg
+        ));
+
+        setActiveStepsMessageIndex(messageIndex);
+        showStepAssistant(generatedSteps, 'Navigation Guide');
+        
+      } catch (error) {
+        console.error('Failed to generate navigation steps:', error);
+        // Show error message
+        setMessages(prev => prev.map((msg, idx) => 
+          idx === messageIndex 
+            ? { ...msg, awaitingStepConfirmation: false, stepsRejected: true }
+            : msg
+        ));
+        
+        const errorMsg: Message = {
+          type: 'bot',
+          content: '❌ Sorry, I encountered an error generating the navigation steps. Please try asking again.',
+          timestamp: new Date()
+        };
+        
+        shouldAutoScrollRef.current = true;
+        setMessages(prev => [...prev, errorMsg]);
+      }
+      return;
+    }
+
+    // Fallback if neither steps nor navigationTarget found
+    setMessages(prev => prev.map((msg, idx) => 
+      idx === messageIndex 
+        ? { ...msg, awaitingStepConfirmation: false, stepsRejected: true }
+        : msg
+    ));
   };
 
   // Clear chat history function
@@ -616,8 +715,8 @@ const DifyChatbot = () => {
                   borderRadius: '4px',
                   transition: 'background 0.2s ease'
                 }}
-                onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.3)'}
-                onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
+                onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.3)'}
+                onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.2)'}
                 title="Clear chat history"
               >
                 🗑️ Clear
@@ -651,7 +750,7 @@ const DifyChatbot = () => {
               display: 'flex',
               flexDirection: 'column',
               gap: '12px',
-              scrollBehavior: 'smooth' // Smooth scrolling
+              scrollBehavior: 'smooth'
             }}
           >
             {messages.length === 0 && (
@@ -697,13 +796,15 @@ const DifyChatbot = () => {
                 </div>
                 
                 {/* Render step progress indicator - Updated with confirmation flow */}
-                {msg.steps && (
+                {(msg.steps || msg.navigationTarget) ? (
                   <div style={{
                     backgroundColor: msg.stepsCompleted ? '#dcfce7' : 
                                    msg.stepsSkipped ? '#fef3c7' : 
+                                   msg.stepsRejected ? '#fef2f2' :
                                    msg.awaitingStepConfirmation ? '#f0f9ff' : '#e0f2fe',
                     border: `1px solid ${msg.stepsCompleted ? '#16a34a' : 
                                         msg.stepsSkipped ? '#f59e0b' : 
+                                        msg.stepsRejected ? '#ef4444' :
                                         msg.awaitingStepConfirmation ? '#0ea5e9' : '#0369a1'}`,
                     borderRadius: '8px',
                     padding: '12px',
@@ -714,11 +815,13 @@ const DifyChatbot = () => {
                       fontSize: '14px', 
                       color: msg.stepsCompleted ? '#16a34a' : 
                              msg.stepsSkipped ? '#f59e0b' : 
+                             msg.stepsRejected ? '#ef4444' :
                              msg.awaitingStepConfirmation ? '#0ea5e9' : '#0369a1', 
                       fontWeight: 'bold' 
                     }}>
                       {msg.stepsCompleted ? '✅ Steps completed' : 
                        msg.stepsSkipped ? '⏭️ Steps skipped' : 
+                       msg.stepsRejected ? '❌ Steps declined' :
                        msg.awaitingStepConfirmation ? '🎯 Would you like me to guide you through this step-by-step?' :
                        '📋 Step-by-step guide is available at the bottom of your screen'}
                     </div>
@@ -760,7 +863,7 @@ const DifyChatbot = () => {
                           No, thanks
                         </button>
                       </div>
-                    ) : (
+                    ) : !msg.stepsRejected && (
                       <button
                         onClick={() => reopenSteps(idx)}
                         style={{
@@ -781,7 +884,7 @@ const DifyChatbot = () => {
                       </button>
                     )}
                   </div>
-                )}
+                ) : null}
               </div>
             ))}
           </div>
