@@ -38,7 +38,7 @@ export default function PreprocessingPipelinePage() {
   };
 
   return (
-    <div className="mx-auto min-h-screen bg-gray-50 pt-32 px-40">
+    <div className="mx-auto min-h-screen bg-gray-10 pt-32 px-40">
       <div>
         <div className="flex justify-between items-center mb-6">
           <div>

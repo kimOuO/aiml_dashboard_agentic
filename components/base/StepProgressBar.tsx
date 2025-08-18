@@ -174,36 +174,146 @@ const StepProgressBar = ({
     }
   }, [router]);
 
+  // Enhanced removeHighlight function
+  const removeHighlight = useCallback(() => {
+    document.querySelectorAll('.step-highlight').forEach(el => {
+      el.classList.remove('step-highlight');
+      // Clean up temp attributes
+      if (el.hasAttribute('data-temp-highlight')) {
+        el.removeAttribute('data-temp-highlight');
+      }
+    });
+    setHighlightedElement(null);
+  }, []);
+
   const executeActionStep = useCallback(async (step: Step): Promise<boolean> => {
     if (!step.target_element) return false;
 
     try {
       setExecutionStatus('Looking for element...');
       
-      const success = await uiInteractionService.interactWithElement(
-        step.target_element,
-        (step.action as 'click' | 'hover' | 'focus') || 'click',
-        {
-          waitTimeout: 3000,
-          retryCount: 1, // Only retry once
-          scrollIntoView: true
+      // Enhanced element finding for action buttons
+      let element: Element | null = null;
+      
+      // Try multiple strategies to find the button
+      const selectors = Array.isArray(step.target_element) ? step.target_element : [step.target_element];
+      
+      for (const selector of selectors) {
+        // Strategy 1: Direct selector
+        element = document.querySelector(selector);
+        if (element && uiInteractionService.isElementVisible(element)) break;
+        
+        // Strategy 2: Find by button text (common in your codebase)
+        if (selector.includes('Create') || selector.includes('create')) {
+          element = uiInteractionService.findElementByText('Create', ['button']);
+          if (element) break;
+          
+          // Try variations
+          element = uiInteractionService.findElementByText('Create Application', ['button']);
+          if (element) break;
+          
+          element = document.querySelector('button.bg-green-700, button[class*="bg-green"]');
+          if (element) break;
         }
-      );
-
-      if (success) {
-        setExecutionStatus('Action completed successfully');
-        removeHighlight();
-        return true;
-      } else {
-        setExecutionStatus('Element not found - please proceed manually');
-        return true; // Return true to prevent loop
+        
+        // Strategy 3: Find edit buttons
+        if (selector.includes('Edit') || selector.includes('edit')) {
+          element = document.querySelector('button[title="Edit"], img[alt="Edit"]');
+          if (element) {
+            // If it's an img, get the parent button
+            element = element.tagName === 'IMG' ? element.closest('button') : element;
+            if (element) break;
+          }
+        }
+        
+        // Strategy 4: Find delete buttons
+        if (selector.includes('Delete') || selector.includes('delete')) {
+          element = document.querySelector('button[title="Delete"], img[alt="Delete"]');
+          if (element) {
+            element = element.tagName === 'IMG' ? element.closest('button') : element;
+            if (element) break;
+          }
+        }
+        
+        // Strategy 5: Find download buttons
+        if (selector.includes('Download') || selector.includes('download')) {
+          element = document.querySelector('button[title="Download"], img[alt="Download"]');
+          if (element) {
+            element = element.tagName === 'IMG' ? element.closest('button') : element;
+            if (element) break;
+          }
+        }
+        
+        // Strategy 6: Generic button finding by class patterns
+        if (selector.includes('bg-green')) {
+          element = document.querySelector('button.bg-green-700, button[class*="bg-green"]');
+          if (element) break;
+        }
+        
+        if (selector.includes('bg-blue')) {
+          element = document.querySelector('button.bg-blue-700, button[class*="bg-blue"]');
+          if (element) break;
+        }
       }
+
+      if (!element) {
+        setExecutionStatus('Button not found - please proceed manually');
+        return true; // Return true to prevent infinite loop
+      }
+
+      // Highlight the found element
+      const highlightedEl = highlightElement(step.target_element);
+      
+      // Scroll into view
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Check if element is still visible and clickable
+      const rect = element.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) {
+        setExecutionStatus('Element not clickable - please proceed manually');
+        return true;
+      }
+
+      // Perform the click
+      const actionType = (step.action as 'click' | 'hover' | 'focus') || 'click';
+      
+      if (actionType === 'click') {
+        // Try multiple click methods
+        try {
+          (element as HTMLElement).click();
+          setExecutionStatus('Button clicked successfully');
+        } catch (error) {
+          // Fallback: dispatch click event
+          element.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+          }));
+          setExecutionStatus('Button clicked (fallback method)');
+        }
+      } else if (actionType === 'hover') {
+        element.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+        setExecutionStatus('Hover action completed');
+      } else if (actionType === 'focus') {
+        (element as HTMLElement).focus();
+        setExecutionStatus('Focus action completed');
+      }
+
+      // Remove highlight after action
+      setTimeout(() => {
+        removeHighlight();
+      }, 1000);
+
+      return true;
+      
     } catch (error) {
+      console.error('Action step failed:', error);
       setExecutionStatus('Action failed - please proceed manually');
       removeHighlight();
-      return true; // Return true to prevent loop
+      return true; // Return true to prevent infinite loop
     }
-  }, []);
+  }, [highlightElement, removeHighlight]);
 
   // Highlight multiple elements and attach click handler for auto-advance
   const highlightMultipleElements = useCallback((elements: Element[]) => {
@@ -243,18 +353,6 @@ const StepProgressBar = ({
     if (elements.length > 0) {
       elements[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, []);
-
-  // Enhanced removeHighlight function
-  const removeHighlight = useCallback(() => {
-    document.querySelectorAll('.step-highlight').forEach(el => {
-      el.classList.remove('step-highlight');
-      // Clean up temp attributes
-      if (el.hasAttribute('data-temp-highlight')) {
-        el.removeAttribute('data-temp-highlight');
-      }
-    });
-    setHighlightedElement(null);
   }, []);
 
   const handleNext = useCallback(() => {

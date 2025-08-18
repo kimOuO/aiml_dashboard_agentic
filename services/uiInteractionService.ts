@@ -377,21 +377,53 @@ export class UIInteractionService {
     action: 'click' | 'hover' | 'focus' = 'click',
     options: { waitTimeout?: number; retryCount?: number; scrollIntoView?: boolean; } = {}
   ): Promise<boolean> {
-    const { waitTimeout = 3000, retryCount = 1, scrollIntoView = true } = options;
+    const { waitTimeout = 3000, retryCount = 2, scrollIntoView = true } = options;
     
     for (let attempt = 0; attempt < retryCount; attempt++) {
       try {
-        const element = await this.waitForElement(selector, waitTimeout);
-        if (!element) continue;
+        let element: Element | null = null;
+        
+        // Try to find element using multiple strategies
+        if (typeof selector === 'string') {
+          // First try direct selector
+          element = this.findElement(selector);
+          
+          // If not found, try action-specific finding
+          if (!element && (selector.includes('Create') || selector.includes('Edit') || 
+                          selector.includes('Delete') || selector.includes('Download'))) {
+            element = this.findActionButton(selector);
+          }
+        } else {
+          element = this.findElement(selector);
+        }
+        
+        if (!element) {
+          if (attempt < retryCount - 1) {
+            await this.wait(500);
+            continue;
+          }
+          return false;
+        }
 
         if (scrollIntoView) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
           await this.wait(300);
         }
 
+        // Perform the action
         switch (action) {
           case 'click':
-            (element as HTMLElement).click();
+            // Try multiple click methods for better compatibility
+            try {
+              (element as HTMLElement).click();
+            } catch (error) {
+              // Fallback method
+              element.dispatchEvent(new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+              }));
+            }
             break;
           case 'hover':
             element.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
@@ -403,6 +435,7 @@ export class UIInteractionService {
 
         return true;
       } catch (error) {
+        console.error(`Interaction attempt ${attempt + 1} failed:`, error);
         if (attempt < retryCount - 1) await this.wait(500);
       }
     }
@@ -423,6 +456,74 @@ export class UIInteractionService {
 
   private wait(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Add this method to the UIInteractionService class
+  public findActionButton(action: string): Element | null {
+    const actionLower = action.toLowerCase();
+    console.log(`Looking for action button: ${action}`);
+    
+    // Create button patterns (most common in your codebase)
+    if (actionLower.includes('create')) {
+      // Try exact text match first
+      let element = this.findElementByText('Create', ['button'], true);
+      if (element) return element;
+      
+      // Try variations
+      element = this.findElementByText('Create Application', ['button'], true);
+      if (element) return element;
+      
+      element = this.findElementByText('Create New Item', ['button'], true);
+      if (element) return element;
+      
+      // Try by class (green buttons are typically create buttons)
+      element = document.querySelector('button.bg-green-700, button[class*="bg-green"]');
+      if (element && this.isElementVisible(element)) return element;
+    }
+    
+    // Edit button patterns
+    if (actionLower.includes('edit')) {
+      // Try image-based edit buttons first
+      let element = document.querySelector('img[alt="Edit"]');
+      if (element) {
+        const button = element.closest('button');
+        if (button && this.isElementVisible(button)) return button;
+      }
+      
+      // Try text-based edit buttons
+      element = this.findElementByText('Edit', ['button'], true);
+      if (element) return element;
+    }
+    
+    // Delete button patterns
+    if (actionLower.includes('delete')) {
+      let element = document.querySelector('img[alt="Delete"]');
+      if (element) {
+        const button = element.closest('button');
+        if (button && this.isElementVisible(button)) return button;
+      }
+      
+      element = this.findElementByText('Delete', ['button'], true);
+      if (element) return element;
+    }
+    
+    // Download button patterns
+    if (actionLower.includes('download')) {
+      let element = document.querySelector('img[alt="Download"]');
+      if (element) {
+        const button = element.closest('button');
+        if (button && this.isElementVisible(button)) return button;
+      }
+      
+      element = this.findElementByText('Download', ['button'], true);
+      if (element) return element;
+      
+      element = this.findElementByText('Log', ['button'], true); // Log buttons are download buttons
+      if (element) return element;
+    }
+    
+    console.log(`No action button found for: ${action}`);
+    return null;
   }
 }
 
