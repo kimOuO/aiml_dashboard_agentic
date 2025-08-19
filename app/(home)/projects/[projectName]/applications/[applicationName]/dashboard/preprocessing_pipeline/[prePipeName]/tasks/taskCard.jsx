@@ -1,10 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { EditModal, DeleteModal } from "./taskModal";
 import { HandlePrintLog } from "@/app/downloadFile";
+import RealtimeLogModal from "@/components/ui/realtime-log-modal";
+import { useSingleTaskStatusMonitor } from "@/hooks/useTaskStatusMonitor";
 
-export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type }) => {
+export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type, pipelineUID }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+
+  // 只有當 task 狀態為 running 或 pending 時才啟用監控
+  const shouldMonitor = useMemo(() => {
+    return task.status === 'running' || task.status === 'pending' || task.status === 'init';
+  }, [task.status]);
+
+  // 使用狀態監控 hook
+  const { taskStatus, isMonitoring } = useSingleTaskStatusMonitor(
+    task.uid,
+    pipelineUID,
+    null, // 使用全域設定的間隔
+    shouldMonitor
+  );
+
+  // 使用監控的狀態或原始任務狀態
+  const currentTask = taskStatus || task;
 
   const handleEditClick = () => {
     setIsEditModalOpen(true);
@@ -23,28 +42,41 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type }) => {
   };
 
   const handleDownloadClick = async () => {
-    const { PrintLog } = HandlePrintLog({ task, type });
+    const { PrintLog } = HandlePrintLog({ task: currentTask, type });
     await PrintLog();
+  };
+
+  const handleViewLogsClick = () => {
+    setIsLogModalOpen(true);
+  };
+
+  const handleCloseLogModal = () => {
+    setIsLogModalOpen(false);
   };
 
   return (
     <div className="relative bg-white shadow-md rounded-lg p-4 flex justify-between items-center cursor-pointer">
       <div>
         <h2 className="text-2xl font-semibold p-1 ">
-          {task.name}
+          {currentTask.name}
           <span className="ml-4 space-x-4">
-            <TaskExecute execute_step={task.execute_step} />
-            <TaskStatus status={task.status} />
+            <TaskExecute execute_step={currentTask.execute_step} />
+            <TaskStatus status={currentTask.status} isMonitoring={isMonitoring} />
           </span>
         </h2>
-        <p className="text-gray-500">{task.date}</p>
+        <p className="text-gray-500">{currentTask.date}</p>
+        {isMonitoring && (
+          <p className="text-blue-500 text-sm">
+            🔄 即時監控中...
+          </p>
+        )}
       </div>
       <div className="space-x-8 px-5">
         <button onClick={handleEditClick}>
           <img src="/project/edit.svg" alt="Edit" />
         </button>
         {/*根據task.status顯示或隱藏delete button */}
-        {task.status !== "running" && (
+        {currentTask.status !== "running" && (
           <button onClick={handleDeleteClick}>
             <img src="/project/delete.svg" alt="Delete" />
           </button>
@@ -53,12 +85,18 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type }) => {
           className="bg-gray-200 rounded-xl px-2 py-1 border border-gray-400"
           onClick={handleDownloadClick}
         >
-          Log
+          下載 Log
+        </button>
+        <button
+          className="bg-blue-200 rounded-xl px-2 py-1 border border-blue-400 hover:bg-blue-300"
+          onClick={handleViewLogsClick}
+        >
+          即時 Log
         </button>
       </div>
       {isEditModalOpen && (
         <EditModal
-          task={task}
+          task={currentTask}
           pipelineName={pipelineName}
           onClose={handleCloseEditModal}
           onEdit={onEdit}
@@ -66,9 +104,20 @@ export const TaskCard = ({ task, pipelineName, onEdit, onDelete, type }) => {
       )}
       {isDeleteModalOpen && (
         <DeleteModal
-          task={task}
+          task={currentTask}
           onClose={handleCloseDeleteModal}
           onDelete={onDelete}
+        />
+      )}
+
+      {/* 即時 Log 查看模態框 */}
+      {isLogModalOpen && (
+        <RealtimeLogModal
+          isOpen={isLogModalOpen}
+          onClose={handleCloseLogModal}
+          taskId={currentTask.uid}
+          taskName={currentTask.name}
+          taskType={type}
         />
       )}
     </div>
@@ -129,7 +178,7 @@ const TaskExecute = ({ execute_step }) => {
   );
 };
 
-const TaskStatus = ({ status }) => {
+const TaskStatus = ({ status, isMonitoring }) => {
   let bgColor = "";
   let textColor = "";
   let dotColor = "";
@@ -181,16 +230,21 @@ const TaskStatus = ({ status }) => {
 
   return (
     <div
-      className={`inline-flex items-center ${bgColor} ${textColor} text-sm font-medium px-2.5 py-0.5 rounded `}
+      className={`inline-flex items-center ${bgColor} ${textColor} text-sm font-medium px-2.5 py-0.5 rounded relative`}
     >
       <svg
-        className={`w-2.5 h-2.5 mr-1.5 ${dotColor}`}
+        className={`w-2.5 h-2.5 mr-1.5 ${dotColor} ${isMonitoring && (status === 'running' || status === 'pending') ? 'animate-pulse' : ''}`}
         fill="currentColor"
         viewBox="0 0 8 8"
       >
         <circle cx="4" cy="4" r="3"></circle>
       </svg>
       {text}
+      {isMonitoring && (
+        <div className="absolute -top-1 -right-1 w-2 h-2">
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-ping"></div>
+        </div>
+      )}
     </div>
   );
 };
